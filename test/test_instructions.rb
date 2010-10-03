@@ -1,8 +1,8 @@
-require 'tryst'
+require 'fete'
 
 class TestInstructions < Test::Unit::TestCase
   def pi text
-    Tryst.parse(:instructions, text)
+    Fete.parse(:instructions, text)
   end
 
   def assert_bad text

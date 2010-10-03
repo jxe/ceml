@@ -1,4 +1,4 @@
-module Tryst
+module Fete
 grammar Instructions
     include Lexer
 
@@ -23,6 +23,8 @@ grammar Instructions
             def text;  super.text_value; end
             def var;   (!defined?(:about) || about.empty?) ? nil : about.varname.text_value; end
             def key;   var || text; end
+            def ask?;  text_value =~ /^ask/;  end
+            def tell?; text_value =~ /^tell/; end
         }
     end
 

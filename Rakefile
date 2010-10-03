@@ -4,11 +4,11 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "tryst"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.name = "fete"
+    gem.summary = %Q{a language for coordinating real world events}
+    gem.description = %Q{a language for coordinating real world events}
     gem.email = "joe@citizenlogistics.com"
-    gem.homepage = "http://github.com/jxe/tryst"
+    gem.homepage = "http://github.com/citizenlogistics/fete"
     gem.authors = ["Joe Edelman"]
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
@@ -47,7 +47,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "tryst #{version}"
+  rdoc.title = "fete #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

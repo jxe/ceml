@@ -1,4 +1,4 @@
-module Tryst
+module Fete
   module Instructions
     def validate!(allowed_roles)
       extra_roles = roles - allowed_roles

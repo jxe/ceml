@@ -1,4 +1,4 @@
-module Tryst
+module Fete
 grammar Lexer
 
     rule text

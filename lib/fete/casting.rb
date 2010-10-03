@@ -1,4 +1,4 @@
-module Tryst
+module Fete
   module CastingStatement
     extend Forwardable
     def_delegators :roles_phrase, :roles, :[], :min

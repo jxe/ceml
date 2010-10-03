@@ -1,4 +1,4 @@
-require 'tryst'
+require 'fete'
 
 class TestEngine < Test::Unit::TestCase
 
@@ -10,7 +10,7 @@ tell players: Look for |target| and compliment them briefly, then move on.
 END_OF_SCRIPT
 
   def test_engine
-    e = Tryst::Engine.new(SCRIPT)
+    e = Fete::Engine.new(SCRIPT)
     e.add('joe', :agent)
     e.run
 

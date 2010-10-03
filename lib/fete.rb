@@ -2,18 +2,17 @@ require 'benchmark'
 require 'forwardable'
 require 'treetop'
 
-require 'tryst/casting'
-require 'tryst/instructions'
-require 'tryst/script'
-require 'tryst/tt/lexer'
-require 'tryst/tt/casting'
-require 'tryst/tt/instructions'
-require 'tryst/tt/scripts'
+require 'fete/casting'
+require 'fete/instructions'
+require 'fete/script'
+require 'fete/tt/lexer'
+require 'fete/tt/casting'
+require 'fete/tt/instructions'
+require 'fete/tt/scripts'
 
-require 'tryst/coordinator'
-require 'tryst/engine'
+require 'fete/engine'
 
-module Tryst
+module Fete
   def parse(what, string)
     result = nil
     time = Benchmark.realtime do

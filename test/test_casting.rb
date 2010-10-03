@@ -1,8 +1,8 @@
-require 'tryst'
+require 'fete'
 
 class TestCasting < Test::Unit::TestCase
   def pcs text
-    Tryst.parse(:casting_statement, text)
+    Fete.parse(:casting_statement, text)
   end
 
   def assert_bad text

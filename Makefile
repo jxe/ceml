@@ -1,5 +1,5 @@
-tryst:
-	tt lib/tryst/tt/*.treetop
+fete:
+	tt lib/fete/tt/*.treetop
 
 test:
 	testrb test

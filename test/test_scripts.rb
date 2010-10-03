@@ -1,4 +1,4 @@
-require 'tryst'
+require 'fete'
 
 class TestInstructions < Test::Unit::TestCase
 
@@ -18,7 +18,7 @@ tell players: Look for |target| and compliment them briefly, then move on.
 END_OF_SCRIPTS
 
   def ps text
-    Tryst.parse(:scripts, text)
+    Fete.parse(:scripts, text)
   end
 
   def test_scripts
@@ -32,24 +32,24 @@ END_OF_SCRIPTS
     assert s0.dramatis_personae.max == 6
   end
 
-  def test_tryst_title
-    s = Tryst.parse(:script, '"hello there"')
+  def test_fete_title
+    s = Fete.parse(:script, '"hello there"')
     assert_equal "hello there", s.title
 
-    s = Tryst.parse(:script, %q{"say: \"whoa the'a paps\""})
+    s = Fete.parse(:script, %q{"say: \"whoa the'a paps\""})
     assert_equal %Q{say: "whoa the'a paps"}, s.title
   end
 
-  def test_tryst_tell
-    cs = Tryst.parse(:script, "tell agents: run and jump")
+  def test_fete_tell
+    cs = Fete.parse(:script, "tell agents: run and jump")
     assert cs.roles.include? :agents
     assert_equal "run and jump", cs.instructions.tell(:agents)
     assert cs.concludes_immediately?
     assert !cs.title
   end
 
-  def test_tryst_questions
-    s = Tryst.parse(:script, "ask agents: wassup party people?")
+  def test_fete_questions
+    s = Fete.parse(:script, "ask agents: wassup party people?")
     assert_equal "wassup party people?", s.instructions.asks(:agents).first.text
     assert !cs.concludes_immediately?
   end

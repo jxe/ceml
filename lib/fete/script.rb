@@ -1,4 +1,4 @@
-module Tryst
+module Fete
   module Script
 
     def to_hash *fields
@@ -34,6 +34,15 @@ module Tryst
 
     def simple?
       (roles - [:agents, :organizer]).empty?
+    end
+
+    def expand_roles(roles)
+      roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.merge([:both, :all, :everyone])
+    end
+
+    def instructions_for(roles)
+      return [] if !instructions or instructions.empty?
+      return instructions.for(expand_roles(roles))
     end
 
     def asks(roles)
