@@ -1,0 +1,34 @@
+module Tryst
+grammar Lexer
+
+    rule text
+      (!eol .)+
+    end
+
+    rule nl
+      (ws? comment? eol)+
+    end
+
+    rule ws
+      [ \t\f]+
+    end
+
+    rule comment
+      '//' text
+    end
+
+    rule eol
+      ("\r" "\n"?) / "\n"
+    end
+
+    rule number
+      [1-9]+ [0-9]* / '0'
+    end
+
+    rule id
+      [a-zA-Z_-]+
+    end
+
+end
+end
+

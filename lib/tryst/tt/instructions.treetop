@@ -1,0 +1,38 @@
+module Tryst
+grammar Instructions
+    include Lexer
+
+    rule instructions
+        instruction+ <Instructions>
+    end
+
+    rule instruction
+        (ask_stmt / tell_stmt) {
+
+            INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
+
+            def interpolate(env)
+              text =~ INTERPOLATE_REGEX or return text
+              text.gsub(INTERPOLATE_REGEX) do |m|
+                var, role = *[$2, $1].compact
+                env.expand(role, var) or return false
+              end
+            end
+
+            def role;  id.text_value.to_sym; end
+            def text;  super.text_value; end
+            def var;   (!defined?(:about) || about.empty?) ? nil : about.varname.text_value; end
+            def key;   var || text; end
+        }
+    end
+
+    rule tell_stmt
+        'tell' ws id ':' ws? text nl
+    end
+
+    rule ask_stmt
+        'ask' ws id about:(ws 're' ws varname:id)? ':' ws? text nl
+    end
+
+end
+end

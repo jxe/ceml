@@ -1,0 +1,50 @@
+module Tryst
+grammar Casting
+    include Lexer
+
+    rule casting_statement
+      casting_method ws roles_phrase within:(ws 'within' ws distance)? nl <CastingStatement>
+    end
+
+    rule casting_method
+        'gather' / 'teams of' / 'nab'
+    end
+
+    rule roles_phrase
+        role more_roles:(ws 'and' ws roles_phrase)? <CastingRoles>
+    end
+
+    rule distance
+      number ws? distance_unit:('miles' / 'mile' / 'mi' / 'km' / 'kilometers' / 'k' / 'meters' / 'm' / 'ft' / 'feet' / 'f' / 'blocks' / 'block')
+      {
+        def meters
+          number.text_value.to_f * case distance_unit.text_value
+          when /^mi/; 1600; when /^k/;  1000; when /^m/;  1;
+          when /^f/;  0.35; when /^b/;  200; else 1; end
+        end
+      }
+    end
+
+    rule role
+      range:range? ws? id
+      {
+        def name; id.text_value; end
+        def min;  range.empty? ? 2 : range.min; end
+        def max;  range.empty? ? 10000 : range.max; end
+      }
+    end
+
+    rule range
+      min:number max:('+' / '-' number)?
+      {
+        def min; super.text_value.to_i; end
+        def max
+            return min if super.empty?
+            return 10000 if super.text_value == '+'
+            return super.number.text_value.to_i
+        end
+      }
+    end
+
+end
+end
