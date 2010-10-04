@@ -56,6 +56,10 @@ module Instructions
     def text;  super.text_value; end
     def var;   (!defined?(:about) || about.empty?) ? nil : about.varname.text_value; end
     def key;   var || text; end
+    def cmd;
+      text_value =~ /^ask/  and return :ask
+      text_value =~ /^tell/ and return :tell
+    end
   end
 
   def _nt_instruction

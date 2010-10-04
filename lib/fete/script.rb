@@ -37,7 +37,7 @@ module Fete
     end
 
     def expand_roles(roles)
-      roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.merge([:both, :all, :everyone])
+      roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone])
     end
 
     def instructions_for(roles)

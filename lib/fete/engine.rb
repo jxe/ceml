@@ -1,6 +1,12 @@
 require 'set'
 
 module Fete
+  class Dummy
+    def method_missing(meth, *args, &blk)
+      # puts "#{meth}: #{args.to_s.inspect}"
+    end
+  end
+
   class Engine
     attr_reader :script, :parts
     def this;       @parts[@current_id]; end
@@ -9,9 +15,9 @@ module Fete
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
 
-    def initialize(script_text, delegate = nil)
+    def initialize(script_text, delg = Dummy.new)
       @script = Fete.parse(:script, script_text)
-      @delg   = delegate
+      @delg   = delg
       @parts  = {}
       @seq    = {}
     end
@@ -21,17 +27,13 @@ module Fete
       parts[id] = obj.merge :roles => Set.new(roles)
     end
 
-    def pass meth
-      @delg.send(meth, self) if @delg and @delg.respond_to? meth
-    end
-
     def run
-      :continue while parts.keys.any?{ |@current_id| send(*seq[pc]) and pc+=1 }
-    end
-
-    # TODO
-    def roles
-      [script.roles.first, roles.include?(:organizer) && :organizer, :agents, :both, :all, :everyone]
+      :loop while parts.keys.any? do |@current_id|
+        # puts "trying: #{@current_id}: #{seq[pc]}"
+        next unless seq[pc] and send(*seq[pc])
+        @delg.send(*seq[pc] + [@current_id])
+        this[:pc]+=1
+      end
     end
 
     def seq
@@ -39,21 +41,24 @@ module Fete
         bytecode = [[:start]]
         instrs = script.instructions_for(roles)
         instrs.each do |inst|
-          if inst.ask?
+          case inst.cmd
+          when :ask
             bytecode << [:ask_q, inst]
             bytecode << [:answered_q, inst]
-          elsif inst.tell? and script.title
-            bytecode << [:assign, inst]
-            bytecode << [:complete_assign, inst]
-          elsif inst.tell? and not script.title
-            bytecode << [:send_msg, inst]
+          when :tell
+            if script.title
+              bytecode << [:assign, inst]
+              bytecode << [:complete_assign, inst]
+            else
+              bytecode << [:send_msg, inst]
+            end
           end
         end
         if instrs.empty? and script.title
           bytecode << [:null_assign]
           bytecode << [:complete_assign]
         end
-        bytecode << [[:finish]]
+        bytecode << [:finish]
       end
     end
 
@@ -68,10 +73,11 @@ module Fete
 
     def expand(role, var)
       role = nil if role == 'otherguy'
+      role = role.to_sym if role
       parts.each do |key, thing|
         next if key == @current_id
-        next if role and not thing[:roles][role]
-        value = qs_answers[var] and return value
+        next if role and not thing[:roles].include? role
+        value = (thing[:qs_answers]||{})[var] and return value
       end
       nil
     end
@@ -81,54 +87,52 @@ module Fete
     # ==============
 
     def start
-      roles[:agent] or return false
-      pass :did_start
+      roles.include? :agent or return false
       true
     end
 
     def ask_q q
       text = q.interpolate(self) or return false
       say :ask, :q => text
-      pass :did_ask
       true
     end
 
     def answered_q q
       got or return false
       qs_answers[q.key] = got
-      pass :did_answer
       true
     end
 
     def send_msg a
       text = a.interpolate(self) or return false
       say :message, :msg => text
-      pass :did_message
       true
     end
 
     def assign a
       text = a.interpolate(self) or return false
       say :assignment, :msg => text
-      pass :did_assign
       true
     end
 
     def complete_assign a = nil
       got or return false
       if recognized == :done
-        comment :ok
+        say :ok
         true
       else
-        pass :did_report
+        @delg.send :did_report
         false
       end
     end
 
     def null_assign
-      comment :proceed
+      say :proceed
       true
     end
 
+    def finish
+      true
+    end
   end
 end

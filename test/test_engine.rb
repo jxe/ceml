@@ -1,21 +1,30 @@
 require 'fete'
+require 'test/helper'
 
 class TestEngine < Test::Unit::TestCase
 
-  SCRIPT = <<END_OF_SCRIPT
-"Overwhelm a specific person with compliments"
-gather 5-20 players within 4 blocks
-ask organizer re target: Describe their appearance and location
-tell players: Look for |target| and compliment them briefly, then move on.
-END_OF_SCRIPT
-
   def test_engine
-    e = Fete::Engine.new(SCRIPT)
-    e.add('joe', :agent)
-    e.run
+    play COMPLIMENT_SCRIPT
+    player :joe, :organizer, :agent
+    player :bill, :agent
 
-    puts e.elements['joe'][:said]
-    puts e.elements['joe'][:q]
+    asked :joe, /^Describe/
+    says :joe, 'red people'
+
+    told :bill, /^Look for red people/
+  end
+
+  def test_askchain
+    play ASKCHAIN_SCRIPT
+    player :joe, :players, :agent
+    player :bill, :players, :agent
+
+    asked :joe,  /favorite color/
+    asked :bill, /favorite color/
+    says :joe, "red"
+    says :bill, "green"
+    asked :joe, /with the color green/
+    asked :bill, /with the color red/
   end
 
 end
