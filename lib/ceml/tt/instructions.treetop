@@ -7,7 +7,7 @@ grammar Instructions
     end
 
     rule instruction
-        (ask_stmt / tell_stmt) {
+        (ask_stmt / tell_stmt / assign_stmt) {
 
             INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
 
@@ -25,13 +25,17 @@ grammar Instructions
             def key;   var || text; end
             def cmd;
               text_value =~ /^ask/  and return :ask
-              text_value =~ /^tell/ and return :tell
+              text_value =~ /^(tell|assign)/ and return :tell
             end
         }
     end
 
     rule tell_stmt
         'tell' ws id ':' ws? text nl
+    end
+
+    rule assign_stmt
+        'assign' ws id ':' ws? text nl
     end
 
     rule ask_stmt

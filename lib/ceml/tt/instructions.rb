@@ -58,7 +58,7 @@ module Instructions
     def key;   var || text; end
     def cmd;
       text_value =~ /^ask/  and return :ask
-      text_value =~ /^tell/ and return :tell
+      text_value =~ /^(tell|assign)/ and return :tell
     end
   end
 
@@ -81,8 +81,14 @@ module Instructions
         r0 = r2
         r0.extend(Instruction0)
       else
-        @index = i0
-        r0 = nil
+        r3 = _nt_assign_stmt
+        if r3
+          r0 = r3
+          r0.extend(Instruction0)
+        else
+          @index = i0
+          r0 = nil
+        end
       end
     end
 
@@ -170,6 +176,89 @@ module Instructions
     end
 
     node_cache[:tell_stmt][start_index] = r0
+
+    r0
+  end
+
+  module AssignStmt0
+    def ws
+      elements[1]
+    end
+
+    def id
+      elements[2]
+    end
+
+    def text
+      elements[5]
+    end
+
+    def nl
+      elements[6]
+    end
+  end
+
+  def _nt_assign_stmt
+    start_index = index
+    if node_cache[:assign_stmt].has_key?(index)
+      cached = node_cache[:assign_stmt][index]
+      @index = cached.interval.end if cached
+      return cached
+    end
+
+    i0, s0 = index, []
+    if has_terminal?('assign', false, index)
+      r1 = instantiate_node(SyntaxNode,input, index...(index + 6))
+      @index += 6
+    else
+      terminal_parse_failure('assign')
+      r1 = nil
+    end
+    s0 << r1
+    if r1
+      r2 = _nt_ws
+      s0 << r2
+      if r2
+        r3 = _nt_id
+        s0 << r3
+        if r3
+          if has_terminal?(':', false, index)
+            r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            @index += 1
+          else
+            terminal_parse_failure(':')
+            r4 = nil
+          end
+          s0 << r4
+          if r4
+            r6 = _nt_ws
+            if r6
+              r5 = r6
+            else
+              r5 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s0 << r5
+            if r5
+              r7 = _nt_text
+              s0 << r7
+              if r7
+                r8 = _nt_nl
+                s0 << r8
+              end
+            end
+          end
+        end
+      end
+    end
+    if s0.last
+      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0.extend(AssignStmt0)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:assign_stmt][start_index] = r0
 
     r0
   end
