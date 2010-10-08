@@ -2,17 +2,17 @@ require 'benchmark'
 require 'forwardable'
 require 'treetop'
 
-require 'fete/casting'
-require 'fete/instructions'
-require 'fete/script'
-require 'fete/tt/lexer'
-require 'fete/tt/casting'
-require 'fete/tt/instructions'
-require 'fete/tt/scripts'
+require 'ceml/casting'
+require 'ceml/instructions'
+require 'ceml/script'
+require 'ceml/tt/lexer'
+require 'ceml/tt/casting'
+require 'ceml/tt/instructions'
+require 'ceml/tt/scripts'
 
-require 'fete/engine'
+require 'ceml/engine'
 
-module Fete
+module CEML
   def parse(what, string)
     result = nil
     time = Benchmark.realtime do

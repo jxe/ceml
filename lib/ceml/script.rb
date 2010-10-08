@@ -1,4 +1,4 @@
-module Fete
+module CEML
   module Script
 
     def to_hash *fields
@@ -97,7 +97,7 @@ module Fete
     end
 
     def concludes_immediately?
-      !title and instructions.asks.empty?
+      !title and instructions.asks([:agents]).empty?
     end
   end
 end

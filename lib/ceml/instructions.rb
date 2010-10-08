@@ -1,4 +1,4 @@
-module Fete
+module CEML
   module Instructions
     def validate!(allowed_roles)
       extra_roles = roles - allowed_roles

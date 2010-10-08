@@ -1,6 +1,6 @@
 require 'set'
 
-module Fete
+module CEML
   class Dummy
     def method_missing(meth, *args, &blk)
       # puts "#{meth}: #{args.to_s.inspect}"
@@ -16,7 +16,7 @@ module Fete
     def pc;         this[:pc] ||= 0;   end
 
     def initialize(script_text, delg = Dummy.new)
-      @script = Fete.parse(:script, script_text)
+      @script = CEML.parse(:script, script_text)
       @delg   = delg
       @parts  = {}
       @seq    = {}

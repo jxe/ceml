@@ -1,4 +1,4 @@
-module Fete
+module CEML
 grammar Instructions
     include Lexer
 

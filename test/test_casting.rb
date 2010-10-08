@@ -1,8 +1,9 @@
-require 'fete'
+require 'test/unit'
+require 'ceml'
 
 class TestCasting < Test::Unit::TestCase
   def pcs text
-    Fete.parse(:casting_statement, text)
+    CEML.parse(:casting_statement, text)
   end
 
   def assert_bad text

@@ -1,4 +1,4 @@
-require 'fete'
+require 'ceml'
 require 'test/helper'
 
 class TestEngine < Test::Unit::TestCase

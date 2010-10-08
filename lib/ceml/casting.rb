@@ -1,4 +1,4 @@
-module Fete
+module CEML
   module CastingStatement
     extend Forwardable
     def_delegators :roles_phrase, :roles, :[], :min

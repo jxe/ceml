@@ -4,13 +4,13 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "fete"
+    gem.name = "ceml"
     gem.summary = %Q{a language for coordinating real world events}
     gem.description = %Q{a language for coordinating real world events}
     gem.email = "joe@citizenlogistics.com"
-    gem.homepage = "http://github.com/citizenlogistics/fete"
+    gem.homepage = "http://github.com/citizenlogistics/ceml"
     gem.authors = ["Joe Edelman"]
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.add_dependency "treetop"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
@@ -47,7 +47,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "fete #{version}"
+  rdoc.title = "ceml #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

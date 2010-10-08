@@ -3,7 +3,7 @@ require 'test/unit'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'fete'
+require 'ceml'
 
 COMPLIMENT_SCRIPT = <<END_OF_SCRIPT
 "Overwhelm a specific person with compliments"
@@ -26,7 +26,7 @@ ENDOFSCRIPT
 
 class Test::Unit::TestCase
   def play script
-    @e = Fete::Engine.new(script)
+    @e = CEML::Engine.new(script)
   end
 
   def player id, *roles

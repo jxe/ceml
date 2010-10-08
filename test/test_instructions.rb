@@ -1,8 +1,8 @@
-require 'fete'
+require 'ceml'
 
 class TestInstructions < Test::Unit::TestCase
   def pi text
-    Fete.parse(:instructions, text)
+    CEML.parse(:instructions, text)
   end
 
   def assert_bad text

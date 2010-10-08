@@ -1,5 +1,5 @@
-fete:
-	tt lib/fete/tt/*.treetop
+ceml:
+	tt lib/ceml/tt/*.treetop
 
 test:
 	testrb test

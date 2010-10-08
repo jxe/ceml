@@ -1,6 +1,6 @@
-= fete
+= ceml
 
-fete is a new programming language.
+ceml is a new programming language.
 
 It's for describing live coordinated events among people with different roles and across places.
 
