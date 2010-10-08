@@ -1,0 +1,15 @@
+"a breakfast exchange"
+gather 2 agents within 1 block
+takes 45m
+
+tell agents:
+  Okay, you need to make breakfast for a stranger and hide it
+  somewhere public in town.  Do it fast, cause in 30m I will ask
+  you where you hid it and tell you where to find yours.
+
+after 30m
+ask agents re where:
+  Where did you hide your breakfast?
+tell agents:
+  Go find your breakfast at |otherguy.where|.  Send back any reports.
+  Thanks for playing!

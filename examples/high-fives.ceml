@@ -1,0 +1,19 @@
+"a high five"
+takes 2m
+offers connection inclusion
+involves 1 mobile_agent, 1 stationary_agent, 1 streetcorner
+
+ask stationary_agent re clothing:
+    What are you wearing (so the other person can recognize you)?
+
+tell stationary_agent:
+    mill around at |streetcorner|
+    a stranger will approach you and give you a high five
+    when that happens nod and run in the direction they came from
+    find some trash and clean it up
+
+tell mobile_agent:
+    go to |streetcorner| and
+    find someone wearing |mobile_agent.clothing|
+    give them a high five
+    nod, and keep walking around the corner

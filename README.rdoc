@@ -1,9 +1,0 @@
-= ceml
-
-ceml is a new programming language.
-
-It's for describing live coordinated events among people with different roles and across places.
-
-== Copyright
-
-Copyright (c) 2010 Citizen Logistics, Inc. See LICENSE for details.

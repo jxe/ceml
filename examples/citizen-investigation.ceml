@@ -1,0 +1,24 @@
+"a citizen investigation"
+takes 20m
+involves 1 photographer, 1-2 interviewers, 1-3 reporters, 1 topic, 1 location
+
+offers connection inclusion democracy adventure
+
+ask photographer re clothing: What are you wearing?  (so the others can recognize you?)
+
+tell photographer:
+  go to |location|.  the other members of your team will find you.
+  research |topic| by taking photos and sending them back to this number.
+  do this for |duration|
+
+
+tell interviewers:
+  go to |location| and find someone wearing |clothing|.  that's your photographer.
+  your assignment is to interview people to research |topic|
+  do this for |duration|
+
+
+tell reporters:
+  go to |location| and find someone wearing |clothing|.  that's your photographer.
+  your assignment is to to research |topic| and send back textual reports
+  do this for |duration|.  good luck!
