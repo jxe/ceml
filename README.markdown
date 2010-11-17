@@ -3,9 +3,9 @@ Introducing CEML
 
 CEML is the world's first programming language custom-built for bringing people together.
 
-It's for describing live coordinated events among people with different roles and across places.
+Short scripts define the structure for live coordinated events among people with different roles and across locations.
 
-All assignments and reassignments given through Groundcrew are actually CEML programs which are then executed on the server, resulting in a test message-, IM-, or mobile application-based coordination.
+All assignments and reassignments given in Groundcrew are CEML programs that are submitted via our API and executed on the server.  Scripts can result in a text message, IM, twitter, and mobile application-based coordination.
 
 A sample program
 ----------------
@@ -76,7 +76,7 @@ Also helps the user or the system pick which agents to involve, based on their s
 Reference - Syntax
 ------------------
 
-The syntax is simple and a bit like a cross between tcl and ruby.  Every line starts with a command keyword, some arguments, and possibly a string after a colon.  The terminal string parameter can be indented on the following line.
+The syntax is simple and inherits from tcl and ruby.  Every line starts with a command keyword, some arguments, and possibly a string after a colon.  Like RFC822 headers, a terminal string parameter can fall either directly after a colon or on a series of indented line.
 
 Copyright
 ------------------
