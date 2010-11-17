@@ -99,5 +99,44 @@ module CEML
     def concludes_immediately?
       !title and instructions.asks([:agents]).empty?
     end
+
+    def color(odds)
+      return :red    if odds < 0.1
+      return :yellow if odds < 0.4
+      return :green
+    end
+
+    def likelihood(yesprob, needed, psize)
+      return 1 if needed <= 0
+      return 0 if psize < needed
+      return (needed..psize).inject(0) do |memo, yes_count|
+        memo + begin
+          no_count = psize - yes_count
+          ways_it_could_happen = psize.choose(yes_count)
+          prob_of_each = (yesprob ** yes_count) * ((1 - yesprob) ** no_count)
+          ways_it_could_happen * prob_of_each
+        end
+      end
+    end
+
+    def availabilities(potential_count, committed_count = 0)
+      return {} unless script.dramatis_personae
+      min        = script.dramatis_personae.min
+      needed     = min - committed_count
+      possible   = potential_count + committed_count
+      yesprob    = 0.7  # just make this up for now
+      odds       = likelihood(yesprob, potential_count, needed)
+
+      {
+        :odds => odds, :color => color(odds),
+        :availability_counts => {
+          :total => possible,
+          :unknown => potential_count
+        },
+        :estimated_size => yesprob * potential_count + committed_count,
+        :needed => min
+      }
+    end
+
   end
 end
