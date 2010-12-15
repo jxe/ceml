@@ -35,21 +35,21 @@ class Test::Unit::TestCase
   end
 
   def asked id, rx
-    p = @e.parts[id]
+    p = @e.players[id]
     assert_equal :ask, p[:said]
     assert_match rx, p[:q]
     p.delete :said
   end
 
   def told id, rx
-    p = @e.parts[id]
+    p = @e.players[id]
     assert_match rx, p[:msg]
     p.delete :said
   end
 
   def says id, str
-    @e.parts[id][:received] = str
+    @e.players[id][:received] = str
     @e.run
-    @e.parts[id][:received] = nil
+    @e.players[id][:received] = nil
   end
 end

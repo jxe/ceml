@@ -1,43 +1,45 @@
 require 'set'
 
 module CEML
-  class Dummy
-    def method_missing(meth, *args, &blk)
-      # puts "#{meth}: #{args.to_s.inspect}"
-    end
-  end
+  class Dummy; def method_missing(meth, *args, &blk) ;end;end
+  # puts "#{meth}: #{args.to_s.inspect}"
+  class << self; attr_accessor :delegate; end
+  self.delegate = Dummy.new
 
   class Incident
-    attr_reader :script, :parts
-    def this;       @parts[@current_id]; end
+    attr_reader :script
+    def this;       players[@current_id]; end
     def roles;      this[:roles] ||= Set.new; end
     def got;        this[:received];   end
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
     def qs_answers; this[:qs_answers] ||= Hash.new; end
 
-    def initialize(script_text, delg = Dummy.new)
+    def initialize(script_text, id = rand(36**10).to_s(36))
       @script = CEML.parse(:script, script_text)
-      @delg   = delg
-      @parts  = {}
-      @seq    = {}
+      @id     = id
+    end
+
+    def players
+      @players ||= CEML.delegate.players(@id) || {}
     end
 
     def add(id, *roles)
       obj = Hash === roles[-1] ? roles.pop : {}
-      parts[id] = obj.merge :roles => Set.new(roles)
+      players[id] = obj.merge :roles => Set.new(roles)
     end
 
     def run
-      :loop while parts.keys.any? do |@current_id|
+      :loop while players.keys.any? do |@current_id|
         # puts "trying: #{@current_id}: #{seq[pc]}"
         next unless seq[pc] and send(*seq[pc])
-        @delg.send(*seq[pc] + [@current_id])
+        CEML.delegate.send(*seq[pc] + [@iid, @current_id])
         this[:pc]+=1
       end
     end
 
     def seq
+      @seq ||= {}
       @seq[roles] ||= begin
         bytecode = [[:start]]
         instrs = script.instructions_for(roles)
@@ -71,7 +73,7 @@ module CEML
     def expand(role, var)
       role = nil if role == 'otherguy'
       role = role.to_sym if role
-      parts.each do |key, thing|
+      players.each do |key, thing|
         next if key == @current_id
         next if role and not thing[:roles].include? role
         value = (thing[:qs_answers]||{})[var] and return value
@@ -118,7 +120,7 @@ module CEML
         say :ok
         true
       else
-        @delg.send :did_report
+        CEML.delegate.send :did_report
         false
       end
     end
