@@ -14,6 +14,7 @@ module CEML
     def got;        this[:received];   end
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
+    def qs_answers; this[:qs_answers] ||= Hash.new; end
 
     def initialize(script_text, delg = Dummy.new)
       @script = CEML.parse(:script, script_text)
@@ -65,10 +66,6 @@ module CEML
     def say x, params = {}
       this[:said] = x
       this.merge! params
-    end
-
-    def qs_answers
-      this[:qs_answers] ||= Hash.new
     end
 
     def expand(role, var)

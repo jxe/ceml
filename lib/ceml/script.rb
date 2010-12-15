@@ -30,6 +30,10 @@ module CEML
       casting_statement.empty? ? nil : casting_statement
     end
 
+    def max_to_invite
+      dramatis_personae ? dramatis_personae.max : 0
+    end
+
     alias_method :dp, :dramatis_personae
 
     def simple?
@@ -125,7 +129,7 @@ module CEML
       needed     = min - committed_count
       possible   = potential_count + committed_count
       yesprob    = 0.7  # just make this up for now
-      odds       = likelihood(yesprob, potential_count, needed)
+      odds       = likelihood(yesprob, needed, potential_count)
 
       {
         :odds => odds, :color => color(odds),
