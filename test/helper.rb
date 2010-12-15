@@ -26,7 +26,7 @@ ENDOFSCRIPT
 
 class Test::Unit::TestCase
   def play script
-    @e = CEML::Engine.new(script)
+    @e = CEML::Incident.new(script)
   end
 
   def player id, *roles

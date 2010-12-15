@@ -1,9 +1,9 @@
 require 'ceml'
 require 'test/helper'
 
-class TestEngine < Test::Unit::TestCase
+class TestIncident < Test::Unit::TestCase
 
-  def test_engine
+  def test_incident
     play COMPLIMENT_SCRIPT
     player :joe, :organizer, :agent
     player :bill, :agent

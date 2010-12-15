@@ -7,7 +7,7 @@ module CEML
     end
   end
 
-  class Engine
+  class Incident
     attr_reader :script, :parts
     def this;       @parts[@current_id]; end
     def roles;      this[:roles] ||= Set.new; end

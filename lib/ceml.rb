@@ -9,7 +9,7 @@ require 'ceml/tt/casting'
 require 'ceml/tt/instructions'
 require 'ceml/tt/scripts'
 
-require 'ceml/engine'
+require 'ceml/incident'
 
 module CEML
   def parse(what, string)
