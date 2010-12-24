@@ -1,6 +1,5 @@
 "a breakfast exchange"
-gather 2 players within 1 block
-takes 45m
+await 2 players within 1 block
 
 assign players:
   Okay, you need to make breakfast for a stranger and hide it
@@ -9,9 +8,9 @@ assign players:
 
 give players 30m
 
-ask players re where:
+ask players re breakfast_location:
   Where did you hide your breakfast?
 
 tell players:
-  Go find your breakfast at |otherguy.where|.  Send back any reports.
+  Go find your breakfast at |each_other.breakfast_location|.  Send back any reports.
   Thanks for playing!
