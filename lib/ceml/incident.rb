@@ -1,11 +1,6 @@
 require 'set'
 
 module CEML
-  class Dummy; def method_missing(meth, *args, &blk) ;end;end
-  # puts "#{meth}: #{args.to_s.inspect}"
-  class << self; attr_accessor :delegate; end
-  self.delegate = Dummy.new
-
   class Incident
     attr_reader :script
     def this;       players[@current_id]; end
