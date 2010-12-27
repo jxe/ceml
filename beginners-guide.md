@@ -6,11 +6,11 @@ Thanks for taking an interest in CEML, the Coordinated Event Modeling Language. 
 A CEML _script_ is a recipe for action.  Just like a recipe, it has three parts: a title, a list of ingredients, and then a section that says what to do with the ingredients.  Here's an example:
 
     "Trade favorite colors"
-    gather 1 answerer and 1 listener within 50 feet
-    ask answerer re favorite_color:
+    gather 1 guy and 1 girl within 50 feet
+    ask guy re favorite_color:
         What's your favorite color?
-    tell listener:
-        Someone nearby likes the color |answerer.favorite_color|.  Find them.
+    tell girl:
+        Someone nearby likes the color |guy.favorite_color|.  Find them.
 
 In the example, the first line is the title, which is written in double quotes.  The second line is the ingredients and how they are obtained.  In CEML, the ingredients are usually people (although sometimes they can be places, things, or notes).  The remaining lines are the instructions.
 
@@ -26,7 +26,7 @@ Whether you write a script compactly with short names for roles and answers or l
 Commands
 --------
 
-The above script only uses three CEML commands&mdash;*gather*, *ask*, and *tell*&mdash;but there aren't many more commands to learn.  Only four more, actually: besides *gather*, the other ingredients commands are *await* and *nab*.  Besides *ask* and *tell*, the other instructions commands are *assign* and *certify*.
+The above script only uses three CEML commands--*gather*, *ask*, and *tell*--but there aren't many more commands to learn.  Only four more, actually: besides *gather*, the other ingredients commands are *await* and *nab*.  Besides *ask* and *tell*, the other instructions commands are *assign* and *certify*.
 
 As a sneak preview, here's an example that uses the other commands:
 
@@ -65,7 +65,7 @@ Texts may also contain hyperlinks, which if the player has a smartphone with a w
 Roles
 -----
 
-In the examples so far, the words like 'enemy', 'reporter', 'answerer', 'listener', 'a', 'b', 'signup', 'patient', and 'doctor' are *role names*.  Most of the time, a role name can be any word you like.  They are just a placeholder to connect *casting commands* like *gather* and *await*, with *coordination commands* like *tell*.
+In the examples so far, the words like 'enemy', 'reporter', 'guy', 'girl', 'a', 'b', 'signup', 'patient', and 'doctor' are *role names*.  Most of the time, a role name can be any word you like.  They are just a placeholder to connect *casting commands* like *gather* and *await*, with *coordination commands* like *tell*.
 
 Squads on Groundcrew, however, can define special meanings for certain roles.  So on a particular squad, a 'doctor' might mean someone who's been tagged/certified with the tag 'doctor', and a patient might mean anyone else.
 
@@ -120,7 +120,7 @@ Choosing Players: Await, Gather, and Nab.
 
 So what is really the difference between *await*, *gather*, and *nab*, you may be asking?  Or perhaps you have already figured it out.
 
-*Await* defines a kind of trigger&mdash;as soon as the conditions awaited for are met, the script will run.
+*Await* defines a kind of trigger--as soon as the conditions awaited for are met, the script will run.
 
     await 2-5 level1 players within 50ft
     assign: shout out "woo-hoo!"
