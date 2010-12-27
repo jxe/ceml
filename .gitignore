@@ -1,4 +1,5 @@
 lib/ceml/tt/*.rb
+ceml.gemspec
 
 ## MAC OS
 .DS_Store
