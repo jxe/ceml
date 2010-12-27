@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "beginners-guide.md",
+     "ceml.gemspec",
      "editors/CEML.tmbundle/Syntaxes/ceml.tmLanguage",
      "editors/CEML.tmbundle/info.plist",
      "examples/breakfast-exchange.ceml",
