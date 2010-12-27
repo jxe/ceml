@@ -9,6 +9,7 @@ require 'ceml/tt/casting'
 require 'ceml/tt/instructions'
 require 'ceml/tt/scripts'
 
+require 'ceml/casting_criterion'
 require 'ceml/incident'
 
 module CEML

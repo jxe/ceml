@@ -20,6 +20,14 @@ XXX
 
 class TestIncident < Test::Unit::TestCase
 
+  SIGNUP_SCRIPT = "await 1 new signup\ntell signup: thanks"
+  def test_signup_script
+    s = CEML.parse(:script, SIGNUP_SCRIPT)
+    c = CEML::Candidate.new('fred', ['new'], {}, nil, nil)
+    s.post c
+    assert s.launchable_location
+  end
+
   def test_incident
     play COMPLIMENT_SCRIPT
     player :joe, :organizer, :agent

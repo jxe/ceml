@@ -4,6 +4,35 @@ module CEML
     attr_writer :delegate
     def delegate; @delegate || CEML.delegate; end
 
+    # ===========
+    # = casting =
+    # ===========
+
+    def locations
+      @locations ||= (delegate.locations(self) || [])
+    end
+
+    def launchable_location
+      criteria = awaited_criteria.sort_by{ |c| [-c.complexity, c.min_match] }
+      locations.find do |l|
+        people_used = []
+        criteria.all?{ |c| folks = l[c.hash] and c.satisfied_by_group?(folks, people_used) }
+      end
+    end
+
+    # public
+    def post candidate
+      criteria = awaited_criteria.select{ |c| c =~ candidate }
+      criteria.each{ |c| c.list_candidate(candidate) }
+      not criteria.empty?
+    end
+
+    def awaited_criteria
+      return [] unless cast.type == :await
+      return cast.criteria(self)
+    end
+
+
     # ===============
     # = likelihoods =
     # ===============
