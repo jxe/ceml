@@ -1,0 +1,14 @@
+#! /usr/bin/env ruby
+require 'rubygems'
+require 'ceml'
+require 'pp'
+
+begin
+  str = ARGV[1] ? ARGV[1].dup : STDIN.read
+  p = CEML::ScriptsParser.new
+  if result = p.parse(str, :root => ARGV[0].to_sym)
+    puts "worked!" # #{p.inspect}"
+  else
+    puts p.failure_reason
+  end
+end
