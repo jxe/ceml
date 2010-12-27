@@ -5,27 +5,42 @@ grammar Scripts
   include Instructions
 
   rule scripts
-    script+
+    script more:(nl script)* {
+        def list
+            [script] + more.elements.map(&:script)
+        end
+    }
+  end
+
+  rule free_scripts
+    nl? scripts nl?
+  end
+
+  rule free_script
+    nl? script nl?
   end
 
   rule script
-    (script_with_title / script_with_instructions) <Script>
-  end
-
-  rule script_with_title
-    nl? title casting_statement:casting_statement? instructions:instructions?
-  end
-
-  rule script_with_instructions
-    nl? title:title? casting_statement:casting_statement? instructions
+    (
+        title nl casting_statement nl instructions /
+        title nl instructions /
+        casting_statement nl instructions /
+        title nl casting_statement /
+        instructions /
+        title
+    ) <Script>
   end
 
   rule title
-    '"' value:('\\"' / !'"' .)+ '"' nl {
-        def value
-            super.text_value.gsub(/\\"/, '"')
+    '"' value:('\\"' / !'"' .)+ '"' {
+        def title_value
+            value.text_value.gsub(/\\"/, '"')
         end
     }
+  end
+
+  rule instructions
+      instruction_stmt more:(nl instruction_stmt)* <Instructions>
   end
 
 end

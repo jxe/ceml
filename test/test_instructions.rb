@@ -18,10 +18,10 @@ class TestInstructions < Test::Unit::TestCase
   end
 
   def test_instructions
-    assert_equal "run to the kitchen", pi('tell joe: run to the kitchen').tell([:joe]).text
+    assert_equal "run to the kitchen", pi('tell joe: run to the kitchen').i_tell([:joe]).text
     assert_equal ["favorite color?", "favorite soup?"], pi(
       "ask joe re color: favorite color?\nask joe re soup: favorite soup?"
-    ).asks([:joe]).map(&:text)
+    ).i_asks([:joe]).map(&:text)
   end
 
 end

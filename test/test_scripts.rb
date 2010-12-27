@@ -1,6 +1,6 @@
 require 'ceml'
 
-class TestInstructions < Test::Unit::TestCase
+class TestScripts < Test::Unit::TestCase
 
   SCRIPTS = <<END_OF_SCRIPTS
 "Help moving |an object|" // okay?

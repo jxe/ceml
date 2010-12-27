@@ -24,14 +24,14 @@ class TestCasting < Test::Unit::TestCase
   def test_range
     cs = pcs "gather 3-4 runners"
     assert cs.type == :gather
-    assert cs.roles.include? :runners
+    assert cs.roles.names.include? :runners
     assert cs[:runners].min == 3
     assert cs[:runners].max == 4
     assert cs.max == 4
 
     cs = pcs "gather 3+ runners"
     assert cs.type == :gather
-    assert cs.roles.include? :runners
+    assert cs.roles.names.include? :runners
     assert cs[:runners].min == 3
     assert cs[:runners].max > 4
     assert cs.min == 3
@@ -39,7 +39,7 @@ class TestCasting < Test::Unit::TestCase
 
     cs = pcs "gather 3 runners"
     assert cs.type == :gather
-    assert cs.roles.include? :runners
+    assert cs.roles.names.include? :runners
     assert cs[:runners].min == 3
     assert cs[:runners].max == 3
     assert cs.min == 3
@@ -47,25 +47,24 @@ class TestCasting < Test::Unit::TestCase
 
     cs = pcs "gather runners"
     assert cs.type == :gather
-    assert cs.roles.include? :runners
+    assert cs.roles.names.include? :runners
     assert cs[:runners].min == 2
     assert cs[:runners].max > 10
     assert cs.min == 2
     assert cs.max > 10
 
-    cs = pcs "teams of 1-2 runners and 1 announcer"
-    assert cs.type == :teams
-    assert cs.roles.include? :runners
-    assert cs.roles.include? :announcer
+    cs = pcs "gather 1-2 runners and 1 announcer"
+    assert cs.type == :gather
+    assert cs.roles.names.include? :runners
+    assert cs.roles.names.include? :announcer
     assert cs[:runners].min == 1
     assert cs[:runners].max == 2
     assert cs.min == 2
-    assert cs.max > 20
+    assert cs.max == 3
 
     cs = pcs "nab 1-2 runners within 4 mi"
     assert cs.type == :nab
     assert cs.nab?
-    assert !cs.in_teams?
     assert cs[:runners].min == 1
     assert cs[:runners].max == 2
   end

@@ -2,11 +2,7 @@ module CEML
 grammar Instructions
     include Lexer
 
-    rule instructions
-        instruction+ <Instructions>
-    end
-
-    rule instruction
+    rule instruction_stmt
         (ask_stmt / tell_stmt / assign_stmt) {
 
             INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
@@ -31,15 +27,15 @@ grammar Instructions
     end
 
     rule tell_stmt
-        'tell' ws id ':' ws? text nl
+        'tell' ws id ':' ws? text
     end
 
     rule assign_stmt
-        'assign' ws id ':' ws? text nl
+        'assign' ws id ':' ws? text
     end
 
     rule ask_stmt
-        'ask' ws id about:(ws 're' ws varname:id)? ':' ws? text nl
+        'ask' ws id about:(ws 're' ws varname:id)? ':' ws? text
     end
 
 end

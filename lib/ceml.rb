@@ -18,27 +18,25 @@ module CEML
   # puts "#{meth}: #{args.to_s.inspect}"
 end
 
-class CEML::ScriptsParser
-  def parse_with_root(string, root)
-    self.root = root
-    parse(string)
-  end
-end
-
 module CEML
   def parse(what, string)
-    result = nil
     string.gsub!(/\n +/, ' ')
-    string << "\n"
+    what = case what
+    when :script then :free_script
+    when :scripts then :free_scripts
+    else what
+    end
+    result = nil
     ScriptsParser.new.tap do |parser|
-      result = parser.parse_with_root(string, what)
+      result = parser.parse(string, :root => what)
       raise "parse failed: \n#{parser.failure_reason}" unless result
       case what
-      when :scripts
-        raise "no scripts found" unless result.elements and !result.elements.empty?
-        result = result.elements
+      when :free_scripts
+        raise "no scripts found" unless result.scripts.list
+        result = result.scripts.list
         result.each{ |s| s.validate! }
-      when :script
+      when :free_script
+        result = result.script
         result.validate!
       end
     end

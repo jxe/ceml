@@ -22,13 +22,52 @@ grammar Lexer
     end
 
     rule number
-      [1-9]+ [0-9]* / '0'
+      ([1-9]+ [0-9]* / '0' / 'an' / 'a' / 'the') {
+          def value
+            case text_value
+            when 'a', 'an', 'the' then 1
+            else text_value.to_i
+            end
+          end
+      }
+    end
+
+    rule and
+        (ws? ',')? ws 'and' ws / ws? ',' ws?
+    end
+
+    rule reserved_word
+        'and' / 'within'
     end
 
     rule id
-      [a-zA-Z_-]+
+      !(reserved_word ws) [a-zA-Z_]+
+    end
+
+    rule distance
+      number ws? distance_unit:('miles' / 'mile' / 'mi' / 'km' / 'kilometers' / 'k' / 'meters' / 'm' / 'ft' / 'feet' / 'f' / 'blocks' / 'block')
+      {
+        def meters
+          number.text_value.to_f * case distance_unit.text_value
+          when /^mi/; 1600; when /^k/;  1000; when /^m/;  1;
+          when /^f/;  0.35; when /^b/;  200; else 1; end
+        end
+      }
+    end
+
+    rule range
+      min:number max:('+' / '-' number)?
+      {
+        def min
+            super.value
+        end
+        def max
+            return min if super.empty?
+            return 10000 if super.text_value == '+'
+            return super.number.text_value.to_i
+        end
+      }
     end
 
 end
 end
-
