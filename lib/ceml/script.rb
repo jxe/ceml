@@ -8,23 +8,13 @@ module CEML
     # = casting =
     # ===========
 
-    def locations
-      @locations ||= (delegate.locations(self) || [])
-    end
-
-    def launchable_location
-      criteria = awaited_criteria.sort_by{ |c| [-c.complexity, c.min_match] }
-      locations.find do |l|
-        people_used = []
-        criteria.all?{ |c| folks = l[c.hash] and c.satisfied_by_group?(folks, people_used) }
-      end
-    end
-
     # public
     def post candidate
-      criteria = awaited_criteria.select{ |c| c =~ candidate }
-      criteria.each{ |c| c.list_candidate(candidate) }
-      not criteria.empty?
+      return unless candidate = candidate.dup.load(awaited_criteria)
+      delegate.with_locations(self) do |locs|
+        locs.each{ |l| l.push candidate }
+        locs << CastingLocation.create(self, candidate) if locs.none?(&:added)
+      end
     end
 
     def awaited_criteria
@@ -115,8 +105,8 @@ module CEML
     # ================
 
     def instructions
-      return super if defined?(super)
       return self if Instructions === self
+      return super if defined?(super)
       nil
     end
 

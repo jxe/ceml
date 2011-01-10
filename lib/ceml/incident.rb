@@ -2,34 +2,39 @@ require 'set'
 
 module CEML
   class Incident
-    attr_reader :script
-    def this;       players[@current_id]; end
+    attr_reader :script, :id, :players
+    def this;       @players[@current_id]; end
     def roles;      this[:roles] ||= Set.new; end
     def got;        this[:received];   end
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
     def qs_answers; this[:qs_answers] ||= Hash.new; end
 
-    def initialize(script_text, id = rand(36**10).to_s(36))
-      @script = CEML.parse(:script, script_text)
-      @id     = id
-    end
-
-    def players
-      @players ||= CEML.delegate.players(@id) || {}
+    def initialize(script, cast = {}, id = rand(36**10).to_s(36))
+      @id = id
+      @script = Script === script ? script : CEML.parse(:script, script)
+      run do
+        cast.each{ |guy,role| add guy, role }
+      end
     end
 
     def add(id, *roles)
       obj = Hash === roles[-1] ? roles.pop : {}
-      players[id] = obj.merge :roles => Set.new(roles)
+      @players[id] = obj.merge :roles => Set.new(roles)
     end
 
     def run
-      :loop while players.keys.any? do |@current_id|
-        # puts "trying: #{@current_id}: #{seq[pc]}"
-        next unless seq[pc] and send(*seq[pc])
-        CEML.delegate.send(*seq[pc] + [@iid, @current_id])
-        this[:pc]+=1
+      CEML.delegate.with_players(@id) do |players|
+        @players = players
+        yield self if block_given?
+        :loop while players.keys.any? do |@current_id|
+          # puts "seq for roles: #{roles.inspect} #{seq.inspect}"
+          # puts "trying: #{@current_id}: #{seq[pc]}"
+          next unless seq[pc] and send(*seq[pc])
+          CEML.delegate.send(*seq[pc] + [@iid, @current_id])
+          this[:pc]+=1
+        end
+        @players = nil
       end
     end
 
@@ -68,7 +73,7 @@ module CEML
     def expand(role, var)
       role = nil if role == 'otherguy'
       role = role.to_sym if role
-      players.each do |key, thing|
+      @players.each do |key, thing|
         next if key == @current_id
         next if role and not thing[:roles].include? role
         value = (thing[:qs_answers]||{})[var] and return value
@@ -81,7 +86,7 @@ module CEML
     # ==============
 
     def start
-      roles.include? :agent or return false
+      # roles.include? :agent or return false
       true
     end
 

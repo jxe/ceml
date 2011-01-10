@@ -24,7 +24,7 @@ module CEML
     end
 
     def radius
-      within_phrase.empty? ? 1600 * 50 : within_phrase.distance.meters
+      within_phrase.empty? ? nil : within_phrase.distance.meters
     end
 
     def nab?

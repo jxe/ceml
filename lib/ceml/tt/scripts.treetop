@@ -40,7 +40,7 @@ grammar Scripts
   end
 
   rule instructions
-      instruction_stmt more:(nl instruction_stmt)* <Instructions>
+      instruction_stmt more:(nl instruction_stmt)* <InstructionStatements>
   end
 
 end

@@ -1,22 +1,22 @@
 require 'forwardable'
 require 'treetop'
 
-require 'ceml/casting'
-require 'ceml/instructions'
 require 'ceml/script'
+require 'ceml/casting_statement'
+require 'ceml/instruction_statements'
 require 'ceml/tt/lexer'
 require 'ceml/tt/casting'
 require 'ceml/tt/instructions'
 require 'ceml/tt/scripts'
 
+require 'ceml/delegate'
 require 'ceml/casting_criterion'
 require 'ceml/incident'
 
 module CEML
   extend self
   attr_accessor :delegate
-  @delegate = Class.new{ def method_missing(meth, *args, &blk);end }.new
-  # puts "#{meth}: #{args.to_s.inspect}"
+  @delegate = Delegate.new
 end
 
 module CEML

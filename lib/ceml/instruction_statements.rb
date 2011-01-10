@@ -1,7 +1,11 @@
 module CEML
-  module Instructions
+  module InstructionStatements
     def list
         [instruction_stmt] + more.elements.map(&:instruction_stmt)
+    end
+
+    def instructions
+      self
     end
 
     def validate_instructions!(allowed_roles)

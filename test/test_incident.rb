@@ -20,36 +20,64 @@ XXX
 
 class TestIncident < Test::Unit::TestCase
 
-  SIGNUP_SCRIPT = "await 1 new signup\ntell signup: thanks"
-  def test_signup_script
-    s = CEML.parse(:script, SIGNUP_SCRIPT)
-    c = CEML::Candidate.new('fred', ['new'], {}, nil, nil)
-    s.post c
-    assert s.launchable_location
+  def test_signup_1
+    s = CEML.parse(:script, "await 1 new signup\ntell signup: thanks")
+    play do
+      s.post CEML::Candidate.new('fred', ['new'], {})
+      told 'fred', /thanks/
+    end
+  end
+
+  def test_signup_2
+    s = CEML.parse(:script, "await 2 new signups\ntell signups: thanks")
+    play do
+      s.post CEML::Candidate.new('fred', ['new'], {})
+      silent 'fred'
+      s.post CEML::Candidate.new('wilma', ['old'], {})
+      silent 'fred'
+      s.post CEML::Candidate.new('betty', ['new'], {})
+      told 'fred', /thanks/
+    end
+  end
+
+  def test_await
+    s = CEML.parse(:script, "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz")
+    play do
+      s.post CEML::Candidate.new('fred', [], {})
+      silent 'fred'
+      s.post CEML::Candidate.new('wilma', [], {})
+      silent 'fred'
+      silent 'wilma'
+      s.post CEML::Candidate.new('betty', [], {})
+      told 'fred', /foo/
+      told 'betty', /baz/
+    end
   end
 
   def test_incident
-    play COMPLIMENT_SCRIPT
-    player :joe, :organizer, :agent
-    player :bill, :agent
+    play COMPLIMENT_SCRIPT do
+      player :joe, :organizer, :agent
+      player :bill, :agent
 
-    asked :joe, /^Describe/
-    says :joe, 'red people'
+      asked :joe, /^Describe/
+      says :joe, 'red people'
 
-    told :bill, /^Look for red people/
+      told :bill, /^Look for red people/
+    end
   end
 
   def test_askchain
-    play ASKCHAIN_SCRIPT
-    player :joe, :players, :agent
-    player :bill, :players, :agent
+    play ASKCHAIN_SCRIPT do
+      player :joe, :players, :agent
+      player :bill, :players, :agent
 
-    asked :joe,  /favorite color/
-    asked :bill, /favorite color/
-    says :joe, "red"
-    says :bill, "green"
-    asked :joe, /with the color green/
-    asked :bill, /with the color red/
+      asked :joe,  /favorite color/
+      asked :bill, /favorite color/
+      says :joe, "red"
+      says :bill, "green"
+      asked :joe, /with the color green/
+      asked :bill, /with the color red/
+    end
   end
 
 end
