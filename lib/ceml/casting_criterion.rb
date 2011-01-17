@@ -2,7 +2,7 @@ require 'geokit'
 require "forwardable"
 
 module CEML
-  class Candidate < Struct.new :uid, :tags, :matchables, :lat, :lng
+  class Candidate < Struct.new :uid, :tags, :matchables, :lat, :lng, :initial_state
     include Geokit::Mappable
     attr_reader :criteria
 
@@ -37,13 +37,18 @@ module CEML
 
     # this method will miss possible castings and does not handle ranges at all
     def cast
-      {}.tap do |casting|
+      [].tap do |casting|
         criteria.each do |c|
           return nil unless folks = hash[c].dup
-          folks -= casting.keys
+          folks -= casting
           return nil unless folks.size >= c.min_match
           c.role_counts.each do |role, minct|
-            folks.shift(minct).each{ |guy| casting[guy.uid] = role.to_sym }
+            folks.shift(minct).each do |guy|
+              guy.initial_state ||= {}
+              guy.initial_state[:id] = guy.uid
+              guy.initial_state[:roles] = role.to_sym
+              casting << guy
+            end
           end
         end
       end

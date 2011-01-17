@@ -12,6 +12,8 @@ class Test::Unit::TestCase
     @iid = script && DRIVER.start(script)
     yield
     CEML::Driver::JUST_SAID.clear
+    CEML::Driver::PLAYERS.clear
+    CEML::Driver::INCIDENTS.clear
   end
 
   def ping s, candidate
@@ -19,7 +21,10 @@ class Test::Unit::TestCase
   end
 
   def says id, str
-    DRIVER.post @iid, :id => id, :received => str
+    iid = CEML::Driver::INCIDENTS.keys.find do |iid|
+      CEML::Driver::PLAYERS[iid].find{ |p| p[:id] == id }
+    end
+    DRIVER.post iid, :id => id, :received => str
   end
 
   def player id, *roles

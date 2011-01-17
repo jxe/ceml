@@ -42,16 +42,13 @@ module CEML
       run incident_id
     end
 
-    # yields a thing with #each and #<<
     def ping script, candidate
       LOCATIONS[script] ||= []
       script.post candidate, LOCATIONS[script]
       LOCATIONS[script].delete_if do |loc|
         next unless loc.cast
         iid = start(script)
-        loc.cast.each do |k, v|
-          post iid, :id => k, :roles => v
-        end
+        loc.cast.each{ |guy| post iid, guy.initial_state }
       end
     end
   end

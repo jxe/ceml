@@ -3,7 +3,7 @@ grammar Instructions
     include Lexer
 
     rule instruction_stmt
-        (ask_stmt / tell_stmt / assign_stmt) {
+        (ask_stmt / tell_stmt / assign_stmt / register_stmt) {
 
             INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
 
@@ -17,13 +17,21 @@ grammar Instructions
 
             def role;  id.text_value.to_sym; end
             def text;  super.text_value; end
-            def var;   (!defined?(:about) || about.empty?) ? nil : about.varname.text_value; end
+            def var
+                return varname.text_value if cmd == :register
+                (!defined?(:about) || about.empty?) ? nil : about.varname.text_value;
+            end
             def key;   var || text; end
             def cmd;
               text_value =~ /^ask/  and return :ask
               text_value =~ /^(tell|assign)/ and return :tell
+              text_value =~ /^register/ and return :register
             end
         }
+    end
+
+    rule register_stmt
+        'register' ws id ws varname:id
     end
 
     rule tell_stmt

@@ -42,6 +42,8 @@ module CEML
         instrs = script.instructions_for(roles)
         instrs.each do |inst|
           case inst.cmd
+          when :register
+            bytecode << [:answered_q, inst]
           when :ask
             bytecode << [:ask_q, inst]
             bytecode << [:answered_q, inst]
@@ -63,6 +65,7 @@ module CEML
     end
 
     def expand(role, var)
+      return (this[:qs_answers]||{})[var] if role =~ /^his|her$/
       role = nil if role == 'otherguy'
       role = role.to_sym if role
       @players.each do |p|
