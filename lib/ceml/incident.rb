@@ -2,40 +2,37 @@ require 'set'
 
 module CEML
   class Incident
-    attr_reader :script, :id, :players
-    def this;       @players[@current_id]; end
+    attr_reader :script, :id, :this
     def roles;      this[:roles] ||= Set.new; end
     def got;        this[:received];   end
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
     def qs_answers; this[:qs_answers] ||= Hash.new; end
 
-    def initialize(script, cast = {}, id = rand(36**10).to_s(36))
+    def handled!
+      this.delete :received
+      this.delete :recognized
+    end
+
+    def initialize(script, id = rand(36**10).to_s(36))
       @id = id
       @script = Script === script ? script : CEML.parse(:script, script)
-      run do
-        cast.each{ |guy,role| add guy, role }
-      end
     end
 
-    def add(id, *roles)
-      obj = Hash === roles[-1] ? roles.pop : {}
-      @players[id] = obj.merge :roles => Set.new(roles)
+    def cb *stuff
+      @callback.call this, *stuff if @callback
     end
 
-    def run
-      CEML.delegate.with_players(@id) do |players|
-        @players = players
-        yield self if block_given?
-        :loop while players.keys.any? do |@current_id|
-          # puts "seq for roles: #{roles.inspect} #{seq.inspect}"
-          # puts "trying: #{@current_id}: #{seq[pc]}"
-          next unless seq[pc] and send(*seq[pc])
-          CEML.delegate.send(*seq[pc] + [@iid, @current_id])
-          this[:pc]+=1
-        end
-        @players = nil
+    def run(players, &blk)
+      @players = players
+      @callback = blk
+      :loop while players.any? do |@this|
+        # puts "seq for roles: #{roles.inspect} #{seq.inspect}"
+        next unless seq[pc] and send(*seq[pc])
+        cb(*seq[pc])
+        this[:pc]+=1
       end
+      @callback = @players = nil
     end
 
     def seq
@@ -65,18 +62,13 @@ module CEML
       end
     end
 
-    def say x, params = {}
-      this[:said] = x
-      this.merge! params
-    end
-
     def expand(role, var)
       role = nil if role == 'otherguy'
       role = role.to_sym if role
-      @players.each do |key, thing|
-        next if key == @current_id
-        next if role and not thing[:roles].include? role
-        value = (thing[:qs_answers]||{})[var] and return value
+      @players.each do |p|
+        next if p == this
+        next if role and not p[:roles].include? role
+        value = (p[:qs_answers]||{})[var] and return value
       end
       nil
     end
@@ -84,6 +76,10 @@ module CEML
     # ==============
     # = basic flow =
     # ==============
+
+    def say x, params = {}
+      cb :said, params.merge(:said => x)
+    end
 
     def start
       # roles.include? :agent or return false
@@ -99,6 +95,7 @@ module CEML
     def answered_q q
       got or return false
       qs_answers[q.key] = got
+      handled!
       true
     end
 
@@ -118,9 +115,11 @@ module CEML
       got or return false
       if recognized == :done
         say :ok
+        handled!
         true
       else
-        CEML.delegate.send :did_report
+        cb :did_report
+        handled!
         false
       end
     end

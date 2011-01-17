@@ -71,7 +71,7 @@ class TestCasting < Test::Unit::TestCase
 
   def test_radius
     assert_equal 600, pcs("gather 3 runners and 5 hot_babes within 3 blocks").radius
-    assert pcs("gather 3 runners and 5 hot_babes").radius > 50000
+    assert !pcs("gather 3 runners and 5 hot_babes").radius
   end
 
 end

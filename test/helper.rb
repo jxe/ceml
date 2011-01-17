@@ -6,47 +6,40 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'ceml'
 
 class Test::Unit::TestCase
+  DRIVER = CEML::Driver.new
+
   def play script = nil
-    @e = CEML::Incident.new(script) if script
+    @iid = script && DRIVER.start(script)
     yield
-    CEML::Delegate::PLAYERS.clear
+    CEML::Driver::JUST_SAID.clear
   end
 
-  def player id, *roles
-    @e.run do |script|
-      script.add id, *roles
-    end
-  end
-
-  def asked id, rx
-    assert g = CEML::Delegate::PLAYERS.values.find{ |game| game[id] }
-    p = g[id]
-    assert_equal :ask, p[:said]
-    assert_match rx, p[:q]
-    p.delete :said
-  end
-
-  def silent id
-    if g = CEML::Delegate::PLAYERS.values.find{ |game| game[id] }
-      p = g[id]
-      assert !p[:msg]
-    end
-  end
-
-  def told id, rx
-    assert g = CEML::Delegate::PLAYERS.values.find{ |game| game[id] }
-    p = g[id]
-    assert_match rx, p[:msg]
-    p.delete :said
+  def ping s, candidate
+    DRIVER.ping s, candidate
   end
 
   def says id, str
-    @e.run do |incident|
-      incident.players[id][:received] = str
-    end
+    DRIVER.post @iid, :id => id, :received => str
+  end
 
-    CEML.delegate.with_players(@e.id) do |players|
-      players[id][:received] = nil
-    end
+  def player id, *roles
+    DRIVER.post @iid, :id => id, :roles => roles
+  end
+
+  def asked id, rx
+    assert p = CEML::Driver::JUST_SAID[id]
+    assert_equal :ask, p[:said]
+    assert_match rx, p[:q]
+    CEML::Driver::JUST_SAID.delete id
+  end
+
+  def silent id
+    assert !CEML::Driver::JUST_SAID[id]
+  end
+
+  def told id, rx
+    assert p = CEML::Driver::JUST_SAID[id]
+    assert_match rx, p[:msg]
+    CEML::Driver::JUST_SAID.delete id
   end
 end

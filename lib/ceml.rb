@@ -9,14 +9,14 @@ require 'ceml/tt/casting'
 require 'ceml/tt/instructions'
 require 'ceml/tt/scripts'
 
-require 'ceml/delegate'
 require 'ceml/casting_criterion'
 require 'ceml/incident'
+require 'ceml/driver'
 
 module CEML
   extend self
   attr_accessor :delegate
-  @delegate = Delegate.new
+  # @delegate = Delegate.new
 end
 
 module CEML

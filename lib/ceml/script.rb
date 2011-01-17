@@ -9,12 +9,10 @@ module CEML
     # ===========
 
     # public
-    def post candidate
+    def post candidate, locs
       return unless candidate = candidate.dup.load(awaited_criteria)
-      delegate.with_locations(self) do |locs|
-        locs.each{ |l| l.push candidate }
-        locs << CastingLocation.create(self, candidate) if locs.none?(&:added)
-      end
+      locs.each{ |l| l.push candidate }
+      locs << CastingLocation.create(self, candidate) if locs.none?(&:added)
     end
 
     def awaited_criteria
