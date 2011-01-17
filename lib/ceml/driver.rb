@@ -13,21 +13,22 @@ module CEML
     INCIDENTS = {}
     JUST_SAID = {}
 
-    def start(script)
-      x = CEML::Incident.new script
-      iid = x.id
-      INCIDENTS[iid] = x
-      PLAYERS[iid] = []
-      iid
+    def start(script, id = rand(36**10).to_s(36))
+      x = CEML::Incident.new script, id
+      INCIDENTS[id] = x
+      PLAYERS[id] = []
+      id
+    end
+
+    def player_said(incident_id, player, what)
+      JUST_SAID[player[:id]] = what
+      puts "Said #{what.inspect}"
     end
 
     def run(incident_id)
       INCIDENTS[incident_id].run(PLAYERS[incident_id]) do |player, meth, what|
-        case meth
-        when :said
-          JUST_SAID[player[:id]] = what
-          puts "Said #{what.inspect}"
-        end
+        meth = "player_#{meth}"
+        send(meth, incident_id, player, what) if respond_to? meth
       end
     end
 

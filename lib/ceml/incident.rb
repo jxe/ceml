@@ -14,7 +14,7 @@ module CEML
       this.delete :recognized
     end
 
-    def initialize(script, id = rand(36**10).to_s(36))
+    def initialize(script, id)
       @id = id
       @script = Script === script ? script : CEML.parse(:script, script)
     end
