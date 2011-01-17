@@ -37,6 +37,7 @@ module CEML
       player[:roles] = Set.new([*player[:roles] || []])
       player[:roles] << :agents
       if existing_player = PLAYERS[incident_id].find{ |p| p[:id] == player_id }
+        existing_player[:roles] += player.delete :roles
         existing_player.update player
       else
         PLAYERS[incident_id] << player
