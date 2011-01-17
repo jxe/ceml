@@ -34,7 +34,8 @@ module CEML
 
     def post incident_id, player
       player_id = player[:id]
-      player[:roles] = Set.new([*player[:roles]]) if player[:roles]
+      player[:roles] = Set.new([*player[:roles] || []])
+      player[:roles] << :agents
       if existing_player = PLAYERS[incident_id].find{ |p| p[:id] == player_id }
         existing_player.update player
       else

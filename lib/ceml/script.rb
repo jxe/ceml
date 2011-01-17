@@ -20,6 +20,10 @@ module CEML
       return cast.criteria(self)
     end
 
+    def nabs?
+      cast.type == :nab
+    end
+
 
     # ===============
     # = likelihoods =
@@ -167,7 +171,7 @@ module CEML
     def type
       return 'mission'  if title
       return 'unknown'  if instructions.empty?
-      return 'question' if not instructions.asks.empty?
+      return 'question' if not instructions.asks(:agents).empty?
       return 'message'  if instructions.tell(:agents)
       return 'unknown'
     end
