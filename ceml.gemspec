@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ceml}
-  s.version = "0.4.0"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Edelman"]
-  s.date = %q{2011-01-09}
+  s.date = %q{2011-01-17}
   s.description = %q{a language for coordinating real world events}
   s.email = %q{joe@citizenlogistics.com}
   s.extra_rdoc_files = [
@@ -31,11 +31,10 @@ Gem::Specification.new do |s|
      "examples/breakfast-exchange.ceml",
      "examples/citizen-investigation.ceml",
      "examples/high-fives.ceml",
-     "examples/sample_delegate.rb",
      "lib/ceml.rb",
      "lib/ceml/casting_criterion.rb",
      "lib/ceml/casting_statement.rb",
-     "lib/ceml/delegate.rb",
+     "lib/ceml/driver.rb",
      "lib/ceml/incident.rb",
      "lib/ceml/instruction_statements.rb",
      "lib/ceml/script.rb",
@@ -60,8 +59,7 @@ Gem::Specification.new do |s|
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
-     "test/test_scripts.rb",
-     "examples/sample_delegate.rb"
+     "test/test_scripts.rb"
   ]
 
   if s.respond_to? :specification_version then
