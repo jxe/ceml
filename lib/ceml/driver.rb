@@ -8,50 +8,63 @@ end
 
 module CEML
   class Driver
-    LOCATIONS = {}
+
     PLAYERS   = {}
     INCIDENTS = {}
-    JUST_SAID = {}
-
-    def start(script, id = rand(36**10).to_s(36))
-      x = CEML::Incident.new script, id
-      INCIDENTS[id] = x
-      PLAYERS[id] = []
+    def with_incident(id, script = nil)
+      id ||= rand(36**10).to_s(36)
+      PLAYERS[id] ||= []
+      INCIDENTS[id] ||= CEML::Incident.new script, id if script
+      raise "no incident #{id}" unless INCIDENTS[id]
+      yield INCIDENTS[id], PLAYERS[id] if block_given?
       id
     end
 
-    def player_said(incident_id, player, what)
-      JUST_SAID[player[:id]] = what
-      puts "Said #{what.inspect}"
-    end
-
-    def run(incident_id)
-      INCIDENTS[incident_id].run(PLAYERS[incident_id]) do |player, meth, what|
-        meth = "player_#{meth}"
-        send(meth, incident_id, player, what) if respond_to? meth
-      end
-    end
-
-    def post incident_id, player
-      player_id = player[:id]
-      player[:roles] = Set.new([*player[:roles] || []])
-      player[:roles] << :agents
-      if existing_player = PLAYERS[incident_id].find{ |p| p[:id] == player_id }
-        existing_player[:roles] += player.delete :roles
-        existing_player.update player
-      else
-        PLAYERS[incident_id] << player
-      end
-      run incident_id
-    end
-
+    LOCATIONS = {}
     def ping script, candidate
       LOCATIONS[script] ||= []
       script.post candidate, LOCATIONS[script]
       LOCATIONS[script].delete_if do |loc|
         next unless loc.cast
-        iid = start(script)
-        loc.cast.each{ |guy| post iid, guy.initial_state }
+        with_incident nil, script do |incident, players|
+          loc.cast.each{ |guy| subpost incident, players, guy.initial_state }
+        end
+      end
+    end
+
+    def start(script, id = nil)
+      with_incident(id, script)
+    end
+
+    def post incident_id, player
+      with_incident incident_id do |incident, players|
+        subpost incident, players, player
+      end
+    end
+
+    def subpost incident, players, player
+      player_id = player[:id]
+      player[:roles] = Set.new([*player[:roles] || []])
+      player[:roles] << :agents
+      if existing_player = players.find{ |p| p[:id] == player_id }
+        existing_player[:roles] += player.delete :roles
+        existing_player.update player
+      else
+        players << player
+      end
+      run incident, players
+    end
+
+    JUST_SAID = {}
+    def player_said(incident_id, player, what)
+      JUST_SAID[player[:id]] = what
+      puts "Said #{what.inspect}"
+    end
+
+    def run(incident, players)
+      incident.run(players) do |player, meth, what|
+        meth = "player_#{meth}"
+        send(meth, incident.id, player, what) if respond_to? meth
       end
     end
   end
