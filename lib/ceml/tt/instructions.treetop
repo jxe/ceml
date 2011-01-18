@@ -2,7 +2,7 @@ module CEML
 grammar Instructions
     include Lexer
 
-    rule instruction_stmt
+    rule basic_statement
         (ask_stmt / tell_stmt / assign_stmt / register_stmt) {
 
             INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
@@ -15,6 +15,12 @@ grammar Instructions
               end
             end
 
+            def delay
+                if parent.respond_to? :later and not parent.later.empty?
+                    parent.later.duration.seconds
+                end
+            end
+
             def role;  id.text_value.to_sym; end
             def text;  super.text_value; end
             def var
@@ -23,11 +29,19 @@ grammar Instructions
             end
             def key;   var || text; end
             def cmd;
-              text_value =~ /^ask/  and return :ask
+              text_value =~ /^ask/           and return :ask
               text_value =~ /^(tell|assign)/ and return :tell
-              text_value =~ /^register/ and return :register
+              text_value =~ /^register/      and return :register
             end
         }
+    end
+
+    rule instruction_stmt
+        later:later? basic_statement
+    end
+
+    rule later
+        duration ws 'later' ws
     end
 
     rule register_stmt

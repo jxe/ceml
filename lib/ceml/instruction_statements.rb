@@ -1,7 +1,7 @@
 module CEML
   module InstructionStatements
     def list
-        [instruction_stmt] + more.elements.map(&:instruction_stmt)
+      [instruction_stmt.basic_statement] + more.elements.map{ |x| x.instruction_stmt.basic_statement }
     end
 
     def instructions

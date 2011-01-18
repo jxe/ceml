@@ -22,10 +22,10 @@ grammar Lexer
     end
 
     rule number
-      ([1-9]+ [0-9]* / '0' / 'an' / 'a' / 'the') {
+      ([1-9]+ [0-9]* / '0' / 'an' / 'a' / 'one' / 'the') {
           def value
             case text_value
-            when 'a', 'an', 'the' then 1
+            when 'a', 'an', 'the', 'one' then 1
             else text_value.to_i
             end
           end
@@ -42,6 +42,16 @@ grammar Lexer
 
     rule id
       !(reserved_word ws) [a-zA-Z_]+
+    end
+
+    rule duration
+      number ws? time_unit:('seconds' / 'second' / 's' / 'minutes' / 'minute' / 'min')
+      {
+          def seconds
+              number.text_value.to_f * case time_unit.text_value
+              when /^mi/; 60; else 1; end
+          end
+      }
     end
 
     rule distance

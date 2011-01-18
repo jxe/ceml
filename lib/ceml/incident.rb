@@ -41,6 +41,10 @@ module CEML
         bytecode = [[:start]]
         instrs = script.instructions_for(roles)
         instrs.each do |inst|
+          if inst.delay
+            bytecode << [:start_delay, inst.delay]
+            bytecode << [:complete_delay]
+          end
           case inst.cmd
           when :register
             bytecode << [:answered_q, inst]
@@ -84,8 +88,18 @@ module CEML
       cb :said, params.merge(:said => x)
     end
 
-    def start
-      # roles.include? :agent or return false
+    def start;  true; end
+    def finish; true; end
+
+    def start_delay seconds
+      this[:continue_at] = Time.now.utc.to_i + seconds
+      cb :delay, seconds
+      true
+    end
+
+    def complete_delay
+      return false unless Time.now.utc.to_i >= this[:continue_at]
+      this.delete(:continue_at)
       true
     end
 
@@ -129,10 +143,6 @@ module CEML
 
     def null_assign
       say :proceed
-      true
-    end
-
-    def finish
       true
     end
   end

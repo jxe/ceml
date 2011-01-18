@@ -31,6 +31,10 @@ class Test::Unit::TestCase
     DRIVER.post @iid, :id => id, :roles => roles
   end
 
+  def roll
+    DRIVER.post @iid
+  end
+
   def asked id, rx
     assert p = CEML::Driver::JUST_SAID[id]
     assert_equal :ask, p[:said]

@@ -82,6 +82,18 @@ class TestIncident < Test::Unit::TestCase
     end
   end
 
+  def test_delay
+    s = CEML.parse(:script, "tell agents: hello\n5s later tell agents: goodbye")
+    play s do
+      player :bill, :agent
+      told :bill, /hello/
+      silent :bill
+      sleep 5
+      roll
+      told :bill, /goodbye/
+    end
+  end
+
   def test_signup_1
     s = CEML.parse(:script, "await 1 new signup\ntell signup: thanks")
     play do
