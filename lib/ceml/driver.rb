@@ -36,23 +36,28 @@ module CEML
       with_incident(id, script)
     end
 
-    def post incident_id, player
+    def post incident_id, player = nil
       with_incident incident_id do |incident, players|
         subpost incident, players, player
       end
     end
 
-    def subpost incident, players, player
-      player_id = player[:id]
-      player[:roles] = Set.new([*player[:roles] || []])
-      player[:roles] << :agents
-      if existing_player = players.find{ |p| p[:id] == player_id }
-        existing_player[:roles] += player.delete :roles
-        existing_player.update player
-      else
-        players << player
+    def subpost incident, players, player = nil
+      if player
+        player_id = player[:id]
+        player[:roles] = Set.new([*player[:roles] || []])
+        player[:roles] << :agents
+        if existing_player = players.find{ |p| p[:id] == player_id }
+          existing_player[:roles] += player.delete :roles
+          existing_player.update player
+        else
+          players << player
+        end
       end
-      run incident, players
+      incident.run(players) do |player, meth, what|
+        meth = "player_#{meth}"
+        send(meth, incident.id, player, what) if respond_to? meth
+      end
     end
 
     JUST_SAID = {}
@@ -61,11 +66,8 @@ module CEML
       puts "Said #{what.inspect}"
     end
 
-    def run(incident, players)
-      incident.run(players) do |player, meth, what|
-        meth = "player_#{meth}"
-        send(meth, incident.id, player, what) if respond_to? meth
-      end
-    end
+    # def player_delay(incident_id, player, seconds)
+    #   sleep seconds if seconds < 20
+    # end
   end
 end
