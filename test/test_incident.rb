@@ -5,7 +5,7 @@ COMPLIMENT_SCRIPT = <<XXX
 "Overwhelm a specific person with compliments"
 gather 5-20 players within 4 blocks
 ask organizer re target: Describe their appearance and location
-tell agents: Look for |otherguy.target| and compliment them briefly, then move on.
+tell agents: Look for |somebody.target| and compliment them briefly, then move on.
 XXX
 
 JANE_SCRIPT = <<XXX
@@ -144,8 +144,8 @@ ASKCHAIN_SCRIPT = <<XXX
 "Meet your neighbor"
 gather 2 players within 1 block
 ask players re color: what's your favorite color?
-ask players re observation: find someone near you with the color |otherguy.color|. what are they wearing?
-ask players re rightmatch: are you wearing |otherguy.observation|?
+ask players re observation: find someone near you with the color |somebody.color|. what are they wearing?
+ask players re rightmatch: are you wearing |somebody.observation|?
 ask players re task: take your new partner and see if you can find something beautiful in the park.
 XXX
 

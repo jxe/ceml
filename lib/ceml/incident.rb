@@ -69,8 +69,11 @@ module CEML
     end
 
     def expand(role, var)
-      return (this[:qs_answers]||{})[var] if role =~ /^his|her$/
-      role = nil if role == 'otherguy'
+      case role
+      when 'his', 'her', 'their';                 return qs_answers[var]
+      when 'world', 'game', 'exercise', 'group';  return (cb :world, var)
+      when 'somebody', 'someone';                 role = nil
+      end
       role = role.to_sym if role
       @players.each do |p|
         next if p == this
