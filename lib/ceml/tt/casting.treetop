@@ -35,11 +35,11 @@ grammar Casting
       (rolename &and / range ws qualifier ws rolename / range ws rolename / qualifier ws rolename / rolename) {
         def name; if respond_to? :rolename then rolename.text_value else text_value end; end
         def min
-            return range.min if respond_to? :range
+            return range.value.min if respond_to? :range
             name =~ /s$/ ? 2 : 1
         end
         def max
-            return range.max if respond_to? :range
+            return range.value.max if respond_to? :range
             name =~ /s$/ ? 10000 : 1
         end
         def qualifiers
