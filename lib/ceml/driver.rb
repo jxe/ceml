@@ -16,7 +16,7 @@ module CEML
       PLAYERS[id] ||= []
       INCIDENTS[id] ||= CEML::Incident.new script, id if script
       raise "no incident #{id}" unless INCIDENTS[id]
-      yield INCIDENTS[id], PLAYERS[id] if block_given?
+      yield INCIDENTS[id], PLAYERS[id], {} if block_given?
       id
     end
 
@@ -26,8 +26,8 @@ module CEML
       script.post candidate, LOCATIONS[script]
       LOCATIONS[script].delete_if do |loc|
         next unless loc.cast
-        with_incident nil, script do |incident, players|
-          loc.cast.each{ |guy| subpost incident, players, guy.initial_state }
+        with_incident nil, script do |incident, players, metadata|
+          loc.cast.each{ |guy| subpost incident, players, metadata, guy.initial_state }
         end
       end
     end
@@ -37,12 +37,13 @@ module CEML
     end
 
     def post incident_id, player = nil
-      with_incident incident_id do |incident, players|
-        subpost incident, players, player
+      with_incident incident_id do |incident, players, metadata|
+        subpost incident, players, metadata, player
       end
     end
+    alias_method :run, :post
 
-    def subpost incident, players, player = nil
+    def subpost incident, players, metadata, player = nil
       if player
         player_id = player[:id]
         player[:roles] = Set.new([*player[:roles] || []])
@@ -56,18 +57,14 @@ module CEML
       end
       incident.run(players) do |player, meth, what|
         meth = "player_#{meth}"
-        send(meth, incident.id, player, what) if respond_to? meth
+        send(meth, incident.id, metadata, player, what) if respond_to? meth
       end
     end
 
     JUST_SAID = {}
-    def player_said(incident_id, player, what)
+    def player_said(incident_id, metadata, player, what)
       JUST_SAID[player[:id]] = what
       puts "Said #{what.inspect}"
     end
-
-    # def player_delay(incident_id, player, seconds)
-    #   sleep seconds if seconds < 20
-    # end
   end
 end
