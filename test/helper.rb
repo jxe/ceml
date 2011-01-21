@@ -9,7 +9,7 @@ class Test::Unit::TestCase
   DRIVER = CEML::Driver.new
 
   def play script = nil
-    @iid = script && DRIVER.start(script)
+    @iid = script && DRIVER.start(nil, script)
     yield
     CEML::Driver::JUST_SAID.clear
     CEML::Driver::PLAYERS.clear

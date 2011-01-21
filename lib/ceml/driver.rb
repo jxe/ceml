@@ -11,29 +11,26 @@ module CEML
 
     PLAYERS   = {}
     INCIDENTS = {}
-    def with_incident(id, script = nil)
+    def with_incident(id, script = nil, metadata = {})
       id ||= rand(36**10).to_s(36)
       PLAYERS[id] ||= []
       INCIDENTS[id] ||= CEML::Incident.new script, id if script
       raise "no incident #{id}" unless INCIDENTS[id]
-      yield INCIDENTS[id], PLAYERS[id], {} if block_given?
+      yield INCIDENTS[id], PLAYERS[id], metadata if block_given?
       id
     end
+    alias_method :start, :with_incident
 
     LOCATIONS = {}
-    def ping script, candidate
+    def ping script, candidate, metadata = {}
       LOCATIONS[script] ||= []
       script.post candidate, LOCATIONS[script]
       LOCATIONS[script].delete_if do |loc|
         next unless loc.cast
-        with_incident nil, script do |incident, players, metadata|
+        with_incident nil, script, metadata do |incident, players, metadata|
           loc.cast.each{ |guy| subpost incident, players, metadata, guy.initial_state }
         end
       end
-    end
-
-    def start(script, id = nil)
-      with_incident(id, script)
     end
 
     def post incident_id, player = nil
