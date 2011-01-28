@@ -95,13 +95,12 @@ module CEML
     def finish; true; end
 
     def start_delay seconds
-      this[:continue_at] = Time.now.utc.to_i + seconds
-      cb :delay, seconds
+      this[:continue_at] = CEML.clock + seconds
       true
     end
 
     def complete_delay
-      return false unless Time.now.utc.to_i >= this[:continue_at]
+      return false unless CEML.clock >= this[:continue_at]
       this.delete(:continue_at)
       true
     end

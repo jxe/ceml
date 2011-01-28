@@ -24,7 +24,7 @@ module CEML
     LOCATIONS = Hash.new{ |h,k| h[k] = [] }
     def ping script, candidate
       return unless script.fits? candidate
-      candidate[:ts] = Time.now.utc.to_i
+      candidate[:ts] = CEML.clock
       script_id = script.text_value
 
       locs = LOCATIONS[script_id].group_by{ |l| l.stage_with_candidate(candidate) }

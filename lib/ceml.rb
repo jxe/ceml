@@ -16,6 +16,9 @@ require 'ceml/driver'
 
 module CEML
   extend self
+  @extra_seconds = 0
+  def clock; Time.now.utc.to_i + @extra_seconds; end
+  def incr_clock(s); @extra_seconds += s; end
 end
 
 module CEML

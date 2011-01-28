@@ -86,7 +86,7 @@ class TestIncident < Test::Unit::TestCase
       player :bill, :agent
       told :bill, /hello/
       silent :bill
-      sleep 5
+      CEML.incr_clock 5
       roll
       told :bill, /goodbye/
     end
