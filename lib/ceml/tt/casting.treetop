@@ -3,7 +3,15 @@ grammar Casting
     include Lexer
 
     rule casting_statement
-      ('gather' / 'await' / 'nab') ws roles within_phrase:within_phrase? <CastingStatement>
+      ('gather' / 'await' / 'nab') ws roles modifiers:modifier_phrase* <CastingStatement>
+    end
+
+    rule modifier_phrase
+      over_phrase / within_phrase
+    end
+
+    rule over_phrase
+        ws 'over' ws duration
     end
 
     rule within_phrase

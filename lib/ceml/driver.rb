@@ -21,27 +21,65 @@ module CEML
     end
     alias_method :start, :with_incident
 
-    LOCATIONS = {}
-    def ping script, candidate, metadata = {}
-      LOCATIONS[script] ||= []
-      script.post candidate, LOCATIONS[script]
-      LOCATIONS[script].delete_if do |loc|
-        next unless loc.cast
-        with_incident nil, script, metadata do |incident, players, metadata|
-          loc.cast.each{ |guy| subpost incident, players, metadata, guy.initial_state }
+    LOCATIONS = Hash.new{ |h,k| h[k] = [] }
+    def ping script, candidate
+      return unless script.fits? candidate
+      candidate[:ts] = Time.now.utc.to_i
+      script_id = script.text_value
+
+      locs = LOCATIONS[script_id].group_by{ |l| l.stage_with_candidate(candidate) }
+      if locs[:joinable]
+        # puts "joining..."
+        first = locs[:joinable].shift
+        first.push candidate
+        push first.incident_id, nil, candidate
+
+      elsif locs[:launchable]
+        # puts "launching..."
+        first = locs[:launchable].shift
+        first.push candidate
+        cast = first.cast
+        push nil, script, *cast
+        (locs[:launchable] + (locs[:listable]||[])).each{ |l| l.rm *cast }
+
+      elsif locs[:listable]
+        # puts "listing..."
+        locs[:listable].each{ |l| l.push candidate }
+
+      else
+        c = Confluence.new(script)
+        case c.stage_with_candidate(candidate)
+        when :launchable
+          # puts "start-launching..."
+          c.push candidate
+          push nil, script, candidate
+        when :listable
+          # puts "start-listing..."
+          c.push candidate
+          LOCATIONS[script_id] << c
+        else raise "what?"
         end
+
+      end
+
+      LOCATIONS[script_id].delete_if(&:full?)
+      # save the changed ones and clear dirty flag
+    end
+
+    def push incident_id, script, *updated_players
+      with_incident incident_id, script do |incident, players, metadata|
+        subpost incident, players, metadata, *updated_players
       end
     end
 
-    def post incident_id, player = nil
-      with_incident incident_id do |incident, players, metadata|
-        subpost incident, players, metadata, player
-      end
+    def post incident_id, *updated_players
+      push incident_id, nil, *updated_players
     end
+
     alias_method :run, :post
 
-    def subpost incident, players, metadata, player = nil
-      if player
+    def subpost incident, players, metadata, *updated_players
+      updated_players.each do |player|
         player_id = player[:id]
         player[:roles] = Set.new([*player[:roles] || []])
         player[:roles] << :agents

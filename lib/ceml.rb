@@ -9,7 +9,8 @@ require 'ceml/tt/casting'
 require 'ceml/tt/instructions'
 require 'ceml/tt/scripts'
 
-require 'ceml/casting_criterion'
+require 'ceml/role'
+require 'ceml/confluence'
 require 'ceml/incident'
 require 'ceml/driver'
 

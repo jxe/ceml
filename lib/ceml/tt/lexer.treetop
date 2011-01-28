@@ -34,7 +34,7 @@ grammar Lexer
     end
 
     rule reserved_word
-        'and' / 'within'
+        'and' / 'within' / 'over'
     end
 
     rule id
@@ -42,11 +42,11 @@ grammar Lexer
     end
 
     rule duration
-      number ws? time_unit:('seconds' / 'second' / 's' / 'minutes' / 'minute' / 'min')
+      number ws? time_unit:('seconds' / 'second' / 's' / 'minutes' / 'minute' / 'min' / 'hours' / 'hour' / 'hr' / 'h')
       {
           def seconds
               number.text_value.to_f * case time_unit.text_value
-              when /^mi/; 60; else 1; end
+              when /^h/; 60*60; when /^mi/; 60; else 1; end
           end
       }
     end

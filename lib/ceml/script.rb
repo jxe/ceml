@@ -8,16 +8,13 @@ module CEML
     # = casting =
     # ===========
 
-    # public
-    def post candidate, locs
-      return unless candidate = candidate.dup.load(awaited_criteria)
-      locs.each{ |l| l.push candidate }
-      locs << CastingLocation.create(self, candidate) if locs.none?(&:added)
+    def fits? candidate
+      roles_to_cast.any?{ |r| r.fits? candidate }
     end
 
-    def awaited_criteria
+    def roles_to_cast
       return [] unless cast.type == :await
-      return cast.criteria(self)
+      return cast.roles_to_cast(self)
     end
 
     def nabs?

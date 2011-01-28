@@ -65,9 +65,7 @@ class TestIncident < Test::Unit::TestCase
   def test_jane
     s = CEML.parse(:script, JANE_SCRIPT)
     play do
-      c = CEML::Candidate.new('fred', ['new'], {})
-      c.initial_state = { :received => 'freddy' }
-      ping s, c
+      ping s, :id => 'fred', :tags => ['new'], :received => 'freddy'
       asked 'fred', /Hello freddy. You are Level Zero./
       says 'fred', "shoeless"
       asked 'fred', /favorite game/
@@ -97,7 +95,7 @@ class TestIncident < Test::Unit::TestCase
   def test_signup_1
     s = CEML.parse(:script, "await 1 new signup\ntell signup: thanks")
     play do
-      ping s, CEML::Candidate.new('fred', ['new'], {})
+      ping s, :id => 'fred', :tags => ['new']
       told 'fred', /thanks/
     end
   end
@@ -105,11 +103,11 @@ class TestIncident < Test::Unit::TestCase
   def test_signup_2
     s = CEML.parse(:script, "await 2 new signups\ntell signups: thanks")
     play do
-      ping s, CEML::Candidate.new('fred', ['new'], {})
+      ping s, :id => 'fred', :tags => ['new']
       silent 'fred'
-      ping s, CEML::Candidate.new('wilma', ['old'], {})
+      ping s, :id => 'wilma', :tags => ['old']
       silent 'fred'
-      ping s, CEML::Candidate.new('betty', ['new'], {})
+      ping s, :id => 'betty', :tags => ['new']
       told 'fred', /thanks/
     end
   end
@@ -117,12 +115,12 @@ class TestIncident < Test::Unit::TestCase
   def test_await
     s = CEML.parse(:script, "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz")
     play do
-      ping s, CEML::Candidate.new('fred', [], {})
+      ping s, :id => 'fred'
       silent 'fred'
-      ping s, CEML::Candidate.new('wilma', [], {})
+      ping s, :id => 'wilma'
       silent 'fred'
       silent 'wilma'
-      ping s, CEML::Candidate.new('betty', [], {})
+      ping s, :id => 'betty'
       told 'fred', /foo/
       told 'betty', /baz/
     end

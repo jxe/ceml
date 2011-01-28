@@ -1,18 +1,24 @@
 module CEML
+
+  class Criteria < Struct.new :plus_tags, :minus_tags, :matching, :radius, :timewindow
+    def complexity; plus_tags.size; end
+    def =~(candidate)
+      candidate[:tags] ||= []
+      (plus_tags - candidate[:tags]).empty? and (minus_tags & candidate[:tags]).empty?
+    end
+  end
+
   module CastingStatement
     extend Forwardable
     def_delegators :roles, :names, :[], :min
     alias_method :rolenames, :names
 
-    def criteria(script)
+    def roles_to_cast(script)
       return [] unless type == :await
-      group_by = if radius then [:city] else [] end
-      criteria_by_qualifiers = Hash.new do |h,k|
-        h[k] = CastingCriterion.new(script, k, [], group_by, radius, {})
+      roles.list.map do |r|
+        c = Criteria.new(r.qualifiers, [], radius ? [:city] : [], radius, timewindow)
+        Role.new r.name, c, r.min..r.max, []
       end
-
-      roles.list.each{ |r| criteria_by_qualifiers[r.qualifiers].role_counts[r.name] = r.min }
-      criteria_by_qualifiers.values
     end
 
     def type
@@ -23,8 +29,22 @@ module CEML
       roles.max
     end
 
+    def within_phrase
+      return if modifiers.empty?
+      modifiers.elements.select{ |m| m.respond_to? :distance }.first
+    end
+
+    def over_phrase
+      return if modifiers.empty?
+      modifiers.elements.select{ |m| m.respond_to? :duration }.first
+    end
+
+    def timewindow
+      over_phrase && over_phrase.duration.seconds
+    end
+
     def radius
-      within_phrase.empty? ? nil : within_phrase.distance.meters
+      within_phrase && within_phrase.distance.meters
     end
 
     def nab?
