@@ -19,8 +19,9 @@ module CEML
     end
 
     def best_role_for candidate
+      # puts "confluence finding best role #{object_id} #{candidate[:id]} #{star}"
       winner = @roles_to_cast.max_by{ |role| role.affinity(candidate, star) }
-      winner unless winner[0] == -1
+      winner unless winner.affinity(candidate, star)[0] == -1
     end
 
     def stage_with_candidate candidate
@@ -36,6 +37,7 @@ module CEML
       best_role = best_role_for(candidate)
       candidate[:roles] = best_role.name.to_sym
       best_role.casted << candidate
+      @star ||= candidate
       @dirty = true
     end
 

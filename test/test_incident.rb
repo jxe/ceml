@@ -112,6 +112,29 @@ class TestIncident < Test::Unit::TestCase
     end
   end
 
+
+  def test_inside_timewindow
+    s = CEML.parse(:script, "await 2 new signups over 10s\ntell signups: thanks")
+    play do
+      ping s, :id => 'fred', :tags => ['new']
+      silent 'fred'
+      CEML.incr_clock 5
+      ping s, :id => 'betty', :tags => ['new']
+      told 'fred', /thanks/
+    end
+  end
+
+  def test_outside_timewindow
+    s = CEML.parse(:script, "await 2 new signups over 10s\ntell signups: thanks")
+    play do
+      ping s, :id => 'fred', :tags => ['new']
+      silent 'fred'
+      CEML.incr_clock 15
+      ping s, :id => 'betty', :tags => ['new']
+      silent 'fred'
+    end
+  end
+
   def test_await
     s = CEML.parse(:script, "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz")
     play do

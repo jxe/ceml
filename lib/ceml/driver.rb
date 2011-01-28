@@ -21,6 +21,10 @@ module CEML
     end
     alias_method :start, :with_incident
 
+    def log(s)
+      # puts s
+    end
+
     LOCATIONS = Hash.new{ |h,k| h[k] = [] }
     def ping script, candidate
       return unless script.fits? candidate
@@ -29,13 +33,13 @@ module CEML
 
       locs = LOCATIONS[script_id].group_by{ |l| l.stage_with_candidate(candidate) }
       if locs[:joinable]
-        # puts "joining..."
+        log "joining..."
         first = locs[:joinable].shift
         first.push candidate
         push first.incident_id, nil, candidate
 
       elsif locs[:launchable]
-        # puts "launching..."
+        log "launching..."
         first = locs[:launchable].shift
         first.push candidate
         cast = first.cast
@@ -43,18 +47,18 @@ module CEML
         (locs[:launchable] + (locs[:listable]||[])).each{ |l| l.rm *cast }
 
       elsif locs[:listable]
-        # puts "listing..."
+        log "listing..."
         locs[:listable].each{ |l| l.push candidate }
 
       else
         c = Confluence.new(script)
         case c.stage_with_candidate(candidate)
         when :launchable
-          # puts "start-launching..."
+          log "start-launching..."
           c.push candidate
           push nil, script, candidate
         when :listable
-          # puts "start-listing..."
+          log "start-listing..."
           c.push candidate
           LOCATIONS[script_id] << c
         else raise "what?"

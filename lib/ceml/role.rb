@@ -28,7 +28,8 @@ module CEML
         return unless c_ll.distance_to(s_ll, :meters) <= c.radius
       end
       if c.timewindow
-        return unless star.ts - candidate.ts <= c.timewindow
+        # puts "checking timewindow #{c.timewindow} #{candidate[:ts] - star[:ts]}"
+        return unless candidate[:ts] - star[:ts] <= c.timewindow
       end
       return true
     end
