@@ -1,8 +1,6 @@
 module CEML
   module Script
     extend Forwardable
-    attr_writer :delegate
-    def delegate; @delegate || CEML.delegate; end
 
     # ===========
     # = casting =

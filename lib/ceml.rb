@@ -16,8 +16,6 @@ require 'ceml/driver'
 
 module CEML
   extend self
-  attr_accessor :delegate
-  # @delegate = Delegate.new
 end
 
 module CEML
