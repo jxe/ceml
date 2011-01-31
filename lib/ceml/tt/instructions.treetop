@@ -19,9 +19,10 @@ grammar Instructions
             end
             def key;   var || text; end
             def cmd;
-              text_value =~ /^ask/           and return :ask
-              text_value =~ /^(tell|assign)/ and return :tell
-              text_value =~ /^register/      and return :register
+              text_value =~ /^ask/      and return :ask
+              text_value =~ /^tell/     and return :tell
+              text_value =~ /^assign/   and return :assign
+              text_value =~ /^register/ and return :register
             end
         }
     end

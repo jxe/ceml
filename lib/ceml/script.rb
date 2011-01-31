@@ -16,7 +16,7 @@ module CEML
     end
 
     def nabs?
-      cast.type == :nab
+      cast.type == :nab or !title
     end
 
 
@@ -71,7 +71,7 @@ module CEML
 
     def cast
       return casting_statement if respond_to? :casting_statement
-      return DefaultDP.new nil, [:agents], 0, :nab
+      return DefaultDP.new nil, [:agents], 0, :gather
     end
 
     def_delegators :cast, :radius
