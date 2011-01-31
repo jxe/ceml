@@ -3,7 +3,7 @@ grammar Instructions
     include Lexer
 
     rule basic_statement
-        (ask_stmt / tell_stmt / assign_stmt / register_stmt) {
+        (ask_stmt / tell_stmt / assign_stmt / record_stmt / set_stmt) {
 
             def delay
                 if parent.respond_to? :later and not parent.later.empty?
@@ -14,7 +14,7 @@ grammar Instructions
             def role;  id.text_value.to_sym; end
             def text;  super.text_value; end
             def var
-                return varname.text_value if cmd == :register
+                return varname.text_value if cmd == :record or cmd == :set
                 (!defined?(:about) || about.empty?) ? nil : about.varname.text_value;
             end
             def key;   var || text; end
@@ -22,7 +22,8 @@ grammar Instructions
               text_value =~ /^ask/      and return :ask
               text_value =~ /^tell/     and return :tell
               text_value =~ /^assign/   and return :assign
-              text_value =~ /^register/ and return :register
+              text_value =~ /^record/   and return :record
+              text_value =~ /^set/      and return :set
             end
         }
     end
@@ -35,8 +36,8 @@ grammar Instructions
         duration ws 'later' ws
     end
 
-    rule register_stmt
-        'register' ws id ws varname:id
+    rule record_stmt
+        'record' ws id ws varname:id
     end
 
     rule tell_stmt
@@ -51,5 +52,8 @@ grammar Instructions
         'ask' ws id about:(ws 're' ws varname:id)? ':' ws? text
     end
 
+    rule set_stmt
+        'set' ws id ws varname:id ':' ws? text
+    end
 end
 end

@@ -56,8 +56,10 @@ module CEML
           bytecode << [:complete_delay]
         end
         case inst.cmd
-        when :register
+        when :record
           bytecode << [:answered_q, {:key => inst.key}]
+        when :set
+          bytecode << [:set, {:key => inst.key, :value => inst.text}]
         when :ask
           bytecode << [:ask_q, {:text => inst.text}]
           bytecode << [:answered_q, {:key => inst.key}]
@@ -142,6 +144,11 @@ module CEML
       got or return false
       qs_answers[q[:key]] = got
       handled!
+      true
+    end
+
+    def set q
+      qs_answers[q[:key]] = q[:value]
       true
     end
 

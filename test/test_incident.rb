@@ -11,7 +11,7 @@ XXX
 JANE_SCRIPT = <<XXX
 
 await 1 new signup
-register signup first_name
+record signup first_name
 ask signup re shoeless:
   Hello |his.first_name|. You are Level Zero. Lowly level zero.
   To advance to Level 1, please remove a shoe. Keep it off,
