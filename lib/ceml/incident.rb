@@ -35,35 +35,51 @@ module CEML
       @callback = @players = nil
     end
 
+    def role_info
+      { :is_transient => is_transient? }
+    end
+
+    def is_transient?
+      main_seq.none? do |opcode, arg|
+        case opcode
+        when :start_delay, :ask_q, :assign, :null_assign then true
+        end
+      end
+    end
+
+    def main_seq
+      bytecode = []
+      instrs = script.instructions_for(roles)
+      instrs.each do |inst|
+        if inst.delay
+          bytecode << [:start_delay, inst.delay]
+          bytecode << [:complete_delay]
+        end
+        case inst.cmd
+        when :register
+          bytecode << [:answered_q, {:key => inst.key}]
+        when :ask
+          bytecode << [:ask_q, {:text => inst.text}]
+          bytecode << [:answered_q, {:key => inst.key}]
+        when :tell
+          bytecode << [:send_msg, {:text=>inst.text}]
+        when :assign
+          bytecode << [:assign, {:text=>inst.text}]
+          bytecode << [:complete_assign, {:text=>inst.text}]
+        end
+      end
+      if instrs.empty? and script.title
+        bytecode << [:null_assign]
+        bytecode << [:complete_assign]
+      end
+      bytecode
+    end
+
     def seq
       @seq ||= {}
       @seq[roles] ||= begin
-        bytecode = [[:start]]
-        instrs = script.instructions_for(roles)
-        instrs.each do |inst|
-          if inst.delay
-            bytecode << [:start_delay, inst.delay]
-            bytecode << [:complete_delay]
-          end
-          case inst.cmd
-          when :register
-            bytecode << [:answered_q, inst]
-          when :ask
-            bytecode << [:ask_q, inst]
-            bytecode << [:answered_q, inst]
-          when :tell
-            if script.title
-              bytecode << [:assign, inst]
-              bytecode << [:complete_assign, inst]
-            else
-              bytecode << [:send_msg, inst]
-            end
-          end
-        end
-        if instrs.empty? and script.title
-          bytecode << [:null_assign]
-          bytecode << [:complete_assign]
-        end
+        bytecode = [[:start, role_info]]
+        bytecode.concat main_seq
         bytecode << [:finish]
       end
     end
@@ -91,7 +107,7 @@ module CEML
       cb :said, params.merge(:said => x)
     end
 
-    def start;  true; end
+    def start(x); true; end
     def finish; true; end
 
     def start_delay seconds
