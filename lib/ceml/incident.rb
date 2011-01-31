@@ -160,6 +160,7 @@ module CEML
     def complete_assign a = nil
       got or return false
       if recognized == :done
+        cb :did_complete
         say :ok
         handled!
         true
