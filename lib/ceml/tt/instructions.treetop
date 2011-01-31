@@ -5,16 +5,6 @@ grammar Instructions
     rule basic_statement
         (ask_stmt / tell_stmt / assign_stmt / register_stmt) {
 
-            INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
-
-            def interpolate(env)
-              text =~ INTERPOLATE_REGEX or return text
-              text.gsub(INTERPOLATE_REGEX) do |m|
-                var, role = *[$2, $1].compact
-                env.expand(role, var) or return false
-              end
-            end
-
             def delay
                 if parent.respond_to? :later and not parent.later.empty?
                     parent.later.duration.seconds

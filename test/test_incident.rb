@@ -135,6 +135,23 @@ class TestIncident < Test::Unit::TestCase
     end
   end
 
+  def test_interpolation
+    s = "\"Soccer in the park\"\ngather 2 players within 1mi\nask players re color: which color?\ntell players: its |someone.color|\n"
+    s = CEML.parse(:script, s)
+    instrs = s.instructions_for(s.roles)
+    assert !instrs.empty?
+    play s do
+      player :bill, :players
+      player :fred, :players
+      asked :bill, /color\?/i
+      asked :fred, /color\?/i
+      says :bill, 'red'
+      says :fred, 'blue'
+      told :fred,  /its red/i
+      told :bill,  /its blue/i
+    end
+  end
+
   def test_await
     s = CEML.parse(:script, "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz")
     play do

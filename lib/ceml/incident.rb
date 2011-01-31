@@ -99,6 +99,17 @@ module CEML
       nil
     end
 
+    INTERPOLATE_REGEX = /\|(\w+)\.?(\w+)?\|/
+
+    def interpolate(text)
+      text =~ INTERPOLATE_REGEX or return text
+      text.gsub(INTERPOLATE_REGEX) do |m|
+        var, role = *[$2, $1].compact
+        expand(role, var) or return false
+      end
+    end
+
+
     # ==============
     # = basic flow =
     # ==============
@@ -122,26 +133,26 @@ module CEML
     end
 
     def ask_q q
-      text = q.interpolate(self) or return false
+      text = interpolate(q[:text]) or return false
       say :ask, :q => text
       true
     end
 
     def answered_q q
       got or return false
-      qs_answers[q.key] = got
+      qs_answers[q[:key]] = got
       handled!
       true
     end
 
     def send_msg a
-      text = a.interpolate(self) or return false
+      text = interpolate(a[:text]) or return false
       say :message, :msg => text
       true
     end
 
     def assign a
-      text = a.interpolate(self) or return false
+      text = interpolate(a[:text]) or return false
       say :assignment, :msg => text
       true
     end
