@@ -96,13 +96,20 @@ module CEML
       end
       incident.run(players) do |player, meth, what|
         meth = "player_#{meth}"
-        send(meth, incident.id, metadata, player, what) if respond_to? meth
+        log "[#{incident.id}] #{meth}: #{player[:id]} #{what.inspect}"
+        if respond_to? meth
+          metadata.update :player => player, :players => players, :id => incident.id
+          result = send(meth, metadata, what)
+          metadata.delete :player
+          metadata.delete :players
+          result
+        end
       end
     end
 
     JUST_SAID = {}
-    def player_said(incident_id, metadata, player, what)
-      JUST_SAID[player[:id]] = what
+    def player_said(data, what)
+      JUST_SAID[data[:player][:id]] = what
       puts "Said #{what.inspect}"
     end
   end
