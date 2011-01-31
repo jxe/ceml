@@ -86,7 +86,7 @@ module CEML
       updated_players.each do |player|
         player_id = player[:id]
         player[:roles] = Set.new([*player[:roles] || []])
-        player[:roles] << :agents
+        player[:roles] << :agents << :players
         if existing_player = players.find{ |p| p[:id] == player_id }
           existing_player[:roles] += player.delete :roles
           existing_player.update player
