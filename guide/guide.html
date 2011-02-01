@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+    "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">
+<html xmlns:svg='http://www.w3.org/2000/svg' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+<head><meta content='application/xhtml+xml;charset=utf-8' http-equiv='Content-type' /><title>Beginners Guide to CEML</title></head>
+<body>
+<h1 id='beginners_guide_to_ceml'>Beginners Guide to CEML</h1>
+
+<p>Thanks for taking an interest in CEML, the Coordinated Event Modeling Language. Using CEML you&#8217;ll be able to get people to do whatever you want, whether it&#8217;s evacuating a submarine, finding a gym buddy, helping people nearby, or just throwing a great party.</p>
+
+<p>A CEML <em>script</em> is a recipe for action. Just like a recipe, it has three parts: a title, a list of ingredients, and then a section that says what to do with the ingredients. Here&#8217;s an example:</p>
+
+<pre><code>&quot;Trade favorite colors&quot;
+gather 1 guy and 1 girl within 50 feet
+ask guy re favorite_color:
+    What&#39;s your favorite color?
+tell girl:
+    Someone nearby likes the color |guy.favorite_color|.  Find them.</code></pre>
+
+<p>In the example, the first line is the title, which is written in double quotes. The second line is the ingredients and how they are obtained. In CEML, the ingredients are usually people (although sometimes they can be places, things, or notes). The remaining lines are the instructions.</p>
+
+<p>A good way to learn how flexible CEML is is to write the same script a different way. Then you can see which parts can change and which parts have to stay the same:</p>
+
+<pre><code>&quot;Trade favorite colors&quot;
+gather a, b within 50ft
+ask a re x: What&#39;s your favorite color?
+tell b: Someone nearby likes the color |a.x|.  Find them.</code></pre>
+
+<p>Whether you write a script compactly with short names for roles and answers or long names, it runs exactly the same.</p>
+
+<h2 id='commands'>Commands</h2>
+
+<p>The above script only uses three CEML commands&#8211;<em>gather</em>, <em>ask</em>, and <em>tell</em>&#8211;but there aren&#8217;t many more commands to learn. Only four more, actually: besides <em>gather</em>, the other ingredients commands are <em>await</em> and <em>nab</em>. Besides <em>ask</em> and <em>tell</em>, the other instructions commands are <em>assign</em> and <em>certify</em>.</p>
+
+<p>As a sneak preview, here&#8217;s an example that uses the other commands:</p>
+
+<pre><code>&quot;Emergency Medicine&quot;
+await 1 concerned patient
+nab a doctor within 5 miles
+ask patient re problem: What&#39;s wrong?
+assign doctor to patient: Attend to patient&#39;s |problem|.
+certify doctor as responsive</code></pre>
+
+<h2 id='texts'>Texts</h2>
+
+<p>Commands like <em>ask</em>, <em>tell</em>, and <em>assign</em> contain texts which are delivered to the player who is the subject of the command. These texts appears after a colon, and can appear on the same or the following lines. If they appears on the following lines, they must be indented, as in the very first example above or the one following.</p>
+
+<pre><code>&quot;Signups&quot;
+await 1 new signup
+tell signup:
+    We are so glad
+    that you have
+    signed up.</code></pre>
+
+<p>Texts may also contain hyperlinks, which if the player has a smartphone with a web browser, will be openable.</p>
+
+<pre><code>&quot;Hostility&quot;
+gather enemy, reporter within 1 block
+ask reporter re clothing: What are you wearing?
+assign enemy: Find someone wearing |clothing| and harass them.
+assign reporter:
+    Someone will harass you.  Notice how it feels.
+    Then fill out this google spreadsheet form
+    to describe your experience.
+    http://spreadsheet.google.com/foo
+tell both: thanks so much for participating!</code></pre>
+
+<h2 id='roles'>Roles</h2>
+
+<p>In the examples so far, the words like &#8216;enemy&#8217;, &#8216;reporter&#8217;, &#8216;guy&#8217;, &#8216;girl&#8217;, &#8216;a&#8217;, &#8216;b&#8217;, &#8216;signup&#8217;, &#8216;patient&#8217;, and &#8216;doctor&#8217; are <em>role names</em>. Most of the time, a role name can be any word you like. They are just a placeholder to connect <em>casting commands</em> like <em>gather</em> and <em>await</em>, with <em>coordination commands</em> like <em>tell</em>.</p>
+
+<p>Squads on Groundcrew, however, can define special meanings for certain roles. So on a particular squad, a &#8216;doctor&#8217; might mean someone who&#8217;s been tagged/certified with the tag &#8216;doctor&#8217;, and a patient might mean anyone else.</p>
+
+<p>Some role names are always special. For instance, if you use the role name &#8216;organizer&#8217;, it always means someone who&#8217;s an official organizer for that squad. And if you use the role names &#8216;both&#8217;, &#8216;all&#8217;, &#8216;each&#8217;, or &#8216;everyone&#8217;, it means that the instruction applies to everyone regardless of how they were <em>cast</em>.</p>
+
+<pre><code>&quot;Get Help&quot;
+await concerned user
+nab organizer
+tell organizer: someone&#39;s not doing well.</code></pre>
+
+<p>When there is only one kind of role in a script, it is possible to omit the role name in instructional commands.</p>
+
+<pre><code>await 1 tired user
+ask re cause: why are you tired?
+tell: i hope you feel better</code></pre>
+
+<h2 id='social_information'>Social Information</h2>
+
+<p>Texts (see above) may contain <em>social information</em> that&#8217;s inserted from answers by another player. To do this, we use a section surrounded by vertical bars (|). In the text that&#8217;s sent to the player, this section will be replaced by the other player&#8217;s answer.</p>
+
+<pre><code>&quot;Empire&quot;
+gather emperor and 2-5 servants
+ask emperor re tasks: What should your servants do today?
+assign servants: The emperor has asked you to do |tasks|. Do them now.</code></pre>
+
+<p>In situations where there may be confusion about which answer you mean, you can specify a particular role by using a dot (.) in between the role and the answer names.</p>
+
+<pre><code>&quot;Cheese Monte&quot;
+gather a,b,c
+ask each re cheese: What kind of cheese do you have?
+tell a: Someone near you has |c.cheese|. Take it!
+tell b: Someone near you has |a.cheese|. Take it!
+tell c: Someone near you has |b.cheese|. Take it!</code></pre>
+
+<h2 id='assign'>Assign</h2>
+
+<p>It is probably clear what <em>ask</em> and <em>tell</em> do, but we haven&#8217;t exactly covered <em>assign</em>. <em>Assign</em> gives a task which is expected to last a certain duration. While a <em>tell</em> command for a particular player completes immediately and goes on to the next command, an <em>assign</em> will wait for the player to say they&#8217;ve completed the task, and collect photo and textual reports as they do it. There are different representations for this depending on whether the player is connected to the script via text messaging, the iphone, or the mobile web.</p>
+
+<p>A special form of <em>assign</em> will additionally direct the player to a person or place where they are supposed to go.</p>
+
+<pre><code>&quot;Streetcorner Observation&quot;
+gather player, streetcorner within 5 blocks
+assign player to streetcorner:
+    Go there and report what you observe.</code></pre>
+
+<p>On iPhone or mobile web, the player will get a little map to direct them. There are several special <em>role names</em> which are used to indicate places rather than people. These include &#8220;streetcorner&#8221;, &#8220;park&#8221;, &#8220;field&#8221;, and &#8220;landmark&#8221;.</p>
+
+<h2 id='choosing_players_await_gather_and_nab'>Choosing Players: Await, Gather, and Nab.</h2>
+
+<p>So what is really the difference between <em>await</em>, <em>gather</em>, and <em>nab</em>, you may be asking? Or perhaps you have already figured it out.</p>
+
+<p><em>Await</em> defines a kind of trigger&#8211;as soon as the conditions awaited for are met, the script will run.</p>
+
+<pre><code>await 2-5 level1 players within 50ft
+assign: shout out &quot;woo-hoo!&quot;
+certify as level2 not level1</code></pre>
+
+<p>Unless there&#8217;s an await statement in your script, it will have to be executed manually by an organizer.</p>
+
+<p><em>Gather</em> issues invitations. It will keep issuing invitations and processing people&#8217;s replies to them until it has the requisite number of players for its roles.</p>
+
+<pre><code>&quot;Pick-up basketball&quot;
+gather 4-8 basketball players within 4 blocks</code></pre>
+
+<p><em>Nab</em> just involves people, straight up, without asking their permission or issuing them an invitation.</p>
+
+<p>By default, the people that triggered an <em>await</em> script are nabbed, not gathered. That means they will never receive an invitation. If you want to make sure they accept, you need an <em>await</em> line and a <em>gather</em> line for the same role name.</p>
+
+<pre><code>&quot;A study about vomitting&quot;
+await 5 sick users
+gather 2-5 users
+ask re feeling: how do you feel?</code></pre>
+
+<h2 id='qualifying_players'>Qualifying players</h2>
+
+<p>You may have noticed that some of the <em>await</em>, <em>gather</em>, and <em>nab</em> statements have adjectives or qualifiers before the role name. For instance, the word &#8220;sick&#8221; in &#8220;sick users&#8221; above is such a qualifier. So is &#8220;basketball&#8221;, &#8220;level1&#8221;, &#8220;tired&#8221;, &#8220;concerned&#8221;, and &#8220;new&#8221;.</p>
+
+<p>Some of these have special meanings: the qualifier <em>new</em> is automatically applied to new signups. So if your script has an <em>await</em> command that looks for someone new, it will automatically run on signup.</p>
+
+<pre><code>await 3 new signups
+assign:
+    You have all just signed up!
+    Take a photo of something you
+    love and share with one another.</code></pre>
+
+<p>Another qualifier with a special meaning is <em>concerned</em>. This is applied to players who, because of their text messaging or their tweeting or their interaction with the iphone or web apps, seem like are confused or have an urgent question or issue.</p>
+
+<p>The other qualifiers don&#8217;t mean anythings special, but they select only players who have been certified or tagged with that particular word. So &#8220;gather 5-20 level1 users&#8221; will only invite users who have been tagged or certified as level1.</p>
+
+<h2 id='certifying'>Certifying</h2>
+
+<p>When a player has successfully completed their role in your script, you can add or change the tags associated with that player using the <em>certify</em> command.</p>
+
+<pre><code>await 3 new signups
+assign:
+    You have all just signed up!
+    Take a photo of something you
+    love and share with one another.
+certify as photo_sharing</code></pre>
+
+<h2 id='making_connections_between_scripts'>Making Connections between Scripts</h2>
+
+<p><em>Certify</em> and qualifications can be used to link scripts together. The certification at the end of the first script can trigger the <em>await</em> statement in the next script. Here&#8217;s an example:</p>
+
+<pre><code>await 20 photo_sharing users
+ask re opinion:
+    How did you like sharing photos just now?
+certify as signed_up not photo_sharing</code></pre>
+
+<h2 id='congratulations'>Congratulations</h2>
+
+<p>You now know the basics of CEML and can start brainstorming your own scripts. If you don&#8217;t have a squad already, contact us at Groundcrew and we&#8217;ll get you set up.</p>
+
+<p>We will also be creating a google group for CEML developers soon. Write info@groundcrew.us to make sure you&#8217;re on it.</p>
+<hr />
+<h2 id='faq'>FAQ</h2>
+
+<h3 id='do_i_need_a_title_for_every_script'>Do I need a title for every script?</h3>
+
+<p>You may have noticed that some of the script examples given in this guide do not have titles. Titles can be omitted under certain conditions. The main issue is that if a script has a <em>gather</em> statement then it MUST have a title. This is because the invitations that are issued contain the script title. Otherwise, titles are still often good to have: if the script is run manually it must have a title so that organizers can select it, and when users are running one of our smartphone clients like the iPhone app or the HTML5 webpage, they will see the title if there is one. The title will also be associated with any long-lasting media and reports that come from running the script.</p>
+
+<h3 id='what_if_i_want_to_share_documents_or_notes_in_a_script'>What if I want to share documents or notes in a script?</h3>
+
+<p>The February or March 2011 version of CEML will support passing and curating notes and documents between scripts. This will allow for a mix of flashmob and knowledge work-style coordination. Syntax is not finalized, but something like:</p>
+
+<pre><code>await designer
+assign:
+    sketch out a design for something you
+    want to build and take a photo
+document as designer_photo
+certify designer_photo as unreviewed
+
+await 6 reviewers and unreviewed designer_photo document
+ask reviewers re opinion:
+    What do you think of this idea? |designer_photo|
+certify designer_photo as reviewed not unreviewed</code></pre>
+</body></html>
