@@ -1,6 +1,15 @@
 require 'ceml'
 require 'test/helper'
 
+SYNC_SCRIPT = <<XXX
+await 1 alpha and 1 beta
+ask alpha re color: What color?
+ask beta re color: What color?
+sync both
+tell alpha: Hi there
+tell beta: Goodbye
+XXX
+
 COMPLIMENT_SCRIPT = <<XXX
 "Overwhelm a specific person with compliments"
 gather 5-20 players within 4 blocks
@@ -61,6 +70,21 @@ tell signup:
 XXX
 
 class TestIncident < Test::Unit::TestCase
+
+  def test_sync
+    s = CEML.parse(:script, SYNC_SCRIPT)
+    play do
+      ping s, :id => 'alpha'
+      ping s, :id => 'beta'
+      asked 'alpha', /olor/
+      asked 'beta', /olor/
+      says 'alpha', "red"
+      silent 'alpha'
+      says 'beta', "blue"
+      told 'alpha', /Hi/
+      told 'beta', /Goodbye/
+    end
+  end
 
   def test_jane
     s = CEML.parse(:script, JANE_SCRIPT)

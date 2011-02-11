@@ -8,6 +8,7 @@ module CEML
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
     def qs_answers; this[:qs_answers] ||= Hash.new; end
+    def seq; @seq ||= script.bytecode; end
 
     def handled!
       this.delete :received
@@ -23,13 +24,23 @@ module CEML
       @callback.call this, *stuff if @callback
     end
 
+    def rolematch(specified_roles)
+      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone])
+      not (expanded & specified_roles).empty?
+    end
+
     def run(players, &blk)
       @players = players
       @callback = blk
       :loop while players.any? do |@this|
         # puts "seq for roles: #{roles.inspect} #{seq.inspect}"
-        next unless seq[pc] and send(*seq[pc])
-        cb(*seq[pc])
+        next unless instr = seq[pc]
+        instr = instr.dup
+        if rolematch(instr.shift)
+          instr << role_info if instr.first == :start  #tmp hack
+          next unless send(*instr)
+          cb(*instr)
+        end
         this[:pc]+=1
       end
       @callback = @players = nil
@@ -40,51 +51,13 @@ module CEML
     end
 
     def is_transient?
-      main_seq.none? do |opcode, arg|
+      seq.none? do |roles, opcode, arg|
         case opcode
         when :start_delay, :ask_q, :assign, :null_assign then true
         end
       end
     end
 
-    def main_seq
-      bytecode = []
-      instrs = script.instructions_for(roles)
-      instrs.each do |inst|
-        if inst.delay
-          bytecode << [:start_delay, inst.delay]
-          bytecode << [:complete_delay]
-        end
-        case inst.cmd
-        when :record
-          bytecode << [:answered_q, {:key => inst.key}]
-        when :set
-          bytecode << [:set, {:key => inst.key, :value => inst.text}]
-        when :ask
-          bytecode << [:ask_q, {:text => inst.text}]
-          bytecode << [:answered_q, {:key => inst.key}]
-        when :tell
-          bytecode << [:send_msg, {:text=>inst.text}]
-        when :assign
-          bytecode << [:assign, {:text=>inst.text}]
-          bytecode << [:complete_assign, {:text=>inst.text}]
-        end
-      end
-      if instrs.empty? and script.title
-        bytecode << [:null_assign]
-        bytecode << [:complete_assign]
-      end
-      bytecode
-    end
-
-    def seq
-      @seq ||= {}
-      @seq[roles] ||= begin
-        bytecode = [[:start, role_info]]
-        bytecode.concat main_seq
-        bytecode << [:finish]
-      end
-    end
 
     def expand(role, var)
       case role
@@ -133,14 +106,12 @@ module CEML
       this.delete(:continue_at)
       true
     end
-    
+
     def sync
-      # mark self as ready to continue
-      # continue only if all players with roles are marked ready
-      # clear marks
-      # continue
+      this[:synced] = pc
+      return true if @players.all?{ |p| p[:synced] == pc }
     end
-    
+
     def ask_q q
       text = interpolate(q[:text]) or return false
       say :ask, :q => text

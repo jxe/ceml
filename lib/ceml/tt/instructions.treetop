@@ -3,7 +3,7 @@ grammar Instructions
     include Lexer
 
     rule basic_statement
-        (ask_stmt / tell_stmt / assign_stmt / record_stmt / set_stmt) {
+        (ask_stmt / tell_stmt / assign_stmt / record_stmt / set_stmt / sync_stmt) {
 
             def delay
                 if parent.respond_to? :later and not parent.later.empty?
@@ -18,12 +18,23 @@ grammar Instructions
                 (!defined?(:about) || about.empty?) ? nil : about.varname.text_value;
             end
             def key;   var || text; end
-            def cmd;
-              text_value =~ /^ask/      and return :ask
-              text_value =~ /^tell/     and return :tell
-              text_value =~ /^assign/   and return :assign
-              text_value =~ /^record/   and return :record
-              text_value =~ /^set/      and return :set
+            def cmd;  text_value.split.first.to_sym; end
+
+            def bytecode
+                code = []
+                code.concat   [[[role], :start_delay, delay],
+                               [[role], :complete_delay]] if delay
+                code.concat case cmd
+                when :record; [[[role], :answered_q,      {:key  => key}]]
+                when :set;    [[[role], :set,             {:key  => key, :value => text}]]
+                when :ask;    [[[role], :ask_q,           {:text => text}],
+                               [[role], :answered_q,      {:key  => key}]]
+                when :tell;   [[[role], :send_msg,        {:text => text}]]
+                when :assign; [[[role], :assign,          {:text => text}],
+                               [[role], :complete_assign, {:text => text}]]
+                when :sync;   [[[role], :sync]]
+                end
+                code
             end
         }
     end
@@ -54,6 +65,10 @@ grammar Instructions
 
     rule set_stmt
         'set' ws id ws varname:id ':' ws? text
+    end
+
+    rule sync_stmt
+        'sync' ws id
     end
 end
 end

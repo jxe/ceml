@@ -112,6 +112,14 @@ module CEML
       return instructions.for(expand_roles(roles))
     end
 
+    def bytecode
+      code = [[[:all], :start]]
+      return [[[:all], :null_assign], [[:all], :complete_assign]] if !instructions and title
+      instructions.list.each{ |inst| code.concat inst.bytecode } if instructions
+      code << [[:all], :finish]
+      code
+    end
+
     def asks(roles)
       return [] unless instructions
       instructions.i_asks([*roles])
