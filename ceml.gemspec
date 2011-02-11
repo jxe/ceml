@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ceml}
-  s.version = "0.6.3"
+  s.version = "0.6.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Edelman"]
-  s.date = %q{2011-01-31}
+  s.date = %q{2011-02-11}
   s.description = %q{a language for coordinating real world events}
   s.email = %q{joe@citizenlogistics.com}
   s.extra_rdoc_files = [
@@ -24,13 +24,15 @@ Gem::Specification.new do |s|
      "README.markdown",
      "Rakefile",
      "VERSION",
-     "beginners-guide.md",
      "ceml.gemspec",
      "editors/CEML.tmbundle/Syntaxes/ceml.tmLanguage",
      "editors/CEML.tmbundle/info.plist",
      "examples/breakfast-exchange.ceml",
      "examples/citizen-investigation.ceml",
      "examples/high-fives.ceml",
+     "guide/guide.html",
+     "guide/guide.md",
+     "guide/guide.pdf",
      "lib/ceml.rb",
      "lib/ceml/casting_statement.rb",
      "lib/ceml/confluence.rb",
