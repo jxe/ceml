@@ -133,7 +133,14 @@ module CEML
       this.delete(:continue_at)
       true
     end
-
+    
+    def sync
+      # mark self as ready to continue
+      # continue only if all players with roles are marked ready
+      # clear marks
+      # continue
+    end
+    
     def ask_q q
       text = interpolate(q[:text]) or return false
       say :ask, :q => text
