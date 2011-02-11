@@ -90,7 +90,7 @@ module CEML
       case role
       when 'his', 'her', 'their';                 return qs_answers[var]
       when 'world', 'game', 'exercise', 'group';  return (cb :world, var)
-      when 'somebody', 'someone';                 role = nil
+      when 'somebody', 'someone', 'buddy';        role = nil
       end
       role = role.to_sym if role
       @players.each do |p|
