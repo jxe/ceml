@@ -54,49 +54,49 @@ module CEML
 
 
     LOCATIONS = Hash.new{ |h,k| h[k] = [] }
+    def with_confluences script_collection_id, roleset
+      yield LOCATIONS["#{script_collection_id}:#{roleset.hash}"]
+    end
+
+
     def ping script_collection_id, roleset, candidate
       return unless roleset.any?{ |r| r.fits? candidate }
       candidate[:ts] = CEML.clock
-      script_id = roleset.hash
 
-      locs = LOCATIONS[script_id].group_by{ |l| l.stage_with_candidate(candidate) }
-      if locs[:joinable]
-        log "joining..."
-        first = locs[:joinable].shift
-        first.push candidate
-        push first.incident_id, nil, candidate     # JOIN THEM
+      with_confluences script_collection_id, roleset do |confluences|
+        locs = confluences.group_by{ |l| l.stage_with_candidate(candidate) }
+        if locs[:joinable]
+          log "joining..."
+          first = locs[:joinable].shift
+          first.push candidate
+          push first.incident_id, nil, candidate     # JOIN THEM
 
-      elsif locs[:launchable]
-        log "launching..."
-        first = locs[:launchable].shift
-        first.push candidate
-        cast = first.cast
-        first.incident_id = launch script_collection_id, roleset, *cast
-        (locs[:launchable] + (locs[:listable]||[])).each{ |l| l.rm *cast }
+        elsif locs[:launchable]
+          log "launching..."
+          first = locs[:launchable].shift
+          first.push candidate
+          cast = first.cast
+          first.incident_id = launch script_collection_id, roleset, *cast
+          (locs[:launchable] + (locs[:listable]||[])).each{ |l| l.rm *cast }
 
-      elsif locs[:listable]
-        log "listing..."
-        locs[:listable].each{ |l| l.push candidate }
+        elsif locs[:listable]
+          log "listing..."
+          locs[:listable].each{ |l| l.push candidate }
 
-      else
-        c = Confluence.new(roleset)
-        case c.stage_with_candidate(candidate)
-        when :launchable
-          log "start-launching..."
-          c.push candidate
-          c.incident_id = launch script_collection_id, roleset, candidate
-          LOCATIONS[script_id] << c
-        when :listable
+        else
+          c = Confluence.new(roleset)
           log "start-listing..."
-          c.push candidate
-          LOCATIONS[script_id] << c
-        else raise "what?"
+          if c.stage_with_candidate(candidate) == :launchable
+            log "start-launching..."
+            c.push candidate
+            c.incident_id = launch script_collection_id, roleset, candidate
+          else
+            c.push candidate
+          end
+          confluences << c
         end
-
+        confluences.delete_if(&:full?)
       end
-
-      LOCATIONS[script_id].delete_if(&:full?)
-      # save the changed ones and clear dirty flag
     end
 
     def push incident_id, script, *updated_players
