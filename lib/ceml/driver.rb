@@ -67,7 +67,7 @@ module CEML
       with_confluences script_collection_id, roleset do |confluences|
         live_with = confluences.select{ |c| c.live_with?(candidate) }
         if not live_with.empty?
-          already_launched_with = live_with.incident_id
+          already_launched_with = live_with.first.incident_id
           break
         end
 
