@@ -2,22 +2,18 @@ require 'set'
 
 module CEML
   class Incident
-    attr_reader :script, :id, :this
+    attr_reader :seq, :id, :this
+    def initialize(seq, id); @id = id; @seq = seq; end
+
     def roles;      this[:roles] ||= Set.new; end
     def got;        this[:received];   end
     def recognized; this[:recognized]; end
     def pc;         this[:pc] ||= 0;   end
     def qs_answers; this[:qs_answers] ||= Hash.new; end
-    def seq; @seq ||= script.bytecode; end
 
     def handled!
       this.delete :received
       this.delete :recognized
-    end
-
-    def initialize(script, id)
-      @id = id
-      @script = Script === script ? script : CEML.parse(:script, script)
     end
 
     def cb *stuff
@@ -146,7 +142,6 @@ module CEML
       got or return false
       if recognized == :done
         cb :did_complete
-        say :ok
         handled!
         true
       else

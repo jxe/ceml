@@ -14,12 +14,21 @@ module CEML
     def with_incident(id, script = nil, metadata = {})
       id ||= rand(36**10).to_s(36)
       PLAYERS[id] ||= []
-      INCIDENTS[id] ||= CEML::Incident.new script, id if script
+      INCIDENTS[id] ||= CEML::Incident.new to_bytecode(script), id if script
       raise "no incident #{id}" unless INCIDENTS[id]
       yield INCIDENTS[id], PLAYERS[id], metadata if block_given?
       id
     end
     alias_method :start, :with_incident
+
+    def to_bytecode bytecode_or_script
+      case bytecode_or_script
+      when String;       return CEML.parse(:script, bytecode_or_script).bytecode
+      when CEML::Script; return bytecode_or_script.bytecode
+      when Array;        return bytecode_or_script
+      else return nil
+      end
+    end
 
     def log(s)
       # puts s
