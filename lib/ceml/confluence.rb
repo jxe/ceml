@@ -3,14 +3,13 @@ require 'forwardable'
 
 module CEML
   class Confluence
-    attr_accessor :script, :hash, :created, :dirty, :roles_to_cast, :incident_id, :star
+    attr_accessor :hash, :created, :dirty, :roles_to_cast, :incident_id, :star
     alias_method :launched?, :incident_id
 
-    def initialize script, candidate = nil
-      @script  = script
+    def initialize roles_to_cast, candidate = nil
       @hash    = {}
       @created = true
-      @roles_to_cast = script.roles_to_cast
+      @roles_to_cast = roles_to_cast
       push candidate if candidate
     end
 

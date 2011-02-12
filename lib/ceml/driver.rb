@@ -60,7 +60,7 @@ module CEML
         locs[:listable].each{ |l| l.push candidate }
 
       else
-        c = Confluence.new(script)
+        c = Confluence.new(script.roles_to_cast)
         case c.stage_with_candidate(candidate)
         when :launchable
           log "start-launching..."
