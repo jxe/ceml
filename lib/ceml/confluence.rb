@@ -24,7 +24,7 @@ module CEML
     end
 
     def stage_with_candidate candidate
-      return :uninterested if @roles_to_cast.any?{ |r| r.casted.any?{ |guy| guy[:id] == candidate[:id] } }
+      return :uninterested if cast_with?(candidate)
       best_role = best_role_for(candidate)
       return :uninterested unless best_role
       return :joinable if launched?
@@ -42,6 +42,18 @@ module CEML
 
     def full?
       @roles_to_cast.all?{ |role| role.allowed == 0 }
+    end
+
+    def over?
+      @roles_to_cast.any?{ |r| r.over?(star) }
+    end
+
+    def cast_with?(candidate)
+      @roles_to_cast.any?{ |r| r.casted.any?{ |guy| guy[:id] == candidate[:id] } }
+    end
+
+    def live_with?(candidate)
+      launched? and cast_with?(candidate)
     end
 
     def cast

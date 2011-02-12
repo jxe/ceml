@@ -29,6 +29,11 @@ module CEML
     def needed; [range.min - casted.size, 0].max; end
     def allowed; [range.max - casted.size, 0].max; end
 
+    def over?(star)
+      return unless criteria.timewindow and star
+      CEML.clock - star[:ts] > criteria.timewindow
+    end
+
     def fits?(candidate, star = nil)
       return false unless criteria =~ candidate
       return false if casted.size >= range.max

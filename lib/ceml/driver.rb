@@ -62,8 +62,15 @@ module CEML
     def ping script_collection_id, roleset, candidate
       return unless roleset.any?{ |r| r.fits? candidate }
       candidate[:ts] = CEML.clock
+      already_launched_with = nil
 
       with_confluences script_collection_id, roleset do |confluences|
+        live_with = confluences.select{ |c| c.live_with?(candidate) }
+        if not live_with.empty?
+          already_launched_with = live_with.incident_id
+          break
+        end
+
         locs = confluences.group_by{ |l| l.stage_with_candidate(candidate) }
         if locs[:joinable]
           log "joining..."
@@ -95,7 +102,11 @@ module CEML
           end
           confluences << c
         end
-        confluences.delete_if(&:full?)
+        confluences.delete_if(&:over?)
+      end
+
+      if already_launched_with
+        push already_launched_with, nil, candidate
       end
     end
 
