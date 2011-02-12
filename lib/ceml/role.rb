@@ -1,4 +1,13 @@
 module CEML
+
+  class Criteria < Struct.new :plus_tags, :minus_tags, :matching, :radius, :timewindow
+    def complexity; plus_tags.size; end
+    def =~(candidate)
+      candidate[:tags] ||= []
+      (plus_tags - candidate[:tags]).empty? and (minus_tags & candidate[:tags]).empty?
+    end
+  end
+
   class Role < Struct.new :name, :criteria, :range, :casted
     # def <=>(b); b.criteria.complexity <=> criteria.complexity; end
     def affinity candidate, star

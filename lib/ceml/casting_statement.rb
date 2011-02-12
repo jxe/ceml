@@ -1,13 +1,4 @@
 module CEML
-
-  class Criteria < Struct.new :plus_tags, :minus_tags, :matching, :radius, :timewindow
-    def complexity; plus_tags.size; end
-    def =~(candidate)
-      candidate[:tags] ||= []
-      (plus_tags - candidate[:tags]).empty? and (minus_tags & candidate[:tags]).empty?
-    end
-  end
-
   module CastingStatement
     extend Forwardable
     def_delegators :roles, :names, :[], :min
