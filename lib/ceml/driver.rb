@@ -71,7 +71,7 @@ module CEML
         first = locs[:launchable].shift
         first.push candidate
         cast = first.cast
-        launch script_collection_id, roleset, *cast
+        first.incident_id = launch script_collection_id, roleset, *cast
         (locs[:launchable] + (locs[:listable]||[])).each{ |l| l.rm *cast }
 
       elsif locs[:listable]
@@ -84,7 +84,8 @@ module CEML
         when :launchable
           log "start-launching..."
           c.push candidate
-          launch script_collection_id, roleset, candidate
+          c.incident_id = launch script_collection_id, roleset, candidate
+          LOCATIONS[script_id] << c
         when :listable
           log "start-listing..."
           c.push candidate
