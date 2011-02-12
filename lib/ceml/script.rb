@@ -114,8 +114,11 @@ module CEML
 
     def bytecode
       code = [[[:all], :start]]
-      return [[[:all], :null_assign], [[:all], :complete_assign]] if !instructions and title
-      instructions.list.each{ |inst| code.concat inst.bytecode } if instructions
+      if !instructions and title
+        code.concat [[[:all], :null_assign], [[:all], :complete_assign]]
+      elsif instructions
+        instructions.list.each{ |inst| code.concat inst.bytecode } if instructions
+      end
       code << [[:all], :finish]
       code
     end

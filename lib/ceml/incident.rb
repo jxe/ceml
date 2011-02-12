@@ -143,6 +143,7 @@ module CEML
       if recognized == :done
         cb :did_complete
         handled!
+        say :ok if pc == seq.size - 2
         true
       else
         cb :did_report
