@@ -3,7 +3,7 @@ require 'forwardable'
 
 module CEML
   class Confluence
-    attr_accessor :hash, :created, :dirty, :roles_to_cast, :incident_id, :star
+    attr_accessor :hash, :created, :roles_to_cast, :incident_id, :star
     alias_method :launched?, :incident_id
 
     def initialize roles_to_cast, candidate = nil
@@ -37,7 +37,6 @@ module CEML
       candidate[:roles] = best_role.name.to_sym
       best_role.casted << candidate
       @star ||= candidate
-      @dirty = true
     end
 
     def full?
