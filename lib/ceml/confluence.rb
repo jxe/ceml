@@ -24,6 +24,7 @@ module CEML
     end
 
     def stage_with_candidate candidate
+      return :uninterested if @roles_to_cast.any?{ |r| r.casted.any?{ |guy| guy[:id] == candidate[:id] } }
       best_role = best_role_for(candidate)
       return :uninterested unless best_role
       return :joinable if launched?
