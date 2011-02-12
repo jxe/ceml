@@ -34,25 +34,44 @@ module CEML
       # puts s
     end
 
+    SCRIPTS = Hash.new{ |h,k| h[k] = [] }
+    def add_script script_collection_id, script
+      SCRIPTS[script_collection_id] << script
+    end
+
+    def ping_all script_collection_id, candidate
+      SCRIPTS[script_collection_id].each{ |s| ping script_collection_id, s.roles_to_cast, candidate }
+    end
+
+    def launch script_collection_id, roleset, *cast
+      script = SCRIPTS[script_collection_id].select{ |s| s.roles_to_cast == roleset }.sort_by{ rand }.first
+      unless script
+        rolesets = SCRIPTS[script_collection_id].map(&:roles_to_cast)
+        raise "matching roleset not found: #{roleset.inspect} in #{rolesets.inspect}"
+      end
+      push nil, script.bytecode, *cast
+    end
+
+
     LOCATIONS = Hash.new{ |h,k| h[k] = [] }
-    def ping script, candidate
-      return unless script.fits? candidate
+    def ping script_collection_id, roleset, candidate
+      return unless roleset.any?{ |r| r.fits? candidate }
       candidate[:ts] = CEML.clock
-      script_id = script.text_value
+      script_id = roleset.hash
 
       locs = LOCATIONS[script_id].group_by{ |l| l.stage_with_candidate(candidate) }
       if locs[:joinable]
         log "joining..."
         first = locs[:joinable].shift
         first.push candidate
-        push first.incident_id, nil, candidate
+        push first.incident_id, nil, candidate     # JOIN THEM
 
       elsif locs[:launchable]
         log "launching..."
         first = locs[:launchable].shift
         first.push candidate
         cast = first.cast
-        push nil, script, *cast
+        launch script_collection_id, roleset, *cast
         (locs[:launchable] + (locs[:listable]||[])).each{ |l| l.rm *cast }
 
       elsif locs[:listable]
@@ -60,12 +79,12 @@ module CEML
         locs[:listable].each{ |l| l.push candidate }
 
       else
-        c = Confluence.new(script.roles_to_cast)
+        c = Confluence.new(roleset)
         case c.stage_with_candidate(candidate)
         when :launchable
           log "start-launching..."
           c.push candidate
-          push nil, script, candidate
+          launch script_collection_id, roleset, candidate
         when :listable
           log "start-listing..."
           c.push candidate

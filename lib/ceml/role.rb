@@ -15,6 +15,13 @@ module CEML
       [ criteria.complexity, -needed, -allowed ]
     end
 
+    def comparable_object
+      [name, criteria, range]
+    end
+
+    def ==(other); comparable_object == other.comparable_object; end
+    def hash; comparable_object.hash; end
+
     def filled?;   needed == 0; end
     def one_left?; needed == 1; end
 

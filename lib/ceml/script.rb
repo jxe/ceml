@@ -6,10 +6,6 @@ module CEML
     # = casting =
     # ===========
 
-    def fits? candidate
-      roles_to_cast.any?{ |r| r.fits? candidate }
-    end
-
     def roles_to_cast
       return [] unless cast.type == :await
       return cast.roles_to_cast(self)

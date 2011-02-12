@@ -16,8 +16,17 @@ class Test::Unit::TestCase
     CEML::Driver::INCIDENTS.clear
   end
 
+  def scriptfam *scripts
+    fam_id = gen_code
+    scripts.each do |script|
+      script = CEML.parse(:script, script) if String === script
+      DRIVER.add_script fam_id, script
+    end
+    fam_id
+  end
+
   def ping s, candidate
-    DRIVER.ping s, candidate
+    DRIVER.ping_all s, candidate
   end
 
   def says id, str

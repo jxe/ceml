@@ -72,7 +72,7 @@ XXX
 class TestIncident < Test::Unit::TestCase
 
   def test_sync
-    s = CEML.parse(:script, SYNC_SCRIPT)
+    s = scriptfam SYNC_SCRIPT
     play do
       ping s, :id => 'alpha'
       ping s, :id => 'beta'
@@ -87,7 +87,7 @@ class TestIncident < Test::Unit::TestCase
   end
 
   def test_jane
-    s = CEML.parse(:script, JANE_SCRIPT)
+    s = scriptfam JANE_SCRIPT
     play do
       ping s, :id => 'fred', :tags => ['new'], :received => 'freddy'
       asked 'fred', /Hello freddy. You are Level Zero./
@@ -117,7 +117,7 @@ class TestIncident < Test::Unit::TestCase
   end
 
   def test_signup_1
-    s = CEML.parse(:script, "await 1 new signup\ntell signup: thanks")
+    s = scriptfam "await 1 new signup\ntell signup: thanks"
     play do
       ping s, :id => 'fred', :tags => ['new']
       told 'fred', /thanks/
@@ -125,7 +125,7 @@ class TestIncident < Test::Unit::TestCase
   end
 
   def test_signup_2
-    s = CEML.parse(:script, "await 2 new signups\ntell signups: thanks")
+    s = scriptfam "await 2 new signups\ntell signups: thanks"
     play do
       ping s, :id => 'fred', :tags => ['new']
       silent 'fred'
@@ -138,7 +138,7 @@ class TestIncident < Test::Unit::TestCase
 
 
   def test_inside_timewindow
-    s = CEML.parse(:script, "await 2 new signups over 10s\ntell signups: thanks")
+    s = scriptfam "await 2 new signups over 10s\ntell signups: thanks"
     play do
       ping s, :id => 'fred', :tags => ['new']
       silent 'fred'
@@ -149,7 +149,7 @@ class TestIncident < Test::Unit::TestCase
   end
 
   def test_outside_timewindow
-    s = CEML.parse(:script, "await 2 new signups over 10s\ntell signups: thanks")
+    s = scriptfam "await 2 new signups over 10s\ntell signups: thanks"
     play do
       ping s, :id => 'fred', :tags => ['new']
       silent 'fred'
@@ -177,7 +177,7 @@ class TestIncident < Test::Unit::TestCase
   end
 
   def test_await
-    s = CEML.parse(:script, "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz")
+    s = scriptfam "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz"
     play do
       ping s, :id => 'fred'
       silent 'fred'
