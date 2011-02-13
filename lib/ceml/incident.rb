@@ -28,8 +28,12 @@ module CEML
     def run(players, &blk)
       @players = players
       @callback = blk
-      :loop while players.any? do |@this|
-        # puts "seq for roles: #{roles.inspect} #{seq.inspect}"
+      puts "playing with #{@players.map{|p|p[:id]}}"
+      :loop while @players.any? do |thing|
+        @this = thing
+        next if thing[:released]
+        puts "trying #{@this[:id]}"
+        puts "not yet released"
         next unless instr = seq[pc]
         instr = instr.dup
         if rolematch(instr.shift)
@@ -37,6 +41,7 @@ module CEML
           next unless send(*instr)
           cb(*instr)
         end
+        # next if @this[:released]
         this[:pc]+=1
       end
       @callback = @players = nil
@@ -116,7 +121,8 @@ module CEML
 
     def answered_q q
       got or return false
-      qs_answers[q[:key]] = got
+      this[:last_answer] = qs_answers[q[:key]] = got
+      this[:last_answer_recognized] = recognized
       handled!
       true
     end
@@ -150,6 +156,23 @@ module CEML
         handled!
         false
       end
+    end
+
+    def last_answer_match?(value)
+      case value
+      when :yes; this[:last_answer_recognized] == :yes
+      when :no;  this[:last_answer_recognized] == :no
+      end
+    end
+
+    def expectation(type, value)
+      if type == :if then last_answer_match?(value) else !last_answer_match?(value) end
+    end
+
+    def release x
+      return true if x[:cond] and not expectation(*x[:cond])
+      cb :released, x[:tag]
+      false
     end
 
     def null_assign

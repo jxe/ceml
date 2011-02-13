@@ -33,7 +33,11 @@ class Test::Unit::TestCase
     iid = CEML::Driver::INCIDENTS.keys.find do |iid|
       CEML::Driver::PLAYERS[iid].find{ |p| p[:id] == id }
     end
-    DRIVER.post iid, :id => id, :received => str
+    if str == 'y'
+      DRIVER.post iid, :id => id, :received => str, :recognized => :yes
+    else
+      DRIVER.post iid, :id => id, :received => str
+    end
   end
 
   def player id, *roles

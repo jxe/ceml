@@ -38,7 +38,7 @@ grammar Lexer
     end
 
     rule id
-      !(reserved_word ws) [a-zA-Z_]+
+      !(reserved_word ws) [a-zA-Z_] [a-zA-Z_0-9=]*
     end
 
     rule duration

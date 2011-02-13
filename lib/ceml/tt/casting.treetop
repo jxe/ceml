@@ -7,7 +7,7 @@ grammar Casting
     end
 
     rule modifier_phrase
-      over_phrase / within_phrase
+      over_phrase / within_phrase / with_matching_phrase
     end
 
     rule over_phrase
@@ -16,6 +16,10 @@ grammar Casting
 
     rule within_phrase
         ws 'within' ws distance
+    end
+
+    rule with_matching_phrase
+        ws 'with' ws 'matching' ws thing:id
     end
 
     rule roles

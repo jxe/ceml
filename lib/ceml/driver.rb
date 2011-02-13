@@ -39,9 +39,15 @@ module CEML
       SCRIPTS[script_collection_id] << script
     end
 
-    def ping_all script_collection_id, candidate
-      SCRIPTS[script_collection_id].each{ |s| ping script_collection_id, s.roles_to_cast, candidate }
+    def ping_all script_collection_id, candidate, release = false
+      candidate[:script_collection_id] = script_collection_id
+      SCRIPTS[script_collection_id].each{ |s| ping script_collection_id, s.roles_to_cast, candidate, release }
     end
+
+    def released_from_all script_collection_id, candidate
+      SCRIPTS[script_collection_id].each{ |s| release script_collection_id, s.roles_to_cast, candidate }
+    end
+
 
     def launch script_collection_id, roleset, *cast
       script = SCRIPTS[script_collection_id].select{ |s| s.roles_to_cast == roleset }.sort_by{ rand }.first
@@ -49,6 +55,7 @@ module CEML
         rolesets = SCRIPTS[script_collection_id].map(&:roles_to_cast)
         raise "matching roleset not found: #{roleset.inspect} in #{rolesets.inspect}"
       end
+      log "launching #{script.bytecode.inspect} with cast #{cast.inspect}"
       push nil, script.bytecode, *cast
     end
 
@@ -58,8 +65,7 @@ module CEML
       yield LOCATIONS["#{script_collection_id}:#{roleset.hash}"]
     end
 
-
-    def ping script_collection_id, roleset, candidate
+    def ping script_collection_id, roleset, candidate, involvement = :sticky
       return unless roleset.any?{ |r| r.fits? candidate }
       candidate[:ts] = CEML.clock
       already_launched_with = nil
@@ -68,14 +74,15 @@ module CEML
         live_with = confluences.select{ |c| c.live_with?(candidate) }
         if not live_with.empty?
           already_launched_with = live_with.first.incident_id
-          break
+          live_with.each{ |c| c.rm candidate } if involvement != :sticky
+          break if involvement != :released
         end
 
         locs = confluences.group_by{ |l| l.stage_with_candidate(candidate) }
         if locs[:joinable]
           log "joining..."
           first = locs[:joinable].shift
-          first.push candidate
+          first.push candidate unless first.incident_id == already_launched_with
           push first.incident_id, nil, candidate     # JOIN THEM
 
         elsif locs[:launchable]
@@ -105,7 +112,8 @@ module CEML
         confluences.delete_if(&:over?)
       end
 
-      if already_launched_with
+      if already_launched_with and involvement == :sticky
+        puts "PUSHING INSTEAD"
         push already_launched_with, nil, candidate
       end
     end
@@ -151,6 +159,26 @@ module CEML
     def player_said(data, what)
       JUST_SAID[data[:player][:id]] = what
       puts "Said #{what.inspect}"
+    end
+
+    # def player_start(data, what)
+    #   puts "STARTED #{data[:player].inspect}"
+    # end
+
+    def player_released(data, tag)
+      p = data[:player].dup
+      p[:tags] -= ['new']
+      if tag =~ /^(\w+)=/
+        p[:tags].delete_if{ |t| t =~ /^#{$1}=/ }
+      end
+      p[:tags] += [tag]
+      p.delete :pc
+      p.delete :roles
+      data[:player][:released] = true
+      # data[:players].delete_if{ |pl| pl[:id] == p[:id] }
+      puts "released: #{p.inspect} with #{tag}"
+      # puts "remaining players: #{data[:players].inspect}"
+      ping_all p[:script_collection_id], p, true
     end
   end
 end
