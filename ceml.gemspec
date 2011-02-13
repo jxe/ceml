@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ceml}
-  s.version = "0.7.3"
+  s.version = "0.7.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Edelman"]
@@ -49,6 +49,7 @@ Gem::Specification.new do |s|
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
+     "test/test_release.rb",
      "test/test_scripts.rb",
      "try"
   ]
@@ -62,6 +63,7 @@ Gem::Specification.new do |s|
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
+     "test/test_release.rb",
      "test/test_scripts.rb"
   ]
 
