@@ -89,6 +89,7 @@ module CEML
       with_confluences script_collection_id, roleset do |confluences|
         live_with = confluences.select{ |c| c.live_with?(candidate) }
         if not live_with.empty?
+          puts "CEML: LIVE WITH DETECTED"
           already_launched_with = live_with.first.incident_id
           live_with.each{ |c| c.rm candidate } if involvement != :sticky
           break if involvement != :released

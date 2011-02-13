@@ -41,9 +41,18 @@ module CEML
       return true unless star
       c = criteria
       if c.matching
-        return unless c.matching.all? do |g|
+        puts "CEML: ATTempting to match: #{c.matching.inspect}"
+        worked = c.matching.all? do |g|
           candidate[:matchables][g] && star[:matchables][g] &&
           candidate[:matchables][g].downcase.strip == star[:matchables][g].downcase.strip
+        end
+
+        if worked
+          puts "CEML: MATCHED"
+          true
+        else
+          puts "CEML: MATCH FAILED"
+          return false
         end
       end
       if c.radius
