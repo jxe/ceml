@@ -28,22 +28,30 @@ module CEML
     def run(players, &blk)
       @players = players
       @callback = blk
-      puts "playing with #{@players.map{|p|p[:id]}}"
-      :loop while @players.any? do |thing|
-        @this = thing
-        next if thing[:released]
-        puts "trying #{@this[:id]}"
-        puts "not yet released"
-        next unless instr = seq[pc]
-        instr = instr.dup
-        if rolematch(instr.shift)
-          instr << role_info if instr.first == :start  #tmp hack
-          next unless send(*instr)
-          cb(*instr)
+
+      loop do
+        players = @players.select{ |p| !p[:released] }
+        # puts "playing with #{players.map{|p|p[:id]}}"
+        advanced = false
+        players.each do |p|
+          @this = p
+          # puts "trying #{@this[:id]}"
+          next unless instr = seq[pc]
+          instr = instr.dup
+          if not rolematch(instr.shift)
+            this[:pc]+=1
+            advanced = true
+          else
+            instr << role_info if instr.first == :start  #tmp hack
+            next unless send(*instr)
+            cb(*instr)
+            this[:pc]+=1
+            advanced = true
+          end
         end
-        # next if @this[:released]
-        this[:pc]+=1
+        break unless advanced
       end
+
       @callback = @players = nil
     end
 
@@ -171,6 +179,7 @@ module CEML
 
     def release x
       return true if x[:cond] and not expectation(*x[:cond])
+      this[:released] = x[:tag]
       cb :released, x[:tag]
       false
     end

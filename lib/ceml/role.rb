@@ -41,7 +41,10 @@ module CEML
       return true unless star
       c = criteria
       if c.matching
-        return unless c.matching.all?{ |g| candidate[:matchables][g] == star[:matchables][g] }
+        return unless c.matching.all? do |g|
+          candidate[:matchables][g] && star[:matchables][g] &&
+          candidate[:matchables][g].downcase.strip == star[:matchables][g].downcase.strip
+        end
       end
       if c.radius
         c_ll = Geokit::LatLng(candidate[:lat], candidate[:lng])

@@ -44,40 +44,13 @@ await 1 new signup
 ask signup re first_name:
  Thanks for signing up for Infatuated!
  What's your first name?
-ask signup re couple:
- Do you have an Infatuated Match Card you want to use?
- (These are available at the Infatuated table on the first floor.)
-release signup as stage=couple if yes
-ask signup re tags:
- Who are you and who are you looking for tonight? (text back one: w4w, w4m, m4m, or m4w)
-
-await stage=couple player
-ask player re code:
+ask signup re code:
  Type in your Infatuated Match Card code now.
-release player as stage=coded
+release signup as coded
 
-await 1 stage=coded alpha and 1 stage=coded beta with matching code
-release alpha as alpha
-release beta as beta
-
-await 1 w4w alpha and 1 w4w beta
-release alpha as alpha
-release beta as beta
-
-await 1 w4m alpha and 1 m4w beta
-release alpha as alpha
-release beta as beta
-
-await 1 m4m alpha and 1 m4m beta
-release alpha as alpha
-release beta as beta
-
-await 1 m4w alpha and 1 w4m beta
-release alpha as alpha
-release beta as beta
-
-await 1 alpha alpha, 1 beta beta over 5 minutes
-tell both: Your date has started, |her.first_name|, |buddy.first_name|
+await 1 coded alpha and 1 coded beta with matching code
+tell alpha: You are alpha |her.first_name|, beta is |buddy.first_name|
+tell beta: You are beta |her.first_name|, alpha is |buddy.first_name|
 XXXX
 
 
@@ -88,18 +61,17 @@ XXXX
       ping f, :id => 'Jon',  :tags => ['new']
       asked 'Sara', /Thanks/
       says 'Sara', 'Sara'
-      asked 'Sara', /Match Card/
-      says 'Sara', 'y'
+
       asked 'Jon',  /Thanks/
       says 'Jon',  'Jon'
+
+      asked 'Sara', /Match Card/
       asked 'Jon',  /Match Card/
-      says 'Jon',  'y'
-      asked 'Sara', /code now/
       says 'Sara', 'xyzzy'
-      asked 'Jon', /code now/
       says 'Jon', 'xyZZy '
-      told 'Sara', /started, Sara, Jon/
-      told 'Jon', /started, Jon, Sara/
+
+      told 'Sara', /alpha Sara, beta is Jon/
+      told 'Jon', /beta Jon, alpha is Sara/
     end
   end
 

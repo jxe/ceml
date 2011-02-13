@@ -7,7 +7,10 @@ module CEML
     def roles_to_cast(script)
       return [] unless type == :await
       roles.list.map do |r|
-        c = Criteria.new(r.qualifiers, [], radius ? [:city] : [], radius, timewindow)
+        matching = []
+        matching << matching_text if matching_text
+        matching += [:city] if radius
+        c = Criteria.new(r.qualifiers, [], matching, radius, timewindow)
         Role.new r.name, c, r.min..r.max, []
       end
     end
@@ -28,6 +31,15 @@ module CEML
     def over_phrase
       return if modifiers.empty?
       modifiers.elements.select{ |m| m.respond_to? :duration }.first
+    end
+
+    def with_matching_phrase
+      return if modifiers.empty?
+      modifiers.elements.select{ |m| m.respond_to? :thing }.first
+    end
+
+    def matching_text
+      with_matching_phrase && with_matching_phrase.thing.text_value
     end
 
     def timewindow
