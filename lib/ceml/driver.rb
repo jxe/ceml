@@ -87,13 +87,12 @@ module CEML
       run_after = []
 
       with_confluences script_collection_id, roleset do |confluences|
-        already_launched_with = nil
-        # live_with = confluences.select{ |c| c.live_with?(candidate) }
-        # if not live_with.empty?
-        #   already_launched_with = live_with.first.incident_id
-        #   live_with.each{ |c| c.rm candidate } if involvement != :sticky
-        #   break if involvement != :released
-        # end
+        live_with = confluences.select{ |c| c.live_with?(candidate) }
+        if not live_with.empty?
+          already_launched_with = live_with.first.incident_id
+          live_with.each{ |c| c.rm candidate } if involvement != :sticky
+          break if involvement != :released
+        end
 
         locs = confluences.group_by{ |l| l.stage_with_candidate(candidate) }
         if locs[:joinable]
@@ -137,10 +136,10 @@ module CEML
         send(*cmd)
       end
 
-      # if already_launched_with and involvement == :sticky
-      #   puts "PUSHING INSTEAD"
-      #   push already_launched_with, nil, candidate
-      # end
+      if already_launched_with and involvement == :sticky
+        puts "PUSHING INSTEAD"
+        push already_launched_with, nil, candidate
+      end
     end
 
     def push incident_id, script, *updated_players
