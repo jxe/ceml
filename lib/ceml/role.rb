@@ -35,9 +35,13 @@ module CEML
     end
 
     def fits?(candidate, star = nil)
+      puts "HERE1"
       return false unless criteria =~ candidate
+      puts "HERE2"
       return false if casted.size >= range.max
+      puts "HERE3"
       return false if casted.any?{ |guy| guy[:id] == candidate[:id] }
+      puts "HERE4"
       return true unless star
       c = criteria
       if c.matching

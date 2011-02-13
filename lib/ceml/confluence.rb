@@ -26,7 +26,7 @@ module CEML
     def stage_with_candidate candidate
       if cast_with?(candidate)
         puts "CEML: CAST WITH"
-        # return :uninterested
+        return :inside
       end
       best_role = best_role_for(candidate)
       puts "CEML: MADE THRU: #{best_role.inspect}"

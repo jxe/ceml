@@ -81,11 +81,13 @@ module CEML
     end
 
     def ping script_collection_id, roleset, candidate, involvement = :sticky
+      puts "CEML: TOP PING: #{candidate.inspect}"
       return unless roleset.any?{ |r| r.fits? candidate }
       candidate[:ts] = CEML.clock
       already_launched_with = nil
       run_after = []
 
+      puts "CEML: INSIDE PING"
       with_confluences script_collection_id, roleset do |confluences|
         live_with = confluences.select{ |c| c.live_with?(candidate) }
         if not live_with.empty?
