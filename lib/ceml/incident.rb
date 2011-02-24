@@ -123,6 +123,7 @@ module CEML
 
     def ask_q q
       text = interpolate(q[:text]) or return false
+      handled!
       say :ask, :q => text
       true
     end
