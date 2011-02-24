@@ -35,28 +35,15 @@ module CEML
     end
 
     def fits?(candidate, star = nil)
-      puts "HERE1"
       return false unless criteria =~ candidate
-      puts "HERE2"
       return false if casted.size >= range.max
-      puts "HERE3"
       return false if casted.any?{ |guy| guy[:id] == candidate[:id] }
-      puts "HERE4"
       return true unless star
       c = criteria
       if c.matching
-        puts "CEML: ATTempting to match: #{c.matching.inspect}"
-        worked = c.matching.all? do |g|
+        return unless c.matching.all? do |g|
           candidate[:matchables][g] && star[:matchables][g] &&
           candidate[:matchables][g].downcase.strip == star[:matchables][g].downcase.strip
-        end
-
-        if worked
-          puts "CEML: MATCHED"
-          true
-        else
-          puts "CEML: MATCH FAILED"
-          return false
         end
       end
       if c.radius

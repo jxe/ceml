@@ -24,12 +24,8 @@ module CEML
     end
 
     def stage_with_candidate candidate
-      if cast_with?(candidate)
-        puts "CEML: CAST WITH"
-        return :inside
-      end
+      return :uninterested if cast_with?(candidate)
       best_role = best_role_for(candidate)
-      puts "CEML: MADE THRU: #{best_role.inspect}"
       return :uninterested unless best_role
       return :joinable if launched?
       other_roles = @roles_to_cast - [best_role]

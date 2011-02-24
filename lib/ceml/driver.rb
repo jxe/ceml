@@ -81,21 +81,19 @@ module CEML
     end
 
     def ping script_collection_id, roleset, candidate, involvement = :sticky
-      puts "CEML: TOP PING: #{candidate.inspect}"
       return unless roleset.any?{ |r| r.fits? candidate }
       candidate[:ts] = CEML.clock
       already_launched_with = nil
       run_after = []
 
-      puts "CEML: INSIDE PING"
       with_confluences script_collection_id, roleset do |confluences|
-        live_with = confluences.select{ |c| c.live_with?(candidate) }
-        if not live_with.empty?
-          puts "CEML: LIVE WITH DETECTED"
-          already_launched_with = live_with.first.incident_id
-          live_with.each{ |c| c.rm candidate } if involvement != :sticky
-          break if involvement != :released
-        end
+        already_launched_with = nil
+        # live_with = confluences.select{ |c| c.live_with?(candidate) }
+        # if not live_with.empty?
+        #   already_launched_with = live_with.first.incident_id
+        #   live_with.each{ |c| c.rm candidate } if involvement != :sticky
+        #   break if involvement != :released
+        # end
 
         locs = confluences.group_by{ |l| l.stage_with_candidate(candidate) }
         if locs[:joinable]
@@ -139,10 +137,10 @@ module CEML
         send(*cmd)
       end
 
-      if already_launched_with and involvement == :sticky
-        puts "PUSHING INSTEAD"
-        push already_launched_with, nil, candidate
-      end
+      # if already_launched_with and involvement == :sticky
+      #   puts "PUSHING INSTEAD"
+      #   push already_launched_with, nil, candidate
+      # end
     end
 
     def push incident_id, script, *updated_players
