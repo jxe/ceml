@@ -31,7 +31,7 @@ tell b: Someone nearby likes the color |a.x|.  Find them.</code></pre>
 
 <h2 id='commands'>Commands</h2>
 
-<p>The above script only uses three CEML commands&#8211;<em>gather</em>, <em>ask</em>, and <em>tell</em>&#8211;but there aren&#8217;t many more commands to learn. Only four more, actually: besides <em>gather</em>, the other ingredients commands are <em>await</em> and <em>nab</em>. Besides <em>ask</em> and <em>tell</em>, the other instructions commands are <em>assign</em> and <em>certify</em>.</p>
+<p>The above script only uses three CEML commands&#8211;<em>gather</em>, <em>ask</em>, and <em>tell</em>&#8211;but there aren&#8217;t many more commands to learn. Only six more, actually: besides <em>gather</em>, the other ingredients commands are <em>await</em> and <em>nab</em>. Besides <em>ask</em> and <em>tell</em>, the other instructions commands are <em>assign</em>, <em>release</em>, <em>expect</em>, and <em>sync</em>.</p>
 
 <p>As a sneak preview, here&#8217;s an example that uses the other commands:</p>
 
@@ -40,7 +40,7 @@ await 1 concerned patient
 nab a doctor within 5 miles
 ask patient re problem: What&#39;s wrong?
 assign doctor to patient: Attend to patient&#39;s |problem|.
-certify doctor as responsive</code></pre>
+release doctor as responsive</code></pre>
 
 <h2 id='texts'>Texts</h2>
 
@@ -70,7 +70,7 @@ tell both: thanks so much for participating!</code></pre>
 
 <p>In the examples so far, the words like &#8216;enemy&#8217;, &#8216;reporter&#8217;, &#8216;guy&#8217;, &#8216;girl&#8217;, &#8216;a&#8217;, &#8216;b&#8217;, &#8216;signup&#8217;, &#8216;patient&#8217;, and &#8216;doctor&#8217; are <em>role names</em>. Most of the time, a role name can be any word you like. They are just a placeholder to connect <em>casting commands</em> like <em>gather</em> and <em>await</em>, with <em>coordination commands</em> like <em>tell</em>.</p>
 
-<p>Squads on Groundcrew, however, can define special meanings for certain roles. So on a particular squad, a &#8216;doctor&#8217; might mean someone who&#8217;s been tagged/certified with the tag &#8216;doctor&#8217;, and a patient might mean anyone else.</p>
+<p>Squads on Groundcrew, however, can define special meanings for certain roles. So on a particular squad, a &#8216;doctor&#8217; might mean someone who&#8217;s been tagged/released with the tag &#8216;doctor&#8217;, and a patient might mean anyone else.</p>
 
 <p>Some role names are always special. For instance, if you use the role name &#8216;organizer&#8217;, it always means someone who&#8217;s an official organizer for that squad. And if you use the role names &#8216;both&#8217;, &#8216;all&#8217;, &#8216;each&#8217;, or &#8216;everyone&#8217;, it means that the instruction applies to everyone regardless of how they were <em>cast</em>.</p>
 
@@ -116,15 +116,38 @@ assign player to streetcorner:
 
 <p>On iPhone or mobile web, the player will get a little map to direct them. There are several special <em>role names</em> which are used to indicate places rather than people. These include &#8220;streetcorner&#8221;, &#8220;park&#8221;, &#8220;field&#8221;, and &#8220;landmark&#8221;.</p>
 
+<h2 id='expect'>Expect</h2>
+
+<p>When you ask a question using <em>ask</em>, you may not want to let a player proceed unless they&#8217;ve answered in a way you understand or recognize. This can be accomplished using <em>expect</em>:</p>
+
+<pre><code>ask player re path:
+    Do you prefer to the path to the left or the right?
+expect /left|right/ from player:
+    Please say &quot;left&quot; or &quot;right&quot;!</code></pre>
+
+<p>The expect statement, like the release statement described below, can be passed strings, certain keywords, or regular expressions.</p>
+
+<h2 id='sync_up'>Sync up</h2>
+
+<p>There also may be times when you want to sync up several players and make sure they have both completed assignments or answered questions before they each proceed with the script:</p>
+
+<pre><code>assign redcoat:
+    March briskly towards Concord
+assign minuteman:
+    Hide in the bushes
+sync up redcoat and minuteman
+tell both:
+    Prepare to be surprised.</code></pre>
+
 <h2 id='choosing_players_await_gather_and_nab'>Choosing Players: Await, Gather, and Nab.</h2>
 
 <p>So what is really the difference between <em>await</em>, <em>gather</em>, and <em>nab</em>, you may be asking? Or perhaps you have already figured it out.</p>
 
 <p><em>Await</em> defines a kind of trigger&#8211;as soon as the conditions awaited for are met, the script will run.</p>
 
-<pre><code>await 2-5 level1 players within 50ft
+<pre><code>await 2-5 level=1 players within 50ft
 assign: shout out &quot;woo-hoo!&quot;
-certify as level2 not level1</code></pre>
+release as level=2</code></pre>
 
 <p>Unless there&#8217;s an await statement in your script, it will have to be executed manually by an organizer.</p>
 
@@ -156,27 +179,59 @@ assign:
 
 <p>Another qualifier with a special meaning is <em>concerned</em>. This is applied to players who, because of their text messaging or their tweeting or their interaction with the iphone or web apps, seem like are confused or have an urgent question or issue.</p>
 
-<p>The other qualifiers don&#8217;t mean anythings special, but they select only players who have been certified or tagged with that particular word. So &#8220;gather 5-20 level1 users&#8221; will only invite users who have been tagged or certified as level1.</p>
+<p>The other qualifiers don&#8217;t mean anythings special, but they select only players who have been released or tagged with that particular word. So &#8220;gather 5-20 level=1 users&#8221; will only invite users who have been tagged or released as level=1.</p>
 
-<h2 id='certifying'>Certifying</h2>
+<h2 id='finer_control_of_matching'>Finer control of matching</h2>
 
-<p>When a player has successfully completed their role in your script, you can add or change the tags associated with that player using the <em>certify</em> command.</p>
+<p>The <em>await</em> keyword supports a variety of options that let you match players with more specificity. For instance, you may wish to only match players that text in within 10 minutes of one another:</p>
+
+<pre><code>await 2 new players over 10 minutes</code></pre>
+
+<p>Or players that have the same favorite color:</p>
+
+<pre><code>await 2 new players with matching favorite_color</code></pre>
+
+<p>Here&#8217;s two scripts that cooperate to put people in groups by favorite color:</p>
+
+<pre><code>await new signup
+ask signup re name: What&#39;s your name?
+ask signup re favorite_color: What&#39;s your favorite color?
+
+await 2 players with matching favorite_color
+tell players: |buddy.name| also likes |favorite_color|.</code></pre>
+
+<h2 id='releasing'>Releasing</h2>
+
+<p>When a player has successfully completed their role in your script, you can add or change the tags associated with that player using the <em>release</em> command.</p>
 
 <pre><code>await 3 new signups
 assign:
     You have all just signed up!
     Take a photo of something you
     love and share with one another.
-certify as photo_sharing</code></pre>
+release as photo_sharing</code></pre>
+
+<p>You can also release a player early, subject to some conditions, by using <em>if</em> or <em>unless</em>:</p>
+
+<pre><code>await 1 boss and 1 worker
+ask worker:
+    Do you feel good about working today?
+release worker unless yes
+ask worker re skill:
+    What are you good at?
+ask boss re job:
+    You have a worker with skill |skill|.  What should they do?</code></pre>
+
+<p>There are some special keywords you can use after if or unless. These include &#8220;yes&#8221;, &#8220;no&#8221;, &#8220;done&#8221;, &#8220;okay&#8221;. You can also use a string in quotes (&#8220;activate&#8221;), in which case their answer is compared to the string case insensitively and with whitespace trimmed. Or you can use a <a href='http://en.wikipedia.org/wiki/Regular_expression'>regular expression</a> surrounded by forward slashes (/^red|blue|green$/) for more exact matching.</p>
 
 <h2 id='making_connections_between_scripts'>Making Connections between Scripts</h2>
 
-<p><em>Certify</em> and qualifications can be used to link scripts together. The certification at the end of the first script can trigger the <em>await</em> statement in the next script. Here&#8217;s an example:</p>
+<p><em>Release</em> and qualifications can be used to link scripts together. The release at the end of the first script can trigger the <em>await</em> statement in the next script. Here&#8217;s an example:</p>
 
-<pre><code>await 20 photo_sharing users
+<pre><code>await 20 stage=photo_sharing users
 ask re opinion:
     How did you like sharing photos just now?
-certify as signed_up not photo_sharing</code></pre>
+release as stage=signed_up</code></pre>
 
 <h2 id='congratulations'>Congratulations</h2>
 
@@ -199,10 +254,10 @@ assign:
     sketch out a design for something you
     want to build and take a photo
 document as designer_photo
-certify designer_photo as unreviewed
+release designer_photo as unreviewed
 
 await 6 reviewers and unreviewed designer_photo document
 ask reviewers re opinion:
     What do you think of this idea? |designer_photo|
-certify designer_photo as reviewed not unreviewed</code></pre>
+release designer_photo as reviewed not unreviewed</code></pre>
 </body></html>

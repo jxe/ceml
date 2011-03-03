@@ -26,7 +26,7 @@ Whether you write a script compactly with short names for roles and answers or l
 Commands
 --------
 
-The above script only uses three CEML commands--*gather*, *ask*, and *tell*--but there aren't many more commands to learn.  Only four more, actually: besides *gather*, the other ingredients commands are *await* and *nab*.  Besides *ask* and *tell*, the other instructions commands are *assign* and *certify*.
+The above script only uses three CEML commands--*gather*, *ask*, and *tell*--but there aren't many more commands to learn.  Only six more, actually: besides *gather*, the other ingredients commands are *await* and *nab*.  Besides *ask* and *tell*, the other instructions commands are *assign*, *release*, *expect*, and *sync*.
 
 As a sneak preview, here's an example that uses the other commands:
 
@@ -35,7 +35,7 @@ As a sneak preview, here's an example that uses the other commands:
     nab a doctor within 5 miles
     ask patient re problem: What's wrong?
     assign doctor to patient: Attend to patient's |problem|.
-    certify doctor as responsive
+    release doctor as responsive
 
 Texts
 -----
@@ -67,7 +67,7 @@ Roles
 
 In the examples so far, the words like 'enemy', 'reporter', 'guy', 'girl', 'a', 'b', 'signup', 'patient', and 'doctor' are *role names*.  Most of the time, a role name can be any word you like.  They are just a placeholder to connect *casting commands* like *gather* and *await*, with *coordination commands* like *tell*.
 
-Squads on Groundcrew, however, can define special meanings for certain roles.  So on a particular squad, a 'doctor' might mean someone who's been tagged/certified with the tag 'doctor', and a patient might mean anyone else.
+Squads on Groundcrew, however, can define special meanings for certain roles.  So on a particular squad, a 'doctor' might mean someone who's been tagged/released with the tag 'doctor', and a patient might mean anyone else.
 
 Some role names are always special.  For instance, if you use the role name 'organizer', it always means someone who's an official organizer for that squad.  And if you use the role names 'both', 'all', 'each', or 'everyone', it means that the instruction applies to everyone regardless of how they were *cast*.
 
@@ -115,6 +115,31 @@ A special form of *assign* will additionally direct the player to a person or pl
 
 On iPhone or mobile web, the player will get a little map to direct them.  There are several special *role names* which are used to indicate places rather than people.  These include "streetcorner", "park", "field", and "landmark".
 
+Expect
+------
+
+When you ask a question using *ask*, you may not want to let a player proceed unless they've answered in a way you understand or recognize.  This can be accomplished using *expect*:
+
+    ask player re path:
+        Do you prefer to the path to the left or the right?
+    expect /left|right/ from player:
+        Please say "left" or "right"!
+
+The expect statement, like the release statement described below, can be passed strings, certain keywords, or regular expressions.
+
+Sync up
+-------
+
+There also may be times when you want to sync up several players and make sure they have both completed assignments or answered questions before they each proceed with the script:
+
+    assign redcoat:
+        March briskly towards Concord
+    assign minuteman:
+        Hide in the bushes
+    sync up redcoat and minuteman
+    tell both:
+        Prepare to be surprised.
+
 Choosing Players: Await, Gather, and Nab.
 ----------------------------------------------
 
@@ -122,9 +147,9 @@ So what is really the difference between *await*, *gather*, and *nab*, you may b
 
 *Await* defines a kind of trigger--as soon as the conditions awaited for are met, the script will run.
 
-    await 2-5 level1 players within 50ft
+    await 2-5 level=1 players within 50ft
     assign: shout out "woo-hoo!"
-    certify as level2 not level1
+    release as level=2
 
 Unless there's an await statement in your script, it will have to be executed manually by an organizer.
 
@@ -157,29 +182,63 @@ Some of these have special meanings:  the qualifier *new* is automatically appli
 
 Another qualifier with a special meaning is *concerned*.  This is applied to players who, because of their text messaging or their tweeting or their interaction with the iphone or web apps, seem like are confused or have an urgent question or issue.
 
-The other qualifiers don't mean anythings special, but they select only players who have been certified or tagged with that particular word.  So "gather 5-20 level1 users" will only invite users who have been tagged or certified as level1.
+The other qualifiers don't mean anythings special, but they select only players who have been released or tagged with that particular word.  So "gather 5-20 level=1 users" will only invite users who have been tagged or released as level=1.
 
-Certifying
+Finer control of matching
+-------------------------
+
+The *await* keyword supports a variety of options that let you match players with more specificity.  For instance, you may wish to only match players that text in within 10 minutes of one another:
+
+    await 2 new players over 10 minutes
+
+Or players that have the same favorite color:
+
+    await 2 new players with matching favorite_color
+
+Here's two scripts that cooperate to put people in groups by favorite color:
+
+    await new signup
+    ask signup re name: What's your name?
+    ask signup re favorite_color: What's your favorite color?
+
+    await 2 players with matching favorite_color
+    tell players: |buddy.name| also likes |favorite_color|.
+
+
+Releasing
 ----------
 
-When a player has successfully completed their role in your script, you can add or change the tags associated with that player using the *certify* command.
+When a player has successfully completed their role in your script, you can add or change the tags associated with that player using the *release* command.
 
     await 3 new signups
     assign:
         You have all just signed up!
         Take a photo of something you
         love and share with one another.
-    certify as photo_sharing
+    release as photo_sharing
+
+You can also release a player early, subject to some conditions, by using *if* or *unless*:
+
+    await 1 boss and 1 worker
+    ask worker:
+        Do you feel good about working today?
+    release worker unless yes
+    ask worker re skill:
+        What are you good at?
+    ask boss re job:
+        You have a worker with skill |skill|.  What should they do?
+
+There are some special keywords you can use after if or unless.  These include "yes", "no", "done", "okay".  You can also use a string in quotes ("activate"), in which case their answer is compared to the string case insensitively and with whitespace trimmed.  Or you can use a [regular expression](http://en.wikipedia.org/wiki/Regular_expression) surrounded by forward slashes (/^red|blue|green$/) for more exact matching.
 
 Making Connections between Scripts
 ----------------------------------
 
-*Certify* and qualifications can be used to link scripts together.  The certification at the end of the first script can trigger the *await* statement in the next script.  Here's an example:
+*Release* and qualifications can be used to link scripts together.  The release at the end of the first script can trigger the *await* statement in the next script.  Here's an example:
 
-    await 20 photo_sharing users
+    await 20 stage=photo_sharing users
     ask re opinion:
         How did you like sharing photos just now?
-    certify as signed_up not photo_sharing
+    release as stage=signed_up
 
 Congratulations
 ---------------
@@ -206,9 +265,9 @@ The February or March 2011 version of CEML will support passing and curating not
         sketch out a design for something you
         want to build and take a photo
     document as designer_photo
-    certify designer_photo as unreviewed
+    release designer_photo as unreviewed
 
     await 6 reviewers and unreviewed designer_photo document
     ask reviewers re opinion:
         What do you think of this idea? |designer_photo|
-    certify designer_photo as reviewed not unreviewed
+    release designer_photo as reviewed not unreviewed
