@@ -1,6 +1,8 @@
 require 'forwardable'
 require 'treetop'
 
+require 'ceml/cast'
+require 'ceml/castable'
 require 'ceml/script'
 require 'ceml/casting_statement'
 require 'ceml/instruction_statements'
@@ -9,8 +11,6 @@ require 'ceml/tt/casting'
 require 'ceml/tt/instructions'
 require 'ceml/tt/scripts'
 
-require 'ceml/role'
-require 'ceml/confluence'
 require 'ceml/incident'
 require 'ceml/driver'
 

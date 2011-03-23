@@ -6,9 +6,11 @@ module CEML
     # = casting =
     # ===========
 
-    def roles_to_cast
-      return [] unless cast.type == :await
-      return cast.roles_to_cast(self)
+    def castable
+      return nil unless cast.type == :await
+      args = cast.casting_spec
+      args << bytecode
+      Castable.new(*args)
     end
 
     def nabs?
