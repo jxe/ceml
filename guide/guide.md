@@ -1,7 +1,7 @@
 Beginners Guide to CEML
 =======================
 
-Thanks for taking an interest in CEML, the Coordinated Event Modeling Language.  Using CEML you'll be able to get people to do whatever you want, whether it's evacuating a submarine, finding a gym buddy, helping people nearby, or just throwing a great party.
+Thanks for taking an interest in CEML, the Coordinated Event Messaging Language.  Using CEML you'll be able to get people to do whatever you want, whether it's evacuating a submarine, finding a gym buddy, helping people nearby, or just throwing a great party.
 
 A CEML _script_ is a recipe for action.  Just like a recipe, it has three parts: a title, a list of ingredients, and then a section that says what to do with the ingredients.  Here's an example:
 
