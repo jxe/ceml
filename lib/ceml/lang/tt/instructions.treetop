@@ -3,7 +3,8 @@ grammar Instructions
     include Lexer
 
     rule basic_statement
-        (ask_stmt / tell_stmt / assign_stmt / record_stmt / set_stmt / sync_stmt / release_stmt) {
+        (ask_stmt / tell_stmt / assign_stmt / record_stmt / set_stmt / pick_stmt / seed_stmt / sync_stmt /
+            replace_stmt / release_stmt) {
 
             def delay
                 if parent.respond_to? :later and not parent.later.empty?
@@ -30,13 +31,15 @@ grammar Instructions
                 code.concat case cmd
                 when :record;  [[[role], :answered_q,      {:key  => key}]]
                 when :set;     [[[role], :set,             {:key  => key, :value => text}]]
+                when :pick;    [[[role], :pick,            {:key  => key, :value => text}]]
+                when :seed;    [[[role], :seed,            {:target => var, :role => role}]]
                 when :ask;     [[[role], :ask_q,           {:text => text}],
                                 [[role], :answered_q,      {:key  => key}]]
                 when :tell;    [[[role], :send_msg,        {:text => text}]]
                 when :assign;  [[[role], :assign,          {:text => text}],
                                 [[role], :complete_assign, {:text => text}]]
                 when :release; [[[role], :release,         {:tag  => key, :cond => cond}]]
-                when :sync;    [[[role], :sync]]
+                when :sync;    [[[role], :sync,            {:role => role}]]
                 end
                 code
             end
@@ -49,6 +52,10 @@ grammar Instructions
 
     rule later
         duration ws 'later' ws
+    end
+
+    rule seed_stmt
+        'seed' ws varname:id ws 'with' ws rolename:id
     end
 
     rule record_stmt
@@ -71,6 +78,10 @@ grammar Instructions
         'set' ws id ws varname:id ':' ws? text
     end
 
+    rule pick_stmt
+        'pick' ws id ws varname:id ':' ws? text
+    end
+
     rule sync_stmt
         'sync' ws id
     end
@@ -79,8 +90,12 @@ grammar Instructions
         'release' ws id ws 'as' ws varname:id condition:condition?
     end
 
+    rule replace_stmt
+        'replace' ws id condition:condition?
+    end
+
     rule condition
-        ws type:('if' / 'else') ws thing:id {
+        ws type:('if' / 'unless') ws thing:id {
             def value
                 [type.text_value.to_sym, thing.text_value.to_sym]
             end

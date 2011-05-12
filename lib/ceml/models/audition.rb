@@ -1,0 +1,42 @@
+module CEML
+
+  class Audition < Struct.new(:id)  # "#{code}:#{player_id}"
+    include Redis::Objects
+    set :rooms
+
+    def list_in_rooms(da_rooms)
+      da_rooms.each{ |room| rooms << room.id; room.add(id) }
+    end
+
+    def self.consume(ids)
+      roomsets = ids.map{ |id| Audition.new(id).rooms }
+      redis.watch(*roomsets.map(&:key))
+      redis.multi do
+        rooms = roomsets.first.union(roomsets[1,-1]) || []
+        rooms.each{ |r| ids.each{ |id| r.delete(id) } }
+        redis.del *roomsets.map(&:key)
+        yield
+      end
+    end
+
+    def self.from_rooms(room_ids)
+      players = {}
+      rooms = room_ids.map{ |r| WaitingRoom.new(r) }
+      auditions = rooms.map{ |r| r.waiting_auditions.members }.flatten
+
+      # tmp hack to clear db
+      # auditions.each do |a|
+      #   Audition.new(a).rooms.clear
+      #   rooms.each{ |r| r.waiting_auditions.delete(a) }
+      # end
+
+      p "Auditions found: #{auditions.inspect}"
+      auditions.each do |audition|
+        code, player_id = audition.split(':')
+        players[player_id] ||= audition
+      end
+      players
+    end
+  end
+
+end

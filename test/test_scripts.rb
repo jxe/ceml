@@ -4,6 +4,7 @@ class TestScripts < Test::Unit::TestCase
 
   SCRIPTS = <<END_OF_SCRIPTS
 "Help moving |an object|" // okay?
+(stanza_title)
 gather 2-6 movers within 8 blocks
 
 "Cleaning up |a public place|"

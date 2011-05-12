@@ -65,12 +65,12 @@ grammar Lexer
     rule range
       (
           min:number '-' max:number / floor:number '+'? /
-          'an' / 'a' / 'one' / 'the' / 'some' / 'several' / 'many'
+          'an' / 'a' / 'one' / 'the' / 'some' / 'several' / 'many' / 'all'
       ) {
           def value
             case text_value
             when 'an', 'a', 'one', 'the' then (1..1)
-            when 'some'                  then (1..10000)
+            when 'some', 'all'           then (1..10000)
             when 'several'               then (3..10000)
             when 'many'                  then (5..10000)
             when /^\d+\+$/               then (floor.value..10000)

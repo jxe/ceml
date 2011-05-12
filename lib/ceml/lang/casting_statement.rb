@@ -13,15 +13,20 @@ module CEML
       rolespecs = roles.list.map do |r|
         RoleSpec.new(r.name, Tagspec.new(r.qualifiers,[]), r.min..r.max)
       end
-      [matching, radius, timewindow, rolespecs]
+      [stanza_name, matching, radius, timewindow, rolespecs]
     end
 
     def type
-      elements.first.text_value.split.first.to_sym
+      elements[1].text_value.split.first.to_sym
     end
 
     def max
       roles.max
+    end
+
+    def stanza_name
+      return nil if stanza_marker.empty?
+      stanza_marker and stanza_marker.name and stanza_marker.name.text_value
     end
 
     def within_phrase

@@ -3,7 +3,11 @@ grammar Casting
     include Lexer
 
     rule casting_statement
-      ('gather' / 'await' / 'nab') ws roles modifiers:modifier_phrase* <CastingStatement>
+      stanza_marker:stanza_marker? ('gather' / 'await' / 'nab') ws roles modifiers:modifier_phrase* <CastingStatement>
+    end
+
+    rule stanza_marker
+      '(' name:id ')' nl
     end
 
     rule modifier_phrase

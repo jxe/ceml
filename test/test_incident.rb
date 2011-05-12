@@ -71,6 +71,10 @@ XXX
 
 class TestIncident < Test::Unit::TestCase
 
+  def setup
+    CEML::Queue.new.calls.clear
+  end
+
   def test_sync
     s = scriptfam SYNC_SCRIPT
     play do
@@ -81,8 +85,8 @@ class TestIncident < Test::Unit::TestCase
       says 'alpha', "red"
       silent 'alpha'
       says 'beta', "blue"
-      told 'alpha', /Hi/
-      told 'beta', /Goodbye/
+      told 'beta', /Hi/
+      told 'alpha', /Goodbye/
     end
   end
 
@@ -137,27 +141,27 @@ class TestIncident < Test::Unit::TestCase
   end
 
 
-  def test_inside_timewindow
-    s = scriptfam "await 2 new signups over 10s\ntell signups: thanks"
-    play do
-      ping s, :id => 'fred', :tags => ['new']
-      silent 'fred'
-      CEML.incr_clock 5
-      ping s, :id => 'betty', :tags => ['new']
-      told 'fred', /thanks/
-    end
-  end
-
-  def test_outside_timewindow
-    s = scriptfam "await 2 new signups over 10s\ntell signups: thanks"
-    play do
-      ping s, :id => 'fred', :tags => ['new']
-      silent 'fred'
-      CEML.incr_clock 15
-      ping s, :id => 'betty', :tags => ['new']
-      silent 'fred'
-    end
-  end
+  # def test_inside_timewindow
+  #   s = scriptfam "await 2 new signups over 10s\ntell signups: thanks"
+  #   play do
+  #     ping s, :id => 'fred', :tags => ['new']
+  #     silent 'fred'
+  #     CEML.incr_clock 5
+  #     ping s, :id => 'betty', :tags => ['new']
+  #     told 'fred', /thanks/
+  #   end
+  # end
+  #
+  # def test_outside_timewindow
+  #   s = scriptfam "await 2 new signups over 10s\ntell signups: thanks"
+  #   play do
+  #     ping s, :id => 'fred', :tags => ['new']
+  #     silent 'fred'
+  #     CEML.incr_clock 15
+  #     ping s, :id => 'betty', :tags => ['new']
+  #     silent 'fred'
+  #   end
+  # end
 
   def test_interpolation
     s = "\"Soccer in the park\"\ngather 2 players within 1mi\nask players re color: which color?\ntell players: its |someone.color|\n"
@@ -192,7 +196,7 @@ class TestIncident < Test::Unit::TestCase
 
   def test_incident
     play COMPLIMENT_SCRIPT do
-      player :joe, :organizer, :agent
+      player :joe, :organizer
       player :bill, :agent
 
       asked :joe, /^Describe/
@@ -214,15 +218,15 @@ XXX
 
   def test_askchain
     play ASKCHAIN_SCRIPT do
-      player :joe, :players, :agent
-      player :bill, :players, :agent
+      player :joey, :players
+      player :billy, :players
 
-      asked :joe,  /favorite color/
-      asked :bill, /favorite color/
-      says :joe, "red"
-      says :bill, "green"
-      asked :joe, /with the color green/
-      asked :bill, /with the color red/
+      asked :joey,  /favorite color/
+      asked :billy, /favorite color/
+      says :joey, "red"
+      says :billy, "green"
+      asked :joey, /with the color green/
+      asked :billy, /with the color red/
     end
   end
 

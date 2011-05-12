@@ -31,17 +31,18 @@ module CEML
 
       loop do
         players = @players.select{ |p| !p[:released] }
-        # puts "playing with #{players.map{|p|p[:id]}}"
+        puts "[#{id}]: playing with #{players.map{|p|p[:id]}}"
         advanced = false
         players.each do |p|
           @this = p
-          # puts "trying #{@this[:id]}"
+          puts "trying #{@this[:id]} on seq #{seq.inspect}"
           next unless instr = seq[pc]
           instr = instr.dup
           if not rolematch(instr.shift)
             this[:pc]+=1
             advanced = true
           else
+            puts "TRYING TO RUN #{instr.inspect}"
             instr << role_info if instr.first == :start  #tmp hack
             next unless send(*instr)
             cb(*instr)
@@ -67,6 +68,13 @@ module CEML
       end
     end
 
+    def players_with_role(role)
+      if role
+        @players.select{ |p| p[:roles].include? role }
+      else
+        @players.reject{ |p| p == this }
+      end
+    end
 
     def expand(role, var)
       case role
@@ -75,9 +83,7 @@ module CEML
       when 'somebody', 'someone', 'buddy', 'teammate';  role = nil
       end
       role = role.to_sym if role
-      @players.each do |p|
-        next if p == this
-        next if role and not p[:roles].include? role
+      players_with_role(role).each do |p|
         value = (p[:qs_answers]||{})[var] and return value
       end
       nil
@@ -116,9 +122,9 @@ module CEML
       true
     end
 
-    def sync
+    def sync q
       this[:synced] = pc
-      return true if @players.all?{ |p| p[:synced] == pc }
+      return true if players_with_role(q[:role]).all?{ |p| p[:synced] == pc }
     end
 
     def ask_q q
@@ -138,6 +144,12 @@ module CEML
 
     def set q
       qs_answers[q[:key]] = q[:value]
+      true
+    end
+
+    def pick q
+      choices = q[:value].split(/\s+\-\s+/)
+      qs_answers[q[:key]] ||= choices.sort_by{ rand }.first
       true
     end
 
@@ -182,6 +194,12 @@ module CEML
       return true if x[:cond] and not expectation(*x[:cond])
       this[:released] = x[:tag]
       cb :released, x[:tag]
+      false
+    end
+
+    def replace x
+      return true if x[:cond] and not expectation(*x[:cond])
+      # TODO: implement replace
       false
     end
 

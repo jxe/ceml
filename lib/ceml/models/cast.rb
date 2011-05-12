@@ -1,4 +1,57 @@
 module CEML
+
+  RoleSpec = Struct.new :name, :tagspec, :range
+
+  class Castable < Struct.new :stanza_name, :matching, :radius, :timewindow, :roles, :bytecode
+
+    def waiting_rooms_for_player(player)
+      result = []
+      result.concat player[:seeded] if player[:seeded]
+      result.concat player[:tags] if player[:tags]
+      result << 'generic'
+      result
+    end
+
+    def hot_waiting_rooms_given_player(player)
+      rooms = waiting_rooms_for_player(player)
+      roles.each{ |r| rooms.concat(["#{stanza_name}:#{r.name}", *r.tagspec.with]) }
+      rooms << "#{stanza_name}:*"
+      rooms << 'generic'
+      rooms
+    end
+
+    def waiting_rooms_to_watch(role, cast)
+      # skip for now: radius, timewindow, matching, general
+      result = []
+      if stanza_name
+        result << "#{stanza_name}:#{role.name}"
+        result << "#{stanza_name}:*"
+      end
+      if !role.tagspec.with.empty?
+        result.concat role.tagspec.with
+      end
+      result << 'generic'
+      result.map{ |id| WaitingRoom.new(id) }
+    end
+
+    def with_open_roles(cast)
+      roles.each do |role|
+        count = cast.room(role)
+        next unless count > 0
+        yield role, count
+      end
+    end
+
+    # an O(n*^2) alg for now.  can do much better
+    def cast_from guys
+      # see if we can build a cast out of them and bid on the casts
+      possible_casts = guys.map{ |guy| Cast.new self, guy }.select(&:star)
+      guys.each{ |guy| possible_casts.each{ |cast| cast.cast guy }}
+      result = possible_casts.detect(&:complete?)
+      result
+    end
+  end
+
   # this contains the logic of building and approving a valid cast
   # for an await statement, starting with a seed first_guy
   class Cast
@@ -10,6 +63,11 @@ module CEML
       @castable = castable
       @castings = Hash.new{ |h,k| h[k] = Set.new }
       cast first_guy
+    end
+
+    def room(role)
+      casted_count = @castings[role.name].size
+      [role.range.max - casted_count, 0].max
     end
 
     def affinity role, guy
@@ -43,6 +101,10 @@ module CEML
 
     def folks
       castings.values.map(&:to_a).flatten
+    end
+
+    def player_ids
+      folks.map{ |p| p[:id] }
     end
 
     def star
@@ -84,10 +146,9 @@ module CEML
     end
   end
 
-  RoleSpec = Struct.new :name, :tagspec, :range
   class Tagspec < Struct.new :with, :without
     def =~(c)
-      with.all?{ |t| c[:tags].include?(t) } and without.all?{ |t| !c[:tags].include?(t) }
+      with.all?{ |t| (c[:tags]||[]).include?(t) } and without.all?{ |t| !(c[:tags]||[]).include?(t) }
     end
   end
 end

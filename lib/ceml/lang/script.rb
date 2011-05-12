@@ -8,8 +8,7 @@ module CEML
 
     def castable
       return nil unless cast.type == :await
-      args = cast.casting_spec
-      args << bytecode
+      args = cast.casting_spec + [bytecode]
       Castable.new(*args)
     end
 
