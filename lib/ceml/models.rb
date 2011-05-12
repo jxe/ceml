@@ -11,4 +11,5 @@ require 'ceml/models/incident_role_slot'
 require 'ceml/models/player'
 require 'ceml/models/waiting_room'
 require 'ceml/models/queue'
+require 'ceml/models/bundle'
 

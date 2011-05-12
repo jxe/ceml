@@ -11,18 +11,23 @@ module CEML
     # TODO:  new way to release players from incident
     # design:  release, replace, incident_close
 
-    def updated(castables, player)
+    def set_bundle(id, castables)
+      Bundle.new(id).castables = castables
+    end
+
+    def updated(bundle_id, player)
       if incident_id = Player.new(player[:id]).active_incidents.last
         Player.update player
         run_incident(incident_id)
       else
-        audition(castables, player)
+        audition(bundle_id, player)
       end
     end
 
-    def audition(castables, player)
-      Player.update player
+    def audition(bundle_id, player)
+      Player.update player.merge :bundle_id => bundle_id
       log "Auditioning #{player[:id]}"
+      castables = Bundle.new(bundle_id).castables.value
       rooms = castables.map{ |c| c.waiting_rooms_for_player(player) }.flatten.uniq.map{ |r| WaitingRoom.new(r) }
 
       # check player against waiting incidents
@@ -97,6 +102,13 @@ module CEML
       Player.update data[:player].like(:id, :qs_answers)
     end
     alias_method :player_set, :player_answered_q
+
+    def player_seed(data, what)
+      p = data[:player].dup
+      p.delete(:roles)
+      p[:seeded] = "#{data[:target]}:#{data[:role]}"
+      Processor.audition(p[:bundle_id], p)
+    end
 
     # these lines let this class act as a redis worker queing mechanism
     def self.method_missing(*args); Queue.new.calls << args; end

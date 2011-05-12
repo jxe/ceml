@@ -108,6 +108,10 @@ module CEML
       cb :said, params.merge(:said => x)
     end
 
+    def seed x
+      true
+    end
+
     def start(x); true; end
     def finish; true; end
 
