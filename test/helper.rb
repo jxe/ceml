@@ -31,7 +31,8 @@ class Test::Unit::TestCase
   end
 
   def ping s, candidate
-    CEML::Processor.audition(s, candidate)
+    CEML::Processor.set_bundle(s.hash.to_s, s)
+    CEML::Processor.audition(s.hash.to_s, candidate)
     CEML::Processor.run
   end
 

@@ -65,7 +65,7 @@ module CEML
 
       # store player in waiting rooms for later
       log "...storing in waiting rooms #{rooms}"
-      Audition.new("#{gen_code}:#{player[:id]}").list_in_rooms(rooms)
+      Audition.new("#{player[:id]}").list_in_rooms(rooms)  ##{gen_code}:
     end
 
     def launch(incident_id, bytecode)

@@ -32,7 +32,9 @@ module CEML
 
       p "Auditions found: #{auditions.inspect}"
       auditions.each do |audition|
-        code, player_id = audition.split(':')
+        next if audition =~ /:/
+        # code, player_id = audition.split(':')
+        player_id = audition
         players[player_id] ||= audition
       end
       players
