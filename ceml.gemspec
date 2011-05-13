@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Edelman"]
-  s.date = %q{2011-02-24}
+  s.date = %q{2011-05-12}
   s.description = %q{a language for coordinating real world events}
   s.email = %q{joe@citizenlogistics.com}
   s.extra_rdoc_files = [
@@ -34,18 +34,32 @@ Gem::Specification.new do |s|
      "guide/guide.md",
      "guide/guide.pdf",
      "lib/ceml.rb",
-     "lib/ceml/casting_statement.rb",
-     "lib/ceml/confluence.rb",
      "lib/ceml/driver.rb",
-     "lib/ceml/incident.rb",
-     "lib/ceml/instruction_statements.rb",
-     "lib/ceml/role.rb",
-     "lib/ceml/script.rb",
-     "lib/ceml/tt/casting.treetop",
-     "lib/ceml/tt/instructions.treetop",
-     "lib/ceml/tt/lexer.treetop",
-     "lib/ceml/tt/scripts.treetop",
+     "lib/ceml/lang.rb",
+     "lib/ceml/lang/casting_statement.rb",
+     "lib/ceml/lang/instruction_statements.rb",
+     "lib/ceml/lang/script.rb",
+     "lib/ceml/lang/tt/casting.rb",
+     "lib/ceml/lang/tt/casting.treetop",
+     "lib/ceml/lang/tt/instructions.rb",
+     "lib/ceml/lang/tt/instructions.treetop",
+     "lib/ceml/lang/tt/lexer.rb",
+     "lib/ceml/lang/tt/lexer.treetop",
+     "lib/ceml/lang/tt/scripts.rb",
+     "lib/ceml/lang/tt/scripts.treetop",
+     "lib/ceml/models.rb",
+     "lib/ceml/models/audition.rb",
+     "lib/ceml/models/bundle.rb",
+     "lib/ceml/models/cast.rb",
+     "lib/ceml/models/incident.rb",
+     "lib/ceml/models/incident_model.rb",
+     "lib/ceml/models/incident_role_slot.rb",
+     "lib/ceml/models/player.rb",
+     "lib/ceml/models/queue.rb",
+     "lib/ceml/models/waiting_room.rb",
+     "lib/ceml/processor.rb",
      "test/helper.rb",
+     "test/test_castable.rb",
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
@@ -56,10 +70,11 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/citizenlogistics/ceml}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{a language for coordinating real world events}
   s.test_files = [
     "test/helper.rb",
+     "test/test_castable.rb",
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
@@ -68,10 +83,9 @@ Gem::Specification.new do |s|
   ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<treetop>, [">= 0"])
     else
       s.add_dependency(%q<treetop>, [">= 0"])
