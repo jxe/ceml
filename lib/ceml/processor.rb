@@ -16,6 +16,7 @@ module CEML
     end
 
     def updated(bundle_id, player)
+      log "updated(): #{bundle_id}, #{player[:id]}"
       if incident_id = Player.new(player[:id]).active_incidents.last
         Player.update player
         run_incident(incident_id)
@@ -26,7 +27,7 @@ module CEML
 
     def audition(bundle_id, player)
       Player.update player.merge :bundle_id => bundle_id
-      log "Auditioning #{player[:id]}"
+      log "audition(): #{bundle_id}, #{player[:id]}"
       castables = Bundle.new(bundle_id).castables.value
       rooms = castables.map{ |c| c.waiting_rooms_for_player(player) }.flatten.uniq.map{ |r| WaitingRoom.new(r) }
 
