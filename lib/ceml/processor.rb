@@ -12,6 +12,7 @@ module CEML
     # design:  release, replace, incident_close
 
     def set_bundle(id, castables)
+      log "set_bundle(): #{id}, #{castables.inspect}"
       Bundle.new(id).castables = castables
     end
 
