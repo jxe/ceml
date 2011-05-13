@@ -10,7 +10,8 @@ module CEML
 
     def self.consume(ids)
       roomsets = ids.map{ |id| Audition.new(id).rooms }
-      redis.watch(*roomsets.map(&:key))
+      # TODO: install new redis and re-enable watchlist
+      # redis.watch(*roomsets.map(&:key))
       redis.multi do
         rooms = roomsets.first.union(roomsets[1,-1]) || []
         rooms.each{ |r| ids.each{ |id| r.delete(id) } }
