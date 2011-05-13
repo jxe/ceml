@@ -30,7 +30,7 @@ module CEML
       @callback = blk
 
       loop do
-        players = @players.select{ |p| !p[:released] }
+        players = @players
         puts "[#{id}]: playing with #{players.map{|p|p[:id]}}"
         advanced = false
         players.each do |p|
@@ -196,7 +196,7 @@ module CEML
 
     def release x
       return true if x[:cond] and not expectation(*x[:cond])
-      this[:released] = x[:tag]
+      @players.delete(this)
       cb :released, x[:tag]
       false
     end

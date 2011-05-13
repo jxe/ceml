@@ -24,16 +24,15 @@ module CEML
       end
     end
 
-    def kill
-      player_roles.each do |player_id, roles|
-        # remove from player's active incidents
-        Player.new(player_id).active_incidents.delete(id)
+    def release(player_id)
+      Player.new(player_id).active_incidents.delete(id)
+      player_roles.delete(player_id)
+    end
 
-        # TODO: remove casting calls from waiting rooms
-        #
-
-        # remove/archive actual incident data
-      end
+    def expire
+      # TODO: remove casting calls from waiting rooms
+      bytecode.clear
+      data.clear
     end
 
     def self.run_latest(cb_obj)
@@ -69,6 +68,7 @@ module CEML
         CEML::Incident.new(bytecode.value, id).run(players) do |player, meth, what|
           meth = "player_#{meth}"
           cb_obj.log "[#{id}] #{meth}: #{player[:id]} #{what.inspect}"
+          case meth when :released, :finish, :replace; release(player[:id]); end
           if cb_obj.respond_to? meth
             metadata.update :player => player, :players => players, :id => id
             result = cb_obj.send(meth, metadata, what)
