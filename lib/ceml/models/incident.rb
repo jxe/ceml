@@ -37,12 +37,14 @@ module CEML
           @this = p
           puts "trying #{@this[:id]} on seq #{seq.inspect}"
           unless instr = seq[pc]
+            puts "PLAYER #{p[:id]} is off his schedule at #{seq.inspect} #{pc.inspect}"
             @players.delete(p)
             cb :released
             next
           end
           instr = instr.dup
           if not rolematch(instr.shift)
+            puts "advancing #{p[:id]} due to rolematch skip"
             this[:pc]+=1
             advanced = true
           else
@@ -50,6 +52,7 @@ module CEML
             instr << role_info if instr.first == :start  #tmp hack
             next unless send(*instr)
             cb(*instr)
+            puts "#{p[:id]} succeeded, advancing"
             this[:pc]+=1
             advanced = true
           end
