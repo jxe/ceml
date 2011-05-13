@@ -33,7 +33,7 @@ module CEML
       rooms = castables.map{ |c| c.waiting_rooms_for_player(player) }.flatten.uniq.map{ |r| WaitingRoom.new(r) }
 
       # check player against waiting incidents
-      return if rooms.detect{ |room| room.audition_for_incidents(player) }
+      return if rooms.detect{ |room| room.audition_for_incidents(player, self.class) }
       log "...cannot be cast into a live incident"
 
       # see if player makes a launch possible for any castable
@@ -109,11 +109,11 @@ module CEML
       p = data[:player].dup
       p.delete(:roles)
       p[:seeded] = "#{data[:target]}:#{data[:role]}"
-      Processor.audition(p[:bundle_id], p)
+      self.class.audition(p[:bundle_id], p)
     end
 
     # these lines let this class act as a redis worker queing mechanism
     def self.method_missing(*args); Queue.new.calls << args; end
-    def self.run(); Queue.new.run; end
+    def self.run(); Queue.new.run(self); end
   end
 end

@@ -4,8 +4,8 @@ module CEML
     include Redis::Objects
     list :calls, :marshal => true
 
-    def run
-      p = Processor.new
+    def run(klass)
+      p = klass.new
       while call = calls.shift; p.send(*call); end
     end
   end
