@@ -25,16 +25,18 @@ module CEML
 
     def update player
       puts "UPDATING player id #{id} with #{player.inspect}"
-      new_message = player.like :received, :recognized
+      new_message = player.like :received, :recognized, :situation
       if !new_message.empty?
         message.value = new_message
       end
       player.delete(:received)
       player.delete(:recognized)
+      player.delete(:situation)
       updating_lock.lock do
         old_value = data.value || {}
         old_value.delete(:received)
         old_value.delete(:recognized)
+        old_value.delete(:situation)
         new_value = old_value.merge player
         new_value[:qs_answers] = (old_value[:qs_answers]||{}).merge(player[:qs_answers] || {})
         puts "SAVING DATA: #{new_value.inspect}"

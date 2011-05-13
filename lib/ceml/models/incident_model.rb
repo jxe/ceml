@@ -79,7 +79,7 @@ module CEML
         end
 
         players.each do |p|
-          Player.new(p[:id]).message.value = p.like(:received, :recognized)
+          Player.new(p[:id]).message.value = p.like(:received, :recognized, :situation)
           player_data[p[:id]] = p.like *PLAYER_THREAD_FIELDS
         end
         puts "Player data saving: #{player_data.inspect}"
