@@ -36,7 +36,11 @@ module CEML
         players.each do |p|
           @this = p
           puts "trying #{@this[:id]} on seq #{seq.inspect}"
-          next unless instr = seq[pc]
+          unless instr = seq[pc]
+            @players.delete(p)
+            cb :released
+            next
+          end
           instr = instr.dup
           if not rolematch(instr.shift)
             this[:pc]+=1
