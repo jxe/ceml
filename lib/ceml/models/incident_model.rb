@@ -43,7 +43,7 @@ module CEML
     end
 
     def run(cb_obj)
-      running_lock.lock do
+      # running_lock.lock do
         metadata, player_data = *data.value
         metadata    ||= { :id => id }
         player_data ||= {}
@@ -88,7 +88,7 @@ module CEML
         if next_run = players.map{ |p| p[:continue_at] }.compact.min
           redis.zadd 'ceml_continue_at', next_run, id
         end
-      end
+      # end
     end
 
   end
