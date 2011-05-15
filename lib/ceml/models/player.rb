@@ -4,10 +4,10 @@ module CEML
     lock :updating
     value :data,    :marshal => true
     value :message, :marshal => true
-    sorted_set :active_incidents
+    sorted_set :current_incidents
 
     def touch(incident_id)
-      active_incidents[incident_id] = Time.now.to_i
+      current_incidents[incident_id] = Time.now.to_i
     end
 
     def self.update player

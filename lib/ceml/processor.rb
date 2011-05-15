@@ -29,7 +29,7 @@ module CEML
     def replied(bundle_id, player)
       log "replied(): #{bundle_id}, #{player[:id]}"
       Player.update player
-      if incident_id = Player.new(player[:id]).active_incidents.last
+      if incident_id = Player.new(player[:id]).current_incidents.last
         run_incident(incident_id)
       else
         player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
