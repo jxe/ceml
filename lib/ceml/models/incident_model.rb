@@ -53,7 +53,7 @@ module CEML
         player_roles.each do |player_id, roles|
           puts "#{id}: #{player_id.inspect} => #{roles.inspect}, #{player_data[player_id].inspect}"
           player = { :id => player_id, :roles => Set.new(roles) }
-          player[:roles] << :agents << :players << :both << :all << :each << :everyone
+          player[:roles] << :agents << :players << :both << :all << :each << :everyone << :them
           player.merge! player_data[player_id] if player_data[player_id]
           p = Player.new(player_id)
           stored_player = p.data.value

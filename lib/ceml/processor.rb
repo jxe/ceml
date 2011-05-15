@@ -16,13 +16,23 @@ module CEML
       Bundle.new(id).castables = castables
     end
 
-    def updated(bundle_id, player)
-      log "updated(): #{bundle_id}, #{player[:id]}"
+    # def updated(bundle_id, player)
+    #   log "updated(): #{bundle_id}, #{player[:id]}"
+    #   if incident_id = Player.new(player[:id]).active_incidents.last
+    #     Player.update player
+    #     run_incident(incident_id)
+    #   else
+    #     audition(bundle_id, player)
+    #   end
+    # end
+
+    def replied(bundle_id, player)
+      log "replied(): #{bundle_id}, #{player[:id]}"
+      Player.update player
       if incident_id = Player.new(player[:id]).active_incidents.last
-        Player.update player
         run_incident(incident_id)
       else
-        audition(bundle_id, player)
+        player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
       end
     end
 
@@ -33,7 +43,7 @@ module CEML
       rooms = castables.map{ |c| c.waiting_rooms_for_player(player) }.flatten.uniq.map{ |r| WaitingRoom.new(r) }
 
       # check player against waiting incidents
-      return if rooms.detect{ |room| room.audition_for_incidents(player, self.class) }
+      return true if rooms.detect{ |room| room.audition_for_incidents(player, self.class) }
       log "...cannot be cast into a live incident"
 
       # see if player makes a launch possible for any castable
@@ -61,13 +71,17 @@ module CEML
           end or begin sleep 0.02; return audition(scripts, player); end
 
           add_cast(incident_id, cast.castings)
-          return
+          return true
         end
       end
+
+      # bail out when there's no rooms relevant
+      return false if rooms.empty?
 
       # store player in waiting rooms for later
       log "...storing in waiting rooms #{rooms}"
       Audition.new("#{player[:id]}").list_in_rooms(rooms)  ##{gen_code}:
+      return true
     end
 
     def launch(incident_id, bytecode)

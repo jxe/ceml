@@ -8,7 +8,7 @@ module CEML
       result = []
       result.concat player[:seeded] if player[:seeded]
       result.concat player[:tags] if player[:tags]
-      result << 'generic'
+      # result << 'generic'
       result
     end
 
@@ -16,7 +16,7 @@ module CEML
       rooms = waiting_rooms_for_player(player)
       roles.each{ |r| rooms.concat(["#{stanza_name}:#{r.name}", *r.tagspec.with]) }
       rooms << "#{stanza_name}:*"
-      rooms << 'generic'
+      # rooms << 'generic'
       rooms
     end
 
@@ -30,7 +30,7 @@ module CEML
       if !role.tagspec.with.empty?
         result.concat role.tagspec.with
       end
-      result << 'generic'
+      # result << 'generic'
       result.map{ |id| WaitingRoom.new(id) }
     end
 

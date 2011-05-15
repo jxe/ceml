@@ -21,7 +21,7 @@ module CEML
     end
 
     def rolematch(specified_roles)
-      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone])
+      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone, :them])
       not (expanded & specified_roles).empty?
     end
 
@@ -85,7 +85,7 @@ module CEML
 
     def expand(role, var)
       case role
-      when 'his', 'her', 'their', 'my', 'its';    return qs_answers[var]
+      when 'his', 'her', 'their', 'my', 'its', 'your';    return qs_answers[var]
       when 'world', 'game', 'exercise', 'group';  return (cb :world, var)
       when 'somebody', 'someone', 'buddy', 'teammate';  role = nil
       end
