@@ -25,6 +25,7 @@ module CEML
     end
 
     def release(player_id)
+      puts "Releasing player #{player_id} from incident #{id}"
       Player.new(player_id).active_incidents.delete(id)
       player_roles.delete(player_id)
     end
@@ -68,7 +69,9 @@ module CEML
         CEML::Incident.new(bytecode.value, id).run(players) do |player, meth, what|
           meth = "player_#{meth}"
           cb_obj.log "[#{id}] #{meth}: #{player[:id]} #{what.inspect}"
-          case meth when :released, :finish, :replace; release(player[:id]); end
+          case meth when :released, :finish, :replace
+            release(player[:id])
+          end
           if cb_obj.respond_to? meth
             metadata.update :player => player, :players => players, :id => id
             result = cb_obj.send(meth, metadata, what)
