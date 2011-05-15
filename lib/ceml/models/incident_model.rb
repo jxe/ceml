@@ -67,11 +67,11 @@ module CEML
         puts "Running with players: #{players.inspect}"
 
         CEML::Incident.new(bytecode.value, id).run(players) do |player, meth, what|
-          meth = "player_#{meth}"
-          cb_obj.log "[#{id}] #{meth}: #{player[:id]} #{what.inspect}"
-          case meth when :released, :finish, :replace
+          case meth.to_sym when :released, :finish, :replace
             release(player[:id])
           end
+          meth = "player_#{meth}"
+          cb_obj.log "[#{id}] #{meth}: #{player[:id]} #{what.inspect}"
           if cb_obj.respond_to? meth
             metadata.update :player => player, :players => players, :id => id
             result = cb_obj.send(meth, metadata, what)
