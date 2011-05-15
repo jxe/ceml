@@ -24,6 +24,7 @@ module CEML
     end
 
     def update player
+      player = player.dup
       puts "UPDATING player id #{id} with #{player.inspect}"
       new_message = player.like :received, :recognized, :situation
       if !new_message.empty?
