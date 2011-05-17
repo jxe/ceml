@@ -76,6 +76,9 @@ module CEML
         end
       end
 
+      # report here
+      player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
+
       # bail out when there's no rooms relevant
       return false if rooms.empty?
 
@@ -125,6 +128,9 @@ module CEML
       p.delete(:roles)
       p[:seeded] = "#{data[:target]}:#{data[:role]}"
       self.class.audition(p[:bundle_id], p)
+    end
+
+    def player_did_report(*args)
     end
 
     # these lines let this class act as a redis worker queing mechanism
