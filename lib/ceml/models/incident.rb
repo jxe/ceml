@@ -21,7 +21,7 @@ module CEML
     end
 
     def rolematch(specified_roles)
-      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone, :them])
+      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone, :them, :either])
       not (expanded & specified_roles).empty?
     end
 

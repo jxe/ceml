@@ -88,7 +88,7 @@ module CEML
     end
 
     def allowed_roles
-      allowed_roles = [:organizer, :agents, :both, :all, :everyone, :each, :players, :them]
+      allowed_roles = [:organizer, :agents, :both, :all, :everyone, :each, :players, :them, :either]
       allowed_roles += cast.rolenames
       allowed_roles.uniq
     end
