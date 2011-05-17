@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Edelman"]
-  s.date = %q{2011-05-12}
+  s.date = %q{2011-05-17}
   s.description = %q{a language for coordinating real world events}
   s.email = %q{joe@citizenlogistics.com}
   s.extra_rdoc_files = [
@@ -51,6 +51,7 @@ Gem::Specification.new do |s|
      "lib/ceml/models/audition.rb",
      "lib/ceml/models/bundle.rb",
      "lib/ceml/models/cast.rb",
+     "lib/ceml/models/castable.rb",
      "lib/ceml/models/incident.rb",
      "lib/ceml/models/incident_model.rb",
      "lib/ceml/models/incident_role_slot.rb",
@@ -63,7 +64,6 @@ Gem::Specification.new do |s|
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
-     "test/test_release.rb",
      "test/test_scripts.rb",
      "try"
   ]
@@ -78,7 +78,6 @@ Gem::Specification.new do |s|
      "test/test_casting.rb",
      "test/test_incident.rb",
      "test/test_instructions.rb",
-     "test/test_release.rb",
      "test/test_scripts.rb"
   ]
 
