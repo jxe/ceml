@@ -4,6 +4,7 @@ require 'redis/objects'
 Redis::Objects.redis = Redis.new
 
 require 'ceml/models/cast'
+require 'ceml/models/castable'
 require 'ceml/models/incident'
 require 'ceml/models/audition'
 require 'ceml/models/incident_model'
