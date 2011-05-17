@@ -38,7 +38,7 @@ grammar Instructions
                 when :tell;    [[[role], :send_msg,        {:text => text}]]
                 when :assign;  [[[role], :assign,          {:text => text}],
                                 [[role], :complete_assign, {:text => text}]]
-                when :release; [[[role], :release,         {:tag  => key, :cond => cond}]]
+                when :release; [[[role], :release,         {:cond => cond}]]
                 when :sync;    [[[role], :sync,            {:role => role}]]
                 end
                 code
@@ -51,7 +51,7 @@ grammar Instructions
     end
 
     rule later
-        duration ws 'later' ws
+        duration ws 'later' ','? ws
     end
 
     rule seed_stmt
@@ -87,7 +87,7 @@ grammar Instructions
     end
 
     rule release_stmt
-        'release' ws id ws 'as' ws varname:id condition:condition?
+        'release' ws id condition:condition?
     end
 
     rule replace_stmt

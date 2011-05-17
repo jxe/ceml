@@ -45,7 +45,7 @@ module Instructions
         when :tell;    [[[role], :send_msg,        {:text => text}]]
         when :assign;  [[[role], :assign,          {:text => text}],
                         [[role], :complete_assign, {:text => text}]]
-        when :release; [[[role], :release,         {:tag  => key, :cond => cond}]]
+        when :release; [[[role], :release,         {:cond => cond}]]
         when :sync;    [[[role], :sync,            {:role => role}]]
         end
         code
@@ -188,7 +188,7 @@ module Instructions
     end
 
     def ws2
-      elements[3]
+      elements[4]
     end
   end
 
@@ -219,8 +219,23 @@ module Instructions
         end
         s0 << r3
         if r3
-          r4 = _nt_ws
+          if has_terminal?(',', false, index)
+            r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            @index += 1
+          else
+            terminal_parse_failure(',')
+            r5 = nil
+          end
+          if r5
+            r4 = r5
+          else
+            r4 = instantiate_node(SyntaxNode,input, index...index)
+          end
           s0 << r4
+          if r4
+            r6 = _nt_ws
+            s0 << r6
+          end
         end
       end
     end
@@ -917,7 +932,7 @@ module Instructions
   end
 
   module ReleaseStmt0
-    def ws1
+    def ws
       elements[1]
     end
 
@@ -925,20 +940,8 @@ module Instructions
       elements[2]
     end
 
-    def ws2
-      elements[3]
-    end
-
-    def ws3
-      elements[5]
-    end
-
-    def varname
-      elements[6]
-    end
-
     def condition
-      elements[7]
+      elements[3]
     end
   end
 
@@ -969,35 +972,13 @@ module Instructions
         r3 = _nt_id
         s0 << r3
         if r3
-          r4 = _nt_ws
-          s0 << r4
-          if r4
-            if has_terminal?('as', false, index)
-              r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
-            else
-              terminal_parse_failure('as')
-              r5 = nil
-            end
-            s0 << r5
-            if r5
-              r6 = _nt_ws
-              s0 << r6
-              if r6
-                r7 = _nt_id
-                s0 << r7
-                if r7
-                  r9 = _nt_condition
-                  if r9
-                    r8 = r9
-                  else
-                    r8 = instantiate_node(SyntaxNode,input, index...index)
-                  end
-                  s0 << r8
-                end
-              end
-            end
+          r5 = _nt_condition
+          if r5
+            r4 = r5
+          else
+            r4 = instantiate_node(SyntaxNode,input, index...index)
           end
+          s0 << r4
         end
       end
     end
