@@ -53,6 +53,7 @@ module CEML
     end
 
     def player_ids
+      puts "Folks are #{folks.inspect}"
       folks.map{ |p| p[:id] }
     end
 

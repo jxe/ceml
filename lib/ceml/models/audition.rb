@@ -5,15 +5,18 @@ module CEML
     set :rooms
 
     def list_in_rooms(da_rooms)
-      da_rooms.each{ |room| rooms << room.id; room.add(id) }
+      p "Listing in rooms #{da_rooms.map(&:id)}"
+      da_rooms.each{ |room| self.rooms << room.id; room.add(id) }
     end
 
     def self.consume(ids)
       roomsets = ids.map{ |id| Audition.new(id).rooms }
+      rooms = roomsets.map(&:members).flatten.uniq
+      puts "Consuming ids #{ids.inspect} from rooms #{rooms.inspect}"
       # TODO: install new redis and re-enable watchlist
       # redis.watch(*roomsets.map(&:key))
       redis.multi do
-        rooms = roomsets.first.union(roomsets[1,-1]) || []
+        # rooms = roomsets.first.union(roomsets[1,-1]) || []
         rooms.each{ |r| ids.each{ |id| r.delete(id) } }
         redis.del *roomsets.map(&:key)
         yield

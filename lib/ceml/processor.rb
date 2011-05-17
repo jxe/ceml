@@ -56,10 +56,11 @@ module CEML
         log "casting from #{hot_players.inspect}"
 
         if cast = castable.cast_from(hot_players)
-          log "...cast by #{castable.inspect}"
+          log "...cast by #{castable.inspect} with cast #{cast.player_ids.inspect}"
           incident_id  = gen_code
-          audition_ids = cast.player_ids.map{ |id| hotties[id] }
+          audition_ids = (cast.player_ids & hotties.keys).map{ |id| hotties[id] }
 
+          log "consuming #{audition_ids.inspect}"
           Audition.consume(audition_ids) do
             launch(incident_id, castable.bytecode)
             # post audition signs in waiting rooms for remaining parts
