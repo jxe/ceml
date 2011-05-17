@@ -2,7 +2,7 @@ require 'ceml'
 require 'test/helper'
 
 SYNC_SCRIPT = <<XXX
-await 1 alpha and 1 beta
+await 1 new alpha and 1 new beta
 ask alpha re color: What color?
 ask beta re color: What color?
 sync both
@@ -78,8 +78,8 @@ class TestIncident < Test::Unit::TestCase
   def test_sync
     s = scriptfam SYNC_SCRIPT
     play do
-      ping s, :id => 'alpha'
-      ping s, :id => 'beta'
+      ping s, :id => 'alpha', :tags => ['new']
+      ping s, :id => 'beta', :tags => ['new']
       asked 'alpha', /olor/
       asked 'beta', /olor/
       says 'alpha', "red"
@@ -132,10 +132,10 @@ class TestIncident < Test::Unit::TestCase
     s = scriptfam "await 2 new signups\ntell signups: thanks"
     play do
       ping s, :id => 'fred', :tags => ['new']
-      silent 'fred'
-      ping s, :id => 'wilma', :tags => ['old']
-      silent 'fred'
-      ping s, :id => 'betty', :tags => ['new']
+      # silent 'fred'
+      # ping s, :id => 'wilma', :tags => ['old']
+      # silent 'fred'
+      # ping s, :id => 'betty', :tags => ['new']
       told 'fred', /thanks/
     end
   end
@@ -181,14 +181,14 @@ class TestIncident < Test::Unit::TestCase
   end
 
   def test_await
-    s = scriptfam "await a,b,c\ntell a: foo\ntell b: bar\ntell c: baz"
+    s = scriptfam "await new a, new b, new c\ntell a: foo\ntell b: bar\ntell c: baz"
     play do
-      ping s, :id => 'fred'
+      ping s, :id => 'fred', :tags => ['new']
       silent 'fred'
-      ping s, :id => 'wilma'
+      ping s, :id => 'wilma', :tags => ['new']
       silent 'fred'
       silent 'wilma'
-      ping s, :id => 'betty'
+      ping s, :id => 'betty', :tags => ['new']
       told 'fred', /foo/
       told 'betty', /baz/
     end

@@ -40,7 +40,7 @@ class Test::Unit::TestCase
     player = {:id => id.to_s, :received => str}
     player[:recognized] = :yes if str == 'y'
     puts "SAYING(#{id}): #{str}"
-    CEML::Processor.updated(nil, player)
+    CEML::Processor.replied(nil, player)
     CEML::Processor.run
   end
 
