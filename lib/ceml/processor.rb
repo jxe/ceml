@@ -26,6 +26,16 @@ module CEML
     #   end
     # end
 
+    def audition_if_unengaged(bundle_id, player)
+      log "audition_if_unengaged(): #{bundle_id}, #{player[:id]}"
+      if incident_id = Player.new(player[:id]).current_incidents.last
+        Player.update player
+        run_incident(incident_id)
+      else
+        audition(bundle_id, player)
+      end
+    end
+
     def replied(bundle_id, player)
       log "replied(): #{bundle_id}, #{player[:id]}"
       Player.update player
