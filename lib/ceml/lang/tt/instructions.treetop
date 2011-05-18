@@ -4,50 +4,23 @@ grammar Instructions
 
     rule basic_statement
         (ask_stmt / tell_stmt / assign_stmt / record_stmt / set_stmt / pick_stmt / seed_stmt / sync_stmt /
-            replace_stmt / release_stmt) {
-
-            def delay
-                if parent.respond_to? :later and not parent.later.empty?
-                    parent.later.duration.seconds
-                end
-            end
-
-            def role;  id.text_value.to_sym; end
-            def text;  defined?(super) && super.text_value; end
-            def var
-                return varname.text_value if cmd == :record or cmd == :set or cmd == :release
-                (!respond_to?(:about) || about.empty?) ? nil : about.varname.text_value;
-            end
-            def key;   var || text; end
-            def cmd;  text_value.split.first.to_sym; end
-            def cond
-                (!respond_to?(:condition) || condition.empty?) ? nil : condition.value
-            end
-
-            def bytecode
-                code = []
-                code.concat   [[[role], :start_delay, delay],
-                               [[role], :complete_delay]] if delay
-                code.concat case cmd
-                when :record;  [[[role], :answered_q,      {:key  => key}]]
-                when :set;     [[[role], :set,             {:key  => key, :value => text}]]
-                when :pick;    [[[role], :pick,            {:key  => key, :value => text}]]
-                when :seed;    [[[role], :seed,            {:target => var, :role => role}]]
-                when :ask;     [[[role], :ask_q,           {:text => text}],
-                                [[role], :answered_q,      {:key  => key}]]
-                when :tell;    [[[role], :send_msg,        {:text => text}]]
-                when :assign;  [[[role], :assign,          {:text => text}],
-                                [[role], :complete_assign, {:text => text}]]
-                when :release; [[[role], :release,         {:cond => cond}]]
-                when :sync;    [[[role], :sync,            {:role => role}]]
-                end
-                code
-            end
-        }
+            replace_stmt / release_stmt)
     end
 
     rule instruction_stmt
-        later:later? basic_statement
+        later:later? basic_statement {
+            def delay
+                later.duration.seconds if respond_to? :later and not later.empty?
+            end
+
+            def bytecode
+                if delay
+                    [[[role], :start_delay, delay], [[role], :complete_delay]] + elements[1].bytecode
+                else
+                    elements[1].bytecode
+                end
+            end
+        }
     end
 
     rule later
@@ -55,43 +28,50 @@ grammar Instructions
     end
 
     rule seed_stmt
-        'seed' ws varname:id ws 'with' ws rolename:id
+        'seed' ws varname:id ws 'with' ws rolemap <BasicInstruction> {
+            def roles
+               rolemap.value.map do |x| x[:from].to_sym end
+            end
+            def bytecode
+                [[roles, :seed, {:target => varname.text_value, :rolemap => rolemap.value}]]
+            end
+        }
     end
 
     rule record_stmt
-        'record' ws id ws varname:id
+        'record' ws id ws varname:id <BasicInstruction>
     end
 
     rule tell_stmt
-        'tell' ws id ':' ws? text
+        'tell' ws id ':' ws? text <BasicInstruction>
     end
 
     rule assign_stmt
-        'assign' ws id ':' ws? text
+        'assign' ws id ':' ws? text <BasicInstruction>
     end
 
     rule ask_stmt
-        'ask' ws id about:(ws 're' ws varname:id)? ':' ws? text
+        'ask' ws id about:(ws 're' ws varname:id)? ':' ws? text <BasicInstruction>
     end
 
     rule set_stmt
-        'set' ws id ws varname:id ':' ws? text
+        'set' ws id ws varname:id ':' ws? text <BasicInstruction>
     end
 
     rule pick_stmt
-        'pick' ws id ws varname:id ':' ws? text
+        'pick' ws id ws varname:id ':' ws? text <BasicInstruction>
     end
 
     rule sync_stmt
-        'sync' ws id
+        'sync' ws id <BasicInstruction>
     end
 
     rule release_stmt
-        'release' ws id condition:condition?
+        'release' ws id condition:condition? <BasicInstruction>
     end
 
     rule replace_stmt
-        'replace' ws id condition:condition?
+        'replace' ws id condition:condition? <BasicInstruction>
     end
 
     rule condition

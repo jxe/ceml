@@ -11,47 +11,6 @@ module Instructions
 
   include Lexer
 
-  module BasicStatement0
-
-    def delay
-        if parent.respond_to? :later and not parent.later.empty?
-            parent.later.duration.seconds
-        end
-    end
-
-    def role;  id.text_value.to_sym; end
-    def text;  defined?(super) && super.text_value; end
-    def var
-        return varname.text_value if cmd == :record or cmd == :set or cmd == :release
-        (!respond_to?(:about) || about.empty?) ? nil : about.varname.text_value;
-    end
-    def key;   var || text; end
-    def cmd;  text_value.split.first.to_sym; end
-    def cond
-        (!respond_to?(:condition) || condition.empty?) ? nil : condition.value
-    end
-
-    def bytecode
-        code = []
-        code.concat   [[[role], :start_delay, delay],
-                       [[role], :complete_delay]] if delay
-        code.concat case cmd
-        when :record;  [[[role], :answered_q,      {:key  => key}]]
-        when :set;     [[[role], :set,             {:key  => key, :value => text}]]
-        when :pick;    [[[role], :pick,            {:key  => key, :value => text}]]
-        when :seed;    [[[role], :seed,            {:target => var, :role => role}]]
-        when :ask;     [[[role], :ask_q,           {:text => text}],
-                        [[role], :answered_q,      {:key  => key}]]
-        when :tell;    [[[role], :send_msg,        {:text => text}]]
-        when :assign;  [[[role], :assign,          {:text => text}],
-                        [[role], :complete_assign, {:text => text}]]
-        when :release; [[[role], :release,         {:cond => cond}]]
-        when :sync;    [[[role], :sync,            {:role => role}]]
-        end
-        code
-    end
-  end
-
   def _nt_basic_statement
     start_index = index
     if node_cache[:basic_statement].has_key?(index)
@@ -67,52 +26,42 @@ module Instructions
     r1 = _nt_ask_stmt
     if r1
       r0 = r1
-      r0.extend(BasicStatement0)
     else
       r2 = _nt_tell_stmt
       if r2
         r0 = r2
-        r0.extend(BasicStatement0)
       else
         r3 = _nt_assign_stmt
         if r3
           r0 = r3
-          r0.extend(BasicStatement0)
         else
           r4 = _nt_record_stmt
           if r4
             r0 = r4
-            r0.extend(BasicStatement0)
           else
             r5 = _nt_set_stmt
             if r5
               r0 = r5
-              r0.extend(BasicStatement0)
             else
               r6 = _nt_pick_stmt
               if r6
                 r0 = r6
-                r0.extend(BasicStatement0)
               else
                 r7 = _nt_seed_stmt
                 if r7
                   r0 = r7
-                  r0.extend(BasicStatement0)
                 else
                   r8 = _nt_sync_stmt
                   if r8
                     r0 = r8
-                    r0.extend(BasicStatement0)
                   else
                     r9 = _nt_replace_stmt
                     if r9
                       r0 = r9
-                      r0.extend(BasicStatement0)
                     else
                       r10 = _nt_release_stmt
                       if r10
                         r0 = r10
-                        r0.extend(BasicStatement0)
                       else
                         @index = i0
                         r0 = nil
@@ -142,6 +91,20 @@ module Instructions
     end
   end
 
+  module InstructionStmt1
+    def delay
+        later.duration.seconds if respond_to? :later and not later.empty?
+    end
+
+    def bytecode
+        if delay
+            [[[role], :start_delay, delay], [[role], :complete_delay]] + elements[1].bytecode
+        else
+            elements[1].bytecode
+        end
+    end
+  end
+
   def _nt_instruction_stmt
     start_index = index
     if node_cache[:instruction_stmt].has_key?(index)
@@ -168,6 +131,7 @@ module Instructions
     if s0.last
       r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
       r0.extend(InstructionStmt0)
+      r0.extend(InstructionStmt1)
     else
       @index = i0
       r0 = nil
@@ -269,8 +233,17 @@ module Instructions
       elements[5]
     end
 
-    def rolename
+    def rolemap
       elements[6]
+    end
+  end
+
+  module SeedStmt1
+    def roles
+       rolemap.value.map do |x| x[:from].to_sym end
+    end
+    def bytecode
+        [[roles, :seed, {:target => varname.text_value, :rolemap => rolemap.value}]]
     end
   end
 
@@ -316,7 +289,7 @@ module Instructions
               r6 = _nt_ws
               s0 << r6
               if r6
-                r7 = _nt_id
+                r7 = _nt_rolemap
                 s0 << r7
               end
             end
@@ -325,8 +298,9 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(SeedStmt0)
+      r0.extend(SeedStmt1)
     else
       @index = i0
       r0 = nil
@@ -392,7 +366,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(RecordStmt0)
     else
       @index = i0
@@ -470,7 +444,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(TellStmt0)
     else
       @index = i0
@@ -548,7 +522,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(AssignStmt0)
     else
       @index = i0
@@ -680,7 +654,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(AskStmt1)
     else
       @index = i0
@@ -774,7 +748,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(SetStmt0)
     else
       @index = i0
@@ -868,7 +842,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(PickStmt0)
     else
       @index = i0
@@ -919,7 +893,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(SyncStmt0)
     else
       @index = i0
@@ -983,7 +957,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(ReleaseStmt0)
     else
       @index = i0
@@ -1047,7 +1021,7 @@ module Instructions
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(BasicInstruction,input, i0...index, s0)
       r0.extend(ReplaceStmt0)
     else
       @index = i0

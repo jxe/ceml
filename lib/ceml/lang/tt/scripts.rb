@@ -263,6 +263,16 @@ module Scripts
     end
   end
 
+  module Script4
+    def title
+      elements[0]
+    end
+
+  end
+
+  module Script5
+  end
+
   def _nt_script
     start_index = index
     if node_cache[:script].has_key?(index)
@@ -274,120 +284,152 @@ module Scripts
       return cached
     end
 
-    i0 = index
-    i1, s1 = index, []
-    r2 = _nt_title
-    s1 << r2
+    i0, s0 = index, []
+    i1 = index
+    i2, s2 = index, []
+    r3 = _nt_title
+    s2 << r3
+    if r3
+      r4 = _nt_nl
+      s2 << r4
+      if r4
+        r5 = _nt_casting_statement
+        s2 << r5
+        if r5
+          r6 = _nt_nl
+          s2 << r6
+          if r6
+            r7 = _nt_instructions
+            s2 << r7
+          end
+        end
+      end
+    end
+    if s2.last
+      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+      r2.extend(Script0)
+    else
+      @index = i2
+      r2 = nil
+    end
     if r2
-      r3 = _nt_nl
-      s1 << r3
-      if r3
-        r4 = _nt_casting_statement
-        s1 << r4
-        if r4
-          r5 = _nt_nl
-          s1 << r5
-          if r5
-            r6 = _nt_instructions
-            s1 << r6
-          end
+      r1 = r2
+    else
+      i8, s8 = index, []
+      r9 = _nt_title
+      s8 << r9
+      if r9
+        r10 = _nt_nl
+        s8 << r10
+        if r10
+          r11 = _nt_instructions
+          s8 << r11
         end
       end
-    end
-    if s1.last
-      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
-      r1.extend(Script0)
-    else
-      @index = i1
-      r1 = nil
-    end
-    if r1
-      r0 = r1
-      r0.extend(Script)
-    else
-      i7, s7 = index, []
-      r8 = _nt_title
-      s7 << r8
+      if s8.last
+        r8 = instantiate_node(SyntaxNode,input, i8...index, s8)
+        r8.extend(Script1)
+      else
+        @index = i8
+        r8 = nil
+      end
       if r8
-        r9 = _nt_nl
-        s7 << r9
-        if r9
-          r10 = _nt_instructions
-          s7 << r10
-        end
-      end
-      if s7.last
-        r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
-        r7.extend(Script1)
+        r1 = r8
       else
-        @index = i7
-        r7 = nil
-      end
-      if r7
-        r0 = r7
-        r0.extend(Script)
-      else
-        i11, s11 = index, []
-        r12 = _nt_casting_statement
-        s11 << r12
-        if r12
-          r13 = _nt_nl
-          s11 << r13
-          if r13
-            r14 = _nt_instructions
-            s11 << r14
+        i12, s12 = index, []
+        r13 = _nt_casting_statement
+        s12 << r13
+        if r13
+          r14 = _nt_nl
+          s12 << r14
+          if r14
+            r15 = _nt_instructions
+            s12 << r15
           end
         end
-        if s11.last
-          r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
-          r11.extend(Script2)
+        if s12.last
+          r12 = instantiate_node(SyntaxNode,input, i12...index, s12)
+          r12.extend(Script2)
         else
-          @index = i11
-          r11 = nil
+          @index = i12
+          r12 = nil
         end
-        if r11
-          r0 = r11
-          r0.extend(Script)
+        if r12
+          r1 = r12
         else
-          i15, s15 = index, []
-          r16 = _nt_title
-          s15 << r16
-          if r16
-            r17 = _nt_nl
-            s15 << r17
-            if r17
-              r18 = _nt_casting_statement
-              s15 << r18
+          i16, s16 = index, []
+          r17 = _nt_title
+          s16 << r17
+          if r17
+            r18 = _nt_nl
+            s16 << r18
+            if r18
+              r19 = _nt_casting_statement
+              s16 << r19
             end
           end
-          if s15.last
-            r15 = instantiate_node(SyntaxNode,input, i15...index, s15)
-            r15.extend(Script3)
+          if s16.last
+            r16 = instantiate_node(SyntaxNode,input, i16...index, s16)
+            r16.extend(Script3)
           else
-            @index = i15
-            r15 = nil
+            @index = i16
+            r16 = nil
           end
-          if r15
-            r0 = r15
-            r0.extend(Script)
+          if r16
+            r1 = r16
           else
-            r19 = _nt_instructions
-            if r19
-              r0 = r19
-              r0.extend(Script)
+            r20 = _nt_instructions
+            if r20
+              r1 = r20
             else
-              r20 = _nt_title
-              if r20
-                r0 = r20
-                r0.extend(Script)
+              i21, s21 = index, []
+              r22 = _nt_title
+              s21 << r22
+              if r22
+                if has_terminal?('', false, index)
+                  r23 = instantiate_node(SyntaxNode,input, index...(index + 0))
+                  @index += 0
+                else
+                  terminal_parse_failure('')
+                  r23 = nil
+                end
+                s21 << r23
+              end
+              if s21.last
+                r21 = instantiate_node(SyntaxNode,input, i21...index, s21)
+                r21.extend(Script4)
               else
-                @index = i0
-                r0 = nil
+                @index = i21
+                r21 = nil
+              end
+              if r21
+                r1 = r21
+              else
+                @index = i1
+                r1 = nil
               end
             end
           end
         end
       end
+    end
+    s0 << r1
+    if r1
+      if has_terminal?('', false, index)
+        r24 = instantiate_node(SyntaxNode,input, index...(index + 0))
+        @index += 0
+      else
+        terminal_parse_failure('')
+        r24 = nil
+      end
+      s0 << r24
+    end
+    if s0.last
+      r0 = instantiate_node(Script,input, i0...index, s0)
+      r0.extend(Script5)
+    else
+      @index = i0
+      r0 = nil
     end
 
     node_cache[:script][start_index] = r0

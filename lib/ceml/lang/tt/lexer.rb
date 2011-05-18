@@ -1233,6 +1233,498 @@ module Lexer
     r0
   end
 
+  module Rolemap0
+    def and
+      elements[0]
+    end
+
+    def mapped_role
+      elements[1]
+    end
+  end
+
+  module Rolemap1
+    def mapped_role
+      elements[0]
+    end
+
+    def more
+      elements[1]
+    end
+  end
+
+  module Rolemap2
+    def all; [mapped_role] + more.elements.map(&:mapped_role); end
+    def value; all.map(&:value); end
+  end
+
+  def _nt_rolemap
+    start_index = index
+    if node_cache[:rolemap].has_key?(index)
+      cached = node_cache[:rolemap][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_mapped_role
+    s0 << r1
+    if r1
+      s2, i2 = [], index
+      loop do
+        i3, s3 = index, []
+        r4 = _nt_and
+        s3 << r4
+        if r4
+          r5 = _nt_mapped_role
+          s3 << r5
+        end
+        if s3.last
+          r3 = instantiate_node(SyntaxNode,input, i3...index, s3)
+          r3.extend(Rolemap0)
+        else
+          @index = i3
+          r3 = nil
+        end
+        if r3
+          s2 << r3
+        else
+          break
+        end
+      end
+      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+      s0 << r2
+    end
+    if s0.last
+      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0.extend(Rolemap1)
+      r0.extend(Rolemap2)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:rolemap][start_index] = r0
+
+    r0
+  end
+
+  module MappedRole0
+    def rolename1
+      elements[0]
+    end
+
+    def ws1
+      elements[1]
+    end
+
+    def ws2
+      elements[3]
+    end
+
+    def rolename2
+      elements[4]
+    end
+  end
+
+  module MappedRole1
+    def value
+        {
+            :from => elements[0].text_value,
+            :to => elements[5] && elements[5].text_value || '*'
+        }
+    end
+  end
+
+  def _nt_mapped_role
+    start_index = index
+    if node_cache[:mapped_role].has_key?(index)
+      cached = node_cache[:mapped_role][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0 = index
+    i1, s1 = index, []
+    r2 = _nt_rolename
+    s1 << r2
+    if r2
+      r3 = _nt_ws
+      s1 << r3
+      if r3
+        if has_terminal?('as', false, index)
+          r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
+          @index += 2
+        else
+          terminal_parse_failure('as')
+          r4 = nil
+        end
+        s1 << r4
+        if r4
+          r5 = _nt_ws
+          s1 << r5
+          if r5
+            r6 = _nt_rolename
+            s1 << r6
+          end
+        end
+      end
+    end
+    if s1.last
+      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
+      r1.extend(MappedRole0)
+    else
+      @index = i1
+      r1 = nil
+    end
+    if r1
+      r0 = r1
+      r0.extend(MappedRole1)
+    else
+      r7 = _nt_rolename
+      if r7
+        r0 = r7
+        r0.extend(MappedRole1)
+      else
+        @index = i0
+        r0 = nil
+      end
+    end
+
+    node_cache[:mapped_role][start_index] = r0
+
+    r0
+  end
+
+  module Roles0
+    def and
+      elements[0]
+    end
+
+    def role
+      elements[1]
+    end
+  end
+
+  module Roles1
+    def role
+      elements[0]
+    end
+
+    def more
+      elements[1]
+    end
+  end
+
+  module Roles2
+    def list
+        [role] + more.elements.map{ |e| e.role }
+    end
+
+    def names; list.map{ |r| r.name.to_sym };         end
+    def [](x); list.detect{ |r| r.name.to_sym == x }; end
+    def min;   list.map(&:min).inject(0, &:+);        end
+    def max;   list.map(&:max).inject(0, &:+);        end
+  end
+
+  def _nt_roles
+    start_index = index
+    if node_cache[:roles].has_key?(index)
+      cached = node_cache[:roles][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_role
+    s0 << r1
+    if r1
+      s2, i2 = [], index
+      loop do
+        i3, s3 = index, []
+        r4 = _nt_and
+        s3 << r4
+        if r4
+          r5 = _nt_role
+          s3 << r5
+        end
+        if s3.last
+          r3 = instantiate_node(SyntaxNode,input, i3...index, s3)
+          r3.extend(Roles0)
+        else
+          @index = i3
+          r3 = nil
+        end
+        if r3
+          s2 << r3
+        else
+          break
+        end
+      end
+      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+      s0 << r2
+    end
+    if s0.last
+      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0.extend(Roles1)
+      r0.extend(Roles2)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:roles][start_index] = r0
+
+    r0
+  end
+
+  def _nt_qualifier
+    start_index = index
+    if node_cache[:qualifier].has_key?(index)
+      cached = node_cache[:qualifier][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    r0 = _nt_id
+
+    node_cache[:qualifier][start_index] = r0
+
+    r0
+  end
+
+  def _nt_rolename
+    start_index = index
+    if node_cache[:rolename].has_key?(index)
+      cached = node_cache[:rolename][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    r0 = _nt_id
+
+    node_cache[:rolename][start_index] = r0
+
+    r0
+  end
+
+  module Role0
+    def rolename
+      elements[0]
+    end
+
+  end
+
+  module Role1
+    def range
+      elements[0]
+    end
+
+    def ws1
+      elements[1]
+    end
+
+    def qualifier
+      elements[2]
+    end
+
+    def ws2
+      elements[3]
+    end
+
+    def rolename
+      elements[4]
+    end
+  end
+
+  module Role2
+    def range
+      elements[0]
+    end
+
+    def ws
+      elements[1]
+    end
+
+    def rolename
+      elements[2]
+    end
+  end
+
+  module Role3
+    def qualifier
+      elements[0]
+    end
+
+    def ws
+      elements[1]
+    end
+
+    def rolename
+      elements[2]
+    end
+  end
+
+  module Role4
+    def name; if respond_to? :rolename then rolename.text_value else text_value end; end
+    def min
+        return range.value.min if respond_to? :range
+        name =~ /s$/ ? 2 : 1
+    end
+    def max
+        return range.value.max if respond_to? :range
+        name =~ /s$/ ? 10000 : 1
+    end
+    def qualifiers
+        return [qualifier.text_value] if respond_to? :qualifier
+        return []
+    end
+  end
+
+  def _nt_role
+    start_index = index
+    if node_cache[:role].has_key?(index)
+      cached = node_cache[:role][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0 = index
+    i1, s1 = index, []
+    r2 = _nt_rolename
+    s1 << r2
+    if r2
+      i3 = index
+      r4 = _nt_and
+      if r4
+        @index = i3
+        r3 = instantiate_node(SyntaxNode,input, index...index)
+      else
+        r3 = nil
+      end
+      s1 << r3
+    end
+    if s1.last
+      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
+      r1.extend(Role0)
+    else
+      @index = i1
+      r1 = nil
+    end
+    if r1
+      r0 = r1
+      r0.extend(Role4)
+    else
+      i5, s5 = index, []
+      r6 = _nt_range
+      s5 << r6
+      if r6
+        r7 = _nt_ws
+        s5 << r7
+        if r7
+          r8 = _nt_qualifier
+          s5 << r8
+          if r8
+            r9 = _nt_ws
+            s5 << r9
+            if r9
+              r10 = _nt_rolename
+              s5 << r10
+            end
+          end
+        end
+      end
+      if s5.last
+        r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+        r5.extend(Role1)
+      else
+        @index = i5
+        r5 = nil
+      end
+      if r5
+        r0 = r5
+        r0.extend(Role4)
+      else
+        i11, s11 = index, []
+        r12 = _nt_range
+        s11 << r12
+        if r12
+          r13 = _nt_ws
+          s11 << r13
+          if r13
+            r14 = _nt_rolename
+            s11 << r14
+          end
+        end
+        if s11.last
+          r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
+          r11.extend(Role2)
+        else
+          @index = i11
+          r11 = nil
+        end
+        if r11
+          r0 = r11
+          r0.extend(Role4)
+        else
+          i15, s15 = index, []
+          r16 = _nt_qualifier
+          s15 << r16
+          if r16
+            r17 = _nt_ws
+            s15 << r17
+            if r17
+              r18 = _nt_rolename
+              s15 << r18
+            end
+          end
+          if s15.last
+            r15 = instantiate_node(SyntaxNode,input, i15...index, s15)
+            r15.extend(Role3)
+          else
+            @index = i15
+            r15 = nil
+          end
+          if r15
+            r0 = r15
+            r0.extend(Role4)
+          else
+            r19 = _nt_rolename
+            if r19
+              r0 = r19
+              r0.extend(Role4)
+            else
+              @index = i0
+              r0 = nil
+            end
+          end
+        end
+      end
+    end
+
+    node_cache[:role][start_index] = r0
+
+    r0
+  end
+
 end
 
 class LexerParser < Treetop::Runtime::CompiledParser

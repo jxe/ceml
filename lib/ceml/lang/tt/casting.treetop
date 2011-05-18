@@ -25,45 +25,5 @@ grammar Casting
     rule with_matching_phrase
         ws 'with' ws 'matching' ws thing:id
     end
-
-    rule roles
-        role more:(and role)* {
-            def list
-                [role] + more.elements.map{ |e| e.role }
-            end
-
-            def names; list.map{ |r| r.name.to_sym };         end
-            def [](x); list.detect{ |r| r.name.to_sym == x }; end
-            def min;   list.map(&:min).inject(0, &:+);        end
-            def max;   list.map(&:max).inject(0, &:+);        end
-        }
-    end
-
-    rule qualifier
-        id
-    end
-
-    rule rolename
-        id
-    end
-
-    rule role
-      (rolename &and / range ws qualifier ws rolename / range ws rolename / qualifier ws rolename / rolename) {
-        def name; if respond_to? :rolename then rolename.text_value else text_value end; end
-        def min
-            return range.value.min if respond_to? :range
-            name =~ /s$/ ? 2 : 1
-        end
-        def max
-            return range.value.max if respond_to? :range
-            name =~ /s$/ ? 10000 : 1
-        end
-        def qualifiers
-            return [qualifier.text_value] if respond_to? :qualifier
-            return []
-        end
-      }
-    end
-
 end
 end
