@@ -90,11 +90,11 @@ grammar Lexer
     end
 
     rule mapped_role
-        (rolename ws 'as' ws rolename / rolename) {
+        (rolename ws 'as' ws target_role:rolename / rolename '') {
             def value
                 {
-                    :from => elements[0].text_value,
-                    :to => elements[5] && elements[5].text_value || '*'
+                    :from => rolename.text_value,
+                    :to => respond_to?(:target_role) && target_role.text_value || '*'
                 }
             end
         }

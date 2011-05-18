@@ -25,9 +25,9 @@ class TestInstructions < Test::Unit::TestCase
   end
 
   def test_instructions
-    pi "seed X with Y"
-    x = pi "seed X with Y as Z"
-    puts x.bytecode.inspect
+    ps("seed X with Y").bytecode
+    ps("seed X with Y as Z").bytecode
+    # puts x.bytecode.inspect
     # pi "pick X from a, b, c or d"
     pi "pick foo bar:\n  lalalala\n  babababa"
     pi "replace finder unless yes"

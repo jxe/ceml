@@ -1313,7 +1313,7 @@ module Lexer
   end
 
   module MappedRole0
-    def rolename1
+    def rolename
       elements[0]
     end
 
@@ -1325,16 +1325,23 @@ module Lexer
       elements[3]
     end
 
-    def rolename2
+    def target_role
       elements[4]
     end
   end
 
   module MappedRole1
+    def rolename
+      elements[0]
+    end
+
+  end
+
+  module MappedRole2
     def value
         {
-            :from => elements[0].text_value,
-            :to => elements[5] && elements[5].text_value || '*'
+            :from => rolename.text_value,
+            :to => respond_to?(:target_role) && target_role.text_value || '*'
         }
     end
   end
@@ -1385,12 +1392,31 @@ module Lexer
     end
     if r1
       r0 = r1
-      r0.extend(MappedRole1)
+      r0.extend(MappedRole2)
     else
-      r7 = _nt_rolename
+      i7, s7 = index, []
+      r8 = _nt_rolename
+      s7 << r8
+      if r8
+        if has_terminal?('', false, index)
+          r9 = instantiate_node(SyntaxNode,input, index...(index + 0))
+          @index += 0
+        else
+          terminal_parse_failure('')
+          r9 = nil
+        end
+        s7 << r9
+      end
+      if s7.last
+        r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
+        r7.extend(MappedRole1)
+      else
+        @index = i7
+        r7 = nil
+      end
       if r7
         r0 = r7
-        r0.extend(MappedRole1)
+        r0.extend(MappedRole2)
       else
         @index = i0
         r0 = nil
