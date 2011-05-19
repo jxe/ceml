@@ -24,7 +24,8 @@ module CEML
       current_incidents.delete(id)
     end
 
-    def self.update player, cb_obj, &blk
+    def self.update bundle_id, player, cb_obj, &blk
+      player[:bundle_id] = player[:squad_id] = bundle_id
       new(player[:id].to_s).update player, cb_obj, &blk
     end
 

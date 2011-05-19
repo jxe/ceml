@@ -28,7 +28,7 @@ module CEML
 
     def audition_if_unengaged(bundle_id, player)
       log "audition_if_unengaged(): #{bundle_id}, #{player[:id]}"
-      Player.update(player, self) do |player|
+      Player.update(bundle_id, player, self) do |player|
         if incident_id = Player.new(player[:id]).top_incident_id
           run_incident(incident_id)
         else
@@ -39,7 +39,7 @@ module CEML
 
     def replied(bundle_id, player)
       log "replied(): #{bundle_id}, #{player[:id]}"
-      Player.update(player, self) do |player|
+      Player.update(bundle_id, player, self) do |player|
         if incident_id = Player.new(player[:id]).top_incident_id
           run_incident(incident_id)
         else
@@ -50,7 +50,7 @@ module CEML
 
     def audition(bundle_id, player)
       player.merge! :bundle_id => bundle_id
-      Player.update(player, self) do |player|
+      Player.update(bundle_id, player, self) do |player|
         _audition(bundle_id, player)
       end
     end
@@ -163,7 +163,7 @@ module CEML
     end
 
     def player_answered_q(data, what)
-      Player.update data[:player].like(:id, :qs_answers), self
+      Player.update data[:id], data[:player].like(:id, :qs_answers), self
     end
     alias_method :player_set, :player_answered_q
 
