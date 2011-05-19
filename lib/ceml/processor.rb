@@ -67,9 +67,9 @@ module CEML
       if incident
         incident.release(player_obj.id)
         unlatch(player[:squad_id], player[:id], incident.id)
-        tell(player[:squad_id], player[:id], {:key => :message, :msg => 'aborted'})
+        tell(player[:squad_id], player[:id], :message, :msg => 'aborted')
       else
-        tell(player[:squad_id], player[:id], {:key => :message, :msg => 'nothing to abort from'})
+        tell(player[:squad_id], player[:id], :message, :msg => 'nothing to abort from')
       end
     end
 
@@ -149,7 +149,7 @@ module CEML
     end
 
     def player_said(data, what)
-      tell('_', data[:player][:id], what)
+      tell('_', data[:player][:id], what[:key], what)
     end
 
     def unlatch(sqid, player_id, incident_id)
@@ -157,9 +157,9 @@ module CEML
     end
 
     JUST_SAID = {}
-    def tell(sqid, player_id, msg)
-      JUST_SAID[player_id] = msg
-      puts "Said #{msg.inspect}"
+    def tell(sqid, player_id, key, meta)
+      JUST_SAID[player_id] = meta.merge :key => key
+      puts "Said #{key} #{meta.inspect}"
     end
 
     def player_answered_q(data, what)
