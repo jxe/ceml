@@ -10,8 +10,20 @@ module CEML
       current_incidents[incident_id] = Time.now.to_i
     end
 
-    def self.update player
-      new(player[:id].to_s).update player
+    def top_incident_id
+      current_incidents.last
+    end
+
+    def top_incident
+      IncidentModel.new(current_incidents.last)
+    end
+
+    def clear_incident(id)
+      current_incidents.delete(id)
+    end
+
+    def self.update player, cb_obj, &blk
+      new(player[:id].to_s).update player, cb_obj, &blk
     end
 
     def clear_answers
@@ -23,25 +35,34 @@ module CEML
       end
     end
 
-    def update player
-      player = player.dup
-      puts "UPDATING player id #{id} with #{player.inspect}"
-      new_message = player.like :received, :recognized, :situation
-      if !new_message.empty?
-        message.value = new_message
-      end
-      player.delete(:received)
-      player.delete(:recognized)
-      player.delete(:situation)
+    MSG_PARAMS = [:received, :recognized, :situation]
+
+    def split player
+      new_message = player.like(*MSG_PARAMS)
+      MSG_PARAMS.each{ |p| player.delete(p) }
+      return new_message, player
+    end
+
+    def merge_new_player_data player
       updating_lock.lock do
         old_value = data.value || {}
-        old_value.delete(:received)
-        old_value.delete(:recognized)
-        old_value.delete(:situation)
         new_value = old_value.merge player
         new_value[:qs_answers] = (old_value[:qs_answers]||{}).merge(player[:qs_answers] || {})
         puts "SAVING DATA: #{new_value.inspect}"
         data.value = new_value
+      end
+    end
+
+    def update player, cb_obj
+      player = player.dup
+      puts "UPDATING player id #{id} with #{player.inspect}"
+      new_message, player = split(player)
+      merge_new_player_data(player)
+      if !new_message.empty? and cmd = new_message[:recognized] and cb_obj.recognize_override(cmd, new_message, player, self)
+        message.delete
+      else
+        message.value = new_message
+        yield player if block_given?
       end
     end
   end

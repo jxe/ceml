@@ -39,6 +39,7 @@ class Test::Unit::TestCase
   def says id, str
     player = {:id => id.to_s, :received => str}
     player[:recognized] = :yes if str == 'y'
+    player[:recognized] = :abort if str == 'abort'
     puts "SAYING(#{id}): #{str}"
     CEML::Processor.replied(nil, player)
     CEML::Processor.run

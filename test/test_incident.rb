@@ -178,6 +178,19 @@ class TestIncident < Test::Unit::TestCase
     end
   end
 
+  def test_abort
+    s = "\"Soccer in the park\"\ngather 2 players within 1mi\nask players re color: which color?\ntell players: its |someone.color|\n"
+    s = CEML.parse(:script, s)
+    play s do
+      player :bill, :players
+      player :fred, :players
+      asked :bill, /color\?/i
+      asked :fred, /color\?/i
+      says :bill, 'abort'
+      told :bill,  /aborted/i
+    end
+  end
+
   def test_await
     s = scriptfam "await new a, new b, new c\ntell a: foo\ntell b: bar\ntell c: baz"
     play do

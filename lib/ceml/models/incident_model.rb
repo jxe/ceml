@@ -26,7 +26,7 @@ module CEML
 
     def release(player_id)
       puts "Releasing player #{player_id} from incident #{id}"
-      Player.new(player_id).current_incidents.delete(id)
+      Player.new(player_id).clear_incident(id)
       player_roles.delete(player_id)
     end
 

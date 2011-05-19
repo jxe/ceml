@@ -28,26 +28,48 @@ module CEML
 
     def audition_if_unengaged(bundle_id, player)
       log "audition_if_unengaged(): #{bundle_id}, #{player[:id]}"
-      if incident_id = Player.new(player[:id]).current_incidents.last
-        Player.update player
-        run_incident(incident_id)
-      else
-        audition(bundle_id, player)
+      Player.update(player, self) do |player|
+        if incident_id = Player.new(player[:id]).top_incident_id
+          run_incident(incident_id)
+        else
+          _audition(bundle_id, player)
+        end
       end
     end
 
     def replied(bundle_id, player)
       log "replied(): #{bundle_id}, #{player[:id]}"
-      Player.update player
-      if incident_id = Player.new(player[:id]).current_incidents.last
-        run_incident(incident_id)
-      else
-        player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
+      Player.update(player, self) do |player|
+        if incident_id = Player.new(player[:id]).top_incident_id
+          run_incident(incident_id)
+        else
+          player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
+        end
       end
     end
 
     def audition(bundle_id, player)
-      Player.update player.merge :bundle_id => bundle_id
+      player.merge! :bundle_id => bundle_id
+      Player.update(player, self) do |player|
+        _audition(bundle_id, player)
+      end
+    end
+
+    def recognize_override(cmd, new_message, player, player_obj)
+      if respond_to?("override_#{cmd}")
+        send("override_#{cmd}", new_message, player, player_obj)
+        true
+      end
+    end
+
+    def override_abort(new_message, player, player_obj)
+      incident = player_obj.top_incident
+      incident.release(player_obj.id)
+      unlatch(player[:squad_id], player[:id], incident.id)
+      tell(player[:squad_id], player[:id], {:key => :message, :msg => 'aborted'})
+    end
+
+    def _audition(bundle_id, player)
       log "audition(): #{bundle_id}, #{player[:id]}"
       castables = Bundle.new(bundle_id).castables.value
       rooms = castables.map{ |c| c.waiting_rooms_for_player(player) }.flatten.uniq.map{ |r| WaitingRoom.new(r) }
@@ -122,14 +144,22 @@ module CEML
       puts s
     end
 
-    JUST_SAID = {}
     def player_said(data, what)
-      JUST_SAID[data[:player][:id]] = what
-      puts "Said #{what.inspect}"
+      tell('_', data[:player][:id], what)
+    end
+
+    def unlatch(sqid, player_id, incident_id)
+      #no op
+    end
+
+    JUST_SAID = {}
+    def tell(sqid, player_id, msg)
+      JUST_SAID[player_id] = msg
+      puts "Said #{msg.inspect}"
     end
 
     def player_answered_q(data, what)
-      Player.update data[:player].like(:id, :qs_answers)
+      Player.update data[:player].like(:id, :qs_answers), self
     end
     alias_method :player_set, :player_answered_q
 
