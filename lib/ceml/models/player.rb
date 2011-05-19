@@ -15,7 +15,9 @@ module CEML
     end
 
     def top_incident
-      IncidentModel.new(current_incidents.last)
+      if iid = top_incident_id
+        IncidentModel.new(iid)
+      end
     end
 
     def clear_incident(id)

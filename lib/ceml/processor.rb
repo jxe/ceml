@@ -64,9 +64,13 @@ module CEML
 
     def override_abort(new_message, player, player_obj)
       incident = player_obj.top_incident
-      incident.release(player_obj.id)
-      unlatch(player[:squad_id], player[:id], incident.id)
-      tell(player[:squad_id], player[:id], {:key => :message, :msg => 'aborted'})
+      if incident
+        incident.release(player_obj.id)
+        unlatch(player[:squad_id], player[:id], incident.id)
+        tell(player[:squad_id], player[:id], {:key => :message, :msg => 'aborted'})
+      else
+        tell(player[:squad_id], player[:id], {:key => :message, :msg => 'nothing to abort from'})
+      end
     end
 
     def _audition(bundle_id, player)
