@@ -3,7 +3,7 @@ module CEML
 
     def waiting_rooms_for_player(player)
       result = []
-      result.concat player[:seeded] if player[:seeded]
+      result.concat([*player[:seeded]]) if player[:seeded]
       result.concat player[:tags] if player[:tags]
       # result << 'generic'
       result
