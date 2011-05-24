@@ -25,34 +25,44 @@ module CEML
       not (expanded & specified_roles).empty?
     end
 
+    def log state
+      p = @this
+      instr = seq[pc]
+      puts "[#{id}] #{p[:id]}(#{roles.inspect}) ##{pc} -- #{instr.first.inspect} -- #{instr[1]} -- #{state} -- #{instr[2].inspect}"
+    end
+
+
     def run(players, &blk)
       @players = players
       @callback = blk
 
       loop do
         players = @players
-        puts "[#{id}]: playing with #{players.map{|p|p[:id]}}"
         advanced = false
         players.each do |p|
           @this = p
-          puts "trying #{@this[:id]} on seq #{seq.inspect}"
+          instr = seq[pc]
           unless instr = seq[pc]
-            puts "PLAYER #{p[:id]} is off his schedule at #{seq.inspect} #{pc.inspect}"
+            log 'off schedule'
             @players.delete(p)
             cb :released
             next
           end
           instr = instr.dup
-          if not rolematch(instr.shift)
-            puts "advancing #{p[:id]} due to rolematch skip"
+          rolespec = instr.shift
+          if not rolematch(rolespec)
+            log "skipping [player is not #{rolespec.inspect}]"
             this[:pc]+=1
             advanced = true
           else
-            puts "TRYING TO RUN #{instr.inspect}"
             instr << role_info if instr.first == :start  #tmp hack
-            next unless send(*instr)
+            if send(*instr)
+              log 'completed'
+            else
+              log 'blocked'
+              next
+            end
             cb(*instr)
-            puts "#{p[:id]} succeeded, advancing"
             this[:pc]+=1
             advanced = true
           end

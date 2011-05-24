@@ -34,7 +34,6 @@ module CEML
     end
 
     def add_cast(incident_id, castings)
-      puts "adding cast! #{castings.inspect}"
       i = IncidentModel.new(incident_id)
       i.add_castings(castings)
       i.run(self)
@@ -67,13 +66,6 @@ module CEML
       end
     end
 
-    def audition(bundle_id, player)
-      player.merge! :bundle_id => bundle_id
-      Player.update(bundle_id, player, self) do |player|
-        _audition(bundle_id, player)
-      end
-    end
-
 
     # =============
     # = internals =
@@ -81,6 +73,14 @@ module CEML
 
     def run_incident(id)
       IncidentModel.new(id).run(self)
+    end
+
+    # currently used by seed
+    def audition(bundle_id, player)
+      player.merge! :bundle_id => bundle_id
+      Player.update(bundle_id, player, self) do |player|
+        _audition(bundle_id, player)
+      end
     end
 
     def _audition(bundle_id, player)
@@ -93,32 +93,18 @@ module CEML
       log "...cannot be cast into a live incident"
 
       # see if player makes a launch possible for any castable
+      incident_id  = gen_code
       castables.each do |castable|
-        room_ids = castable.hot_waiting_rooms_given_player(player)
-        hotties = Audition.from_rooms(room_ids)
-        log "hotties are... #{hotties.inspect} from rooms #{room_ids.inspect}"
-        hot_players = hotties.keys.map{ |id| Player.new(id).data.value } + [player]
-
-        log "casting from #{hot_players.inspect}"
-
-        if cast = castable.cast_from(hot_players)
-          log "...cast by #{castable.inspect} with cast #{cast.player_ids.inspect}"
-          incident_id  = gen_code
-          audition_ids = (cast.player_ids & hotties.keys).map{ |id| hotties[id] }
-
-          log "consuming #{audition_ids.inspect}"
-          Audition.consume(audition_ids) do
+        castable.cast_player?(incident_id, player) do |result, cast|
+          case result
+          when :launch
             launch(incident_id, castable.bytecode)
-            # post audition signs in waiting rooms for remaining parts
-            castable.with_open_roles(cast) do |role, count|
-              castable.waiting_rooms_to_watch(role, cast).each do |room|
-                room.list_job(incident_id, role.name, count)
-              end
-            end
-          end or begin sleep 0.02; return audition(scripts, player); end
-
-          add_cast(incident_id, cast.castings)
-          return true
+            add_cast(incident_id, cast.castings)
+            return true
+          when :retry
+            sleep 0.02
+            return audition(scripts, player)
+          end
         end
       end
 

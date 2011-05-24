@@ -11,7 +11,7 @@ class TestCemlTests < Test::Unit::TestCase
   def test_cemltests
     Dir["test/*.cemltest"].each do |f|
       name = File.basename(f, '.cemltest')
-      scripts = File.new("test/#{name}.ceml")).read
+      scripts = File.new("test/#{name}.ceml").read
       test    = File.new(f).read
 
       puts "Running cemltest #{name}..."
@@ -20,7 +20,7 @@ class TestCemlTests < Test::Unit::TestCase
       pl = Set.new
       play do
         test.each_line do |line|
-          case line.trim
+          case line.strip
           when /^(\w+) *< *(.*)$/
             if $2.empty? then silent $1 else told $1, /#{$2}/ end
           when /^(\w+) *> *(.*)$/

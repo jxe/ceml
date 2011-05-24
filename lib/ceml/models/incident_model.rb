@@ -16,7 +16,6 @@ module CEML
     hash_key :player_roles, :marshal => true
 
     def add_castings(castings)
-      puts "ADDING CASTINGS(#{id}) #{castings.inspect}"
       castings.each do |rolename, folks|
         folks.each do |player|
           Player.new(player[:id]).touch(id)
@@ -24,7 +23,6 @@ module CEML
           puts "ADDED(#{id}) #{player[:id]} = #{rolename.to_sym}"
         end
       end
-      puts "Player roles(#{id}): #{player_roles.all.inspect}"
     end
 
     def release(player_id)
@@ -68,8 +66,6 @@ module CEML
           player.merge! stored_player if stored_player
           players << player
         end
-
-        puts "Running with players: #{players.inspect}"
 
         CEML::Incident.new(bytecode.value, id).run(players) do |player, meth, what|
           case meth.to_sym when :released, :finish, :replace

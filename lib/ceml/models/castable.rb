@@ -1,6 +1,31 @@
 module CEML
   class Castable < Struct.new :stanza_name, :matching, :radius, :timewindow, :roles, :bytecode
 
+    def cast_player?(incident_id, player)
+      room_ids = hot_waiting_rooms_given_player(player)
+      hotties = Audition.from_rooms(room_ids)
+      puts "hotties are... #{hotties.inspect} from rooms #{room_ids.inspect}"
+      hot_players = hotties.keys.map{ |id| Player.new(id).data.value } + [player]
+      puts "casting from #{hot_players.inspect}"
+      if cast = cast_from(hot_players)
+        puts "...cast with cast #{cast.player_ids.inspect}"
+        audition_ids = (cast.player_ids & hotties.keys).map{ |id| hotties[id] }
+        puts "consuming #{audition_ids.inspect}"
+        if Audition.consume(audition_ids)
+          yield :launch, cast
+
+          # post audition signs in waiting rooms for remaining parts
+          with_open_roles(cast) do |role, count|
+            waiting_rooms_to_watch(role, cast).each do |room|
+              room.list_job(incident_id, role.name, count)
+            end
+          end
+        else
+          yield :retry, nil
+        end
+      end
+    end
+
     def waiting_rooms_for_player(player)
       result = []
       result.concat([*player[:seeded]]) if player[:seeded]

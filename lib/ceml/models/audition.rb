@@ -19,8 +19,8 @@ module CEML
         # rooms = roomsets.first.union(roomsets[1,-1]) || []
         rooms.each{ |r| ids.each{ |id| r.delete(id) } }
         redis.del *roomsets.map(&:key)
-        yield
       end
+      true
     end
 
     def self.from_rooms(room_ids)
