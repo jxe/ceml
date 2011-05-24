@@ -709,8 +709,7 @@ module Lexer
 
   module Duration1
     def seconds
-        number.text_value.to_f * case time_unit.text_value
-        when /^h/; 60*60; when /^mi/; 60; else 1; end
+      CEML.dur(number.text_value.to_f, time_unit.text_value)
     end
   end
 
