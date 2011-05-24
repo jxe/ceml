@@ -1,6 +1,12 @@
 require 'rubygems'
 require 'test/unit'
 
+SCRIPTS = {}
+Dir["test/*.ceml"].each do |f|
+  name = File.basename(f, '.ceml')
+  SCRIPTS[name] = File.new(f).read
+end
+
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'ceml'
@@ -20,14 +26,8 @@ class Test::Unit::TestCase
     CEML::Processor::JUST_SAID.clear
   end
 
-  def scriptfam *scripts
-    scripts.map do |script|
-      if String === script
-        CEML.parse(:script, script).castable
-      else
-        script.castable
-      end
-    end
+  def scriptfam scripts
+    CEML.parse(:scripts, scripts).map(&:castable)
   end
 
   def ping s, candidate

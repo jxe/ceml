@@ -9,6 +9,10 @@ module CEML
   @extra_seconds = 0
   def clock; Time.now.utc.to_i + @extra_seconds; end
   def incr_clock(s); @extra_seconds += s; end
+  def dur(n, unit)
+    n * case unit
+    when /^h/; 60*60; when /^mi/; 60; else 1; end
+  end
 end
 
 module CEML
