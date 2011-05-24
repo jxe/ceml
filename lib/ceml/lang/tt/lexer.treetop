@@ -13,13 +13,20 @@ grammar Lexer
       [ \t\f]+
     end
 
+    rule linebreak
+      ("\r" "\n"?) / "\n"
+    end
+
+    rule eol
+        linebreak !ws
+    end
+
     rule comment
       '//' text
     end
 
-    rule eol
-      ("\r" "\n"?) / "\n"
-    end
+
+
 
     rule number
       ([1-9]+ [0-9]* / '0') {

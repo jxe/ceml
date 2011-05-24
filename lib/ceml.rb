@@ -18,7 +18,6 @@ end
 module CEML
   def parse(what, string)
     string = string.dup
-    string.gsub!(/\n +/, ' ')
     what = case what
     when :script then :free_script
     when :scripts then :free_scripts

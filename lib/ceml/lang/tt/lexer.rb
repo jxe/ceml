@@ -172,6 +172,120 @@ module Lexer
     r0
   end
 
+  module Linebreak0
+  end
+
+  def _nt_linebreak
+    start_index = index
+    if node_cache[:linebreak].has_key?(index)
+      cached = node_cache[:linebreak][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0 = index
+    i1, s1 = index, []
+    if has_terminal?("\r", false, index)
+      r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
+      @index += 1
+    else
+      terminal_parse_failure("\r")
+      r2 = nil
+    end
+    s1 << r2
+    if r2
+      if has_terminal?("\n", false, index)
+        r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+        @index += 1
+      else
+        terminal_parse_failure("\n")
+        r4 = nil
+      end
+      if r4
+        r3 = r4
+      else
+        r3 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s1 << r3
+    end
+    if s1.last
+      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
+      r1.extend(Linebreak0)
+    else
+      @index = i1
+      r1 = nil
+    end
+    if r1
+      r0 = r1
+    else
+      if has_terminal?("\n", false, index)
+        r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
+        @index += 1
+      else
+        terminal_parse_failure("\n")
+        r5 = nil
+      end
+      if r5
+        r0 = r5
+      else
+        @index = i0
+        r0 = nil
+      end
+    end
+
+    node_cache[:linebreak][start_index] = r0
+
+    r0
+  end
+
+  module Eol0
+    def linebreak
+      elements[0]
+    end
+
+  end
+
+  def _nt_eol
+    start_index = index
+    if node_cache[:eol].has_key?(index)
+      cached = node_cache[:eol][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_linebreak
+    s0 << r1
+    if r1
+      i2 = index
+      r3 = _nt_ws
+      if r3
+        r2 = nil
+      else
+        @index = i2
+        r2 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s0 << r2
+    end
+    if s0.last
+      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0.extend(Eol0)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:eol][start_index] = r0
+
+    r0
+  end
+
   module Comment0
     def text
       elements[1]
@@ -211,75 +325,6 @@ module Lexer
     end
 
     node_cache[:comment][start_index] = r0
-
-    r0
-  end
-
-  module Eol0
-  end
-
-  def _nt_eol
-    start_index = index
-    if node_cache[:eol].has_key?(index)
-      cached = node_cache[:eol][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0 = index
-    i1, s1 = index, []
-    if has_terminal?("\r", false, index)
-      r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
-    else
-      terminal_parse_failure("\r")
-      r2 = nil
-    end
-    s1 << r2
-    if r2
-      if has_terminal?("\n", false, index)
-        r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
-      else
-        terminal_parse_failure("\n")
-        r4 = nil
-      end
-      if r4
-        r3 = r4
-      else
-        r3 = instantiate_node(SyntaxNode,input, index...index)
-      end
-      s1 << r3
-    end
-    if s1.last
-      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
-      r1.extend(Eol0)
-    else
-      @index = i1
-      r1 = nil
-    end
-    if r1
-      r0 = r1
-    else
-      if has_terminal?("\n", false, index)
-        r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
-      else
-        terminal_parse_failure("\n")
-        r5 = nil
-      end
-      if r5
-        r0 = r5
-      else
-        @index = i0
-        r0 = nil
-      end
-    end
-
-    node_cache[:eol][start_index] = r0
 
     r0
   end
