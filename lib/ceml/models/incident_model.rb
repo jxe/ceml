@@ -16,12 +16,15 @@ module CEML
     hash_key :player_roles, :marshal => true
 
     def add_castings(castings)
+      puts "ADDING CASTINGS(#{id}) #{castings.inspect}"
       castings.each do |rolename, folks|
         folks.each do |player|
           Player.new(player[:id]).touch(id)
           player_roles[player[:id]] = [rolename.to_sym]
+          puts "ADDED(#{id}) #{player[:id]} = #{rolename.to_sym}"
         end
       end
+      puts "Player roles(#{id}): #{player_roles.all.inspect}"
     end
 
     def release(player_id)
@@ -44,6 +47,7 @@ module CEML
     end
 
     def run(cb_obj)
+      puts "RUNNING(#{id})"
       # running_lock.lock do
         metadata, player_data = *data.value
         metadata    ||= { :id => id }
@@ -51,6 +55,7 @@ module CEML
         puts "Player data loaded: #{player_data.inspect}"
         players = []
 
+        puts "Player roles(#{id}): #{player_roles.all.inspect}"
         player_roles.each do |player_id, roles|
           puts "#{id}: #{player_id.inspect} => #{roles.inspect}, #{player_data[player_id].inspect}"
           player = { :id => player_id, :roles => Set.new(roles) }
