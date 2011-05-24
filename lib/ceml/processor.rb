@@ -8,23 +8,42 @@ end
 
 module CEML
   class Processor
-    # TODO:  new way to release players from incident
-    # design:  release, replace, incident_close
+    def ctx(options = {}); Context.new(self, options); end
+
+    # ===================
+    # = scripts/bundles =
+    # ===================
 
     def set_bundle(id, castables)
       log "set_bundle(): #{id}, #{castables.inspect}"
       Bundle.new(id).castables = castables
     end
 
-    # def updated(bundle_id, player)
-    #   log "updated(): #{bundle_id}, #{player[:id]}"
-    #   if incident_id = Player.new(player[:id]).active_incidents.last
-    #     Player.update player
-    #     run_incident(incident_id)
-    #   else
-    #     audition(bundle_id, player)
-    #   end
-    # end
+    def run_latest
+      IncidentModel.run_latest(self)
+    end
+
+
+    # =============
+    # = incidents =
+    # =============
+
+    def launch(incident_id, bytecode)
+      incident_id ||= gen_code
+      IncidentModel.new(incident_id).bytecode.value = bytecode
+    end
+
+    def add_cast(incident_id, castings)
+      puts "adding cast! #{castings.inspect}"
+      i = IncidentModel.new(incident_id)
+      i.add_castings(castings)
+      i.run(self)
+    end
+
+
+    # ============
+    # = requests =
+    # ============
 
     def audition_if_unengaged(bundle_id, player)
       log "audition_if_unengaged(): #{bundle_id}, #{player[:id]}"
@@ -55,22 +74,13 @@ module CEML
       end
     end
 
-    def recognize_override(cmd, new_message, player, player_obj)
-      if respond_to?("override_#{cmd}")
-        send("override_#{cmd}", new_message, player, player_obj)
-        true
-      end
-    end
 
-    def override_abort(new_message, player, player_obj)
-      incident = player_obj.top_incident
-      if incident
-        incident.release(player_obj.id)
-        unlatch(player[:squad_id], player[:id], incident.id)
-        tell(player[:squad_id], player[:id], :message, :msg => 'aborted')
-      else
-        tell(player[:squad_id], player[:id], :message, :msg => 'nothing to abort from')
-      end
+    # =============
+    # = internals =
+    # =============
+
+    def run_incident(id)
+      IncidentModel.new(id).run(self)
     end
 
     def _audition(bundle_id, player)
@@ -124,24 +134,34 @@ module CEML
       return true
     end
 
-    def launch(incident_id, bytecode)
-      incident_id ||= gen_code
-      IncidentModel.new(incident_id).bytecode.value = bytecode
+
+    # =============
+    # = callbacks =
+    # =============
+
+    # def log ctx, attempt, status, pc, instr, args
+    #   # ctx: bundle_id, persona_id, persona_name, incident_id
+    #   # args: attempt, status
+    #   # incident_decore: pc, instr, args
+    #
+    # end
+
+    def recognize_override(cmd, new_message, player, player_obj)
+      if respond_to?("override_#{cmd}")
+        send("override_#{cmd}", new_message, player, player_obj)
+        true
+      end
     end
 
-    def run_latest
-      IncidentModel.run_latest(self)
-    end
-
-    def add_cast(incident_id, castings)
-      puts "adding cast!"
-      i = IncidentModel.new(incident_id)
-      i.add_castings(castings)
-      i.run(self)
-    end
-
-    def run_incident(id)
-      IncidentModel.new(id).run(self)
+    def override_abort(new_message, player, player_obj)
+      incident = player_obj.top_incident
+      if incident
+        incident.release(player_obj.id)
+        unlatch(player[:squad_id], player[:id], incident.id)
+        tell(player[:squad_id], player[:id], :message, :msg => 'aborted')
+      else
+        tell(player[:squad_id], player[:id], :message, :msg => 'nothing to abort from')
+      end
     end
 
     def log(s)
@@ -177,7 +197,11 @@ module CEML
     def player_did_report(*args)
     end
 
-    # these lines let this class act as a redis worker queing mechanism
+
+    # ====================
+    # = queue processing =
+    # ====================
+
     def self.method_missing(*args); Queue.new.calls << args; end
     def self.run(); Queue.new.run(self); end
   end
