@@ -45,15 +45,16 @@ module CEML
     end
 
     def run(cb_obj)
-      puts "RUNNING(#{id})"
+      raise unless String === id
+      # puts "RUNNING(#{id})"
       # running_lock.lock do
         metadata, player_data = *data.value
         metadata    ||= { :id => id }
         player_data ||= {}
-        puts "Player data loaded: #{player_data.inspect}"
+        puts "[#{id}] Player data loaded: #{player_data.inspect}"
         players = []
 
-        puts "Player roles(#{id}): #{player_roles.all.inspect}"
+        puts "[#{id}] Player roles: #{player_roles.all.inspect}"
         player_roles.each do |player_id, roles|
           puts "#{id}: #{player_id.inspect} => #{roles.inspect}, #{player_data[player_id].inspect}"
           player = { :id => player_id, :roles => Set.new(roles) }
@@ -72,7 +73,7 @@ module CEML
             release(player[:id])
           end
           meth = "player_#{meth}"
-          cb_obj.log "[#{id}] #{meth}: #{player[:id]} #{what.inspect}"
+          # cb_obj.log "[#{id}] #{meth}: #{player[:id]} #{what.inspect}"
           if cb_obj.respond_to? meth
             metadata.update :player => player, :players => players, :id => id
             result = cb_obj.send(meth, metadata, what)

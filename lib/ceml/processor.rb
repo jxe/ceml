@@ -8,15 +8,18 @@ end
 
 module CEML
   class Processor
-    def ctx(options = {}); Context.new(self, options); end
 
     # ===================
     # = scripts/bundles =
     # ===================
 
     def set_bundle(id, castables)
-      log "set_bundle(): #{id}, #{castables.inspect}"
+      # log "set_bundle(): #{id}, #{castables.inspect}"
       Bundle.new(id).castables = castables
+    end
+
+    def reset_bundle(id)
+      Bundle.new(id).reset
     end
 
     def run_latest
@@ -44,93 +47,53 @@ module CEML
     # = requests =
     # ============
 
-    def audition_if_unengaged(bundle_id, player)
-      log "audition_if_unengaged(): #{bundle_id}, #{player[:id]}"
+    def ping(bundle_id, player)
+      # log "ping(): #{bundle_id}, #{player[:id]}"
       Player.update(bundle_id, player, self) do |player|
         if incident_id = Player.new(player[:id]).top_incident_id
-          run_incident(incident_id)
+          IncidentModel.new(incident_id).run(self)
         else
-          _audition(bundle_id, player)
+          if player[:received]
+            player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
+          end
+          simple_audition(bundle_id, player)
         end
       end
     end
 
-    def replied(bundle_id, player)
-      log "replied(): #{bundle_id}, #{player[:id]}"
-      Player.update(bundle_id, player, self) do |player|
-        if incident_id = Player.new(player[:id]).top_incident_id
-          run_incident(incident_id)
-        else
-          player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
-        end
-      end
+    def reset_player(bundle_id, player_id)
+      Player.new(player_id).reset
     end
-
 
     # =============
     # = internals =
     # =============
 
-    def run_incident(id)
-      IncidentModel.new(id).run(self)
-    end
-
-    # currently used by seed
-    def audition(bundle_id, player)
-      player.merge! :bundle_id => bundle_id
-      Player.update(bundle_id, player, self) do |player|
-        _audition(bundle_id, player)
-      end
-    end
-
-    def _audition(bundle_id, player)
+    def simple_audition(bundle_id, player)
       log "audition(): #{bundle_id}, #{player[:id]}"
-      castables = Bundle.new(bundle_id).castables.value
-      rooms = castables.map{ |c| c.waiting_rooms_for_player(player) }.flatten.uniq.map{ |r| WaitingRoom.new(r) }
-
-      # check player against waiting incidents
-      return true if rooms.detect{ |room| room.audition_for_incidents(player, self.class) }
-      log "...cannot be cast into a live incident"
-
-      # see if player makes a launch possible for any castable
-      incident_id  = gen_code
-      castables.each do |castable|
-        castable.cast_player?(incident_id, player) do |result, cast|
-          case result
-          when :launch
-            launch(incident_id, castable.bytecode)
-            add_cast(incident_id, cast.castings)
-            return true
-          when :retry
-            sleep 0.02
-            return audition(scripts, player)
-          end
-        end
+      b = Bundle.new(bundle_id)
+      b.clear_from_all_rooms(player)
+      if incident_id = b.absorb?(player)
+        IncidentModel.new(incident_id).run(self)
+        return true
       end
-
-      # report here
       player_did_report({:player => player, :squad_id => bundle_id, :city => player[:city]}, nil)
-
-      # bail out when there's no rooms relevant
-      return false if rooms.empty?
-
-      # store player in waiting rooms for later
-      log "...storing in waiting rooms #{rooms}"
-      Audition.new("#{player[:id]}").list_in_rooms(rooms)  ##{gen_code}:
-      return true
+      b.register_in_rooms(player)
     end
 
+    def seed(bundle_id, stanza_name, player)
+      log "seed(): #{bundle_id}, #{stanza_name}, #{player[:id]}"
+      b = Bundle.new(bundle_id)
+      if incident_id = b.absorb?(player, stanza_name)
+        IncidentModel.new(incident_id).run(self)
+        return true
+      end
+      b.register_in_rooms(player, stanza_name)
+    end
 
     # =============
     # = callbacks =
     # =============
-
-    # def log ctx, attempt, status, pc, instr, args
-    #   # ctx: bundle_id, persona_id, persona_name, incident_id
-    #   # args: attempt, status
-    #   # incident_decore: pc, instr, args
-    #
-    # end
 
     def recognize_override(cmd, new_message, player, player_obj)
       if respond_to?("override_#{cmd}")
@@ -144,8 +107,10 @@ module CEML
       if incident
         incident.release(player_obj.id)
         unlatch(player[:squad_id], player[:id], incident.id)
+        player_obj.reset
         tell(player[:squad_id], player[:id], :message, :msg => 'aborted')
       else
+        player_obj.reset
         tell(player[:squad_id], player[:id], :message, :msg => 'nothing to abort from')
       end
     end
@@ -164,8 +129,9 @@ module CEML
 
     JUST_SAID = {}
     def tell(sqid, player_id, key, meta)
-      JUST_SAID[player_id] = meta.merge :key => key
-      puts "Said #{key} #{meta.inspect}"
+      JUST_SAID[player_id] ||= []
+      JUST_SAID[player_id] << meta.merge(:key => key)
+      # puts "Said #{key} #{meta.inspect}"
     end
 
     def player_answered_q(data, what)
@@ -173,11 +139,13 @@ module CEML
     end
     alias_method :player_set, :player_answered_q
 
-    def player_seed(data, what)
+    def player_seeded(data, what)
       p = data[:player].dup
       p.delete(:roles)
-      p[:seeded] = "#{data[:target]}:#{data[:role]}"
-      self.class.audition(p[:bundle_id], p)
+      p[:seeded] = "#{what[:target]}:#{what[:role]}"
+      puts "SEEDED #{p[:id]} AS #{what[:target]}:#{what[:role]}"
+
+      self.class.seed(p[:bundle_id], what[:target], p)
     end
 
     def player_did_report(*args)

@@ -1,41 +1,42 @@
 module CEML
   class Castable < Struct.new :stanza_name, :matching, :radius, :timewindow, :roles, :bytecode
 
-    def cast_player?(incident_id, player)
-      room_ids = hot_waiting_rooms_given_player(player)
+    def cast_player?(incident_id, player, seeded=false)
+      room_ids = hot_waiting_rooms_given_player(player, seeded)
       hotties = Audition.from_rooms(room_ids)
-      puts "hotties are... #{hotties.inspect} from rooms #{room_ids.inspect}"
+      # puts "hotties are... #{hotties.inspect} from rooms #{room_ids.inspect}"
       hot_players = hotties.keys.map{ |id| Player.new(id).data.value } + [player]
-      puts "casting from #{hot_players.inspect}"
+      # puts "casting from #{hot_players.inspect}"
       if cast = cast_from(hot_players)
         puts "...cast with cast #{cast.player_ids.inspect}"
         audition_ids = (cast.player_ids & hotties.keys).map{ |id| hotties[id] }
         puts "consuming #{audition_ids.inspect}"
-        if Audition.consume(audition_ids)
-          yield :launch, cast
-
+        if Audition.consume(audition_ids, room_ids)
           # post audition signs in waiting rooms for remaining parts
           with_open_roles(cast) do |role, count|
             waiting_rooms_to_watch(role, cast).each do |room|
               room.list_job(incident_id, role.name, count)
             end
           end
+          return cast
         else
-          yield :retry, nil
+          sleep 0.02
+          return cast_player?(incident_id, player)
         end
       end
+      return
     end
 
-    def waiting_rooms_for_player(player)
+    def waiting_rooms_for_player(player, seeded=false)
       result = []
       result.concat([*player[:seeded]]) if player[:seeded]
-      result.concat player[:tags] if player[:tags]
+      result.concat player[:tags] if player[:tags] unless seeded
       # result << 'generic'
       result
     end
 
-    def hot_waiting_rooms_given_player(player)
-      rooms = waiting_rooms_for_player(player)
+    def hot_waiting_rooms_given_player(player, seeded=false)
+      rooms = waiting_rooms_for_player(player, seeded)
       roles.each{ |r| rooms.concat(["#{stanza_name}:#{r.name}", *r.tagspec.with]) }
       rooms << "#{stanza_name}:*"
       # rooms << 'generic'
@@ -54,6 +55,10 @@ module CEML
       end
       # result << 'generic'
       result.map{ |id| WaitingRoom.new(id) }
+    end
+
+    def all_rooms
+      roles.map{ |r| waiting_rooms_to_watch(r, {}) }.flatten
     end
 
     def with_open_roles(cast)

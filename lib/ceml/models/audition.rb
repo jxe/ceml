@@ -5,21 +5,37 @@ module CEML
     set :rooms
 
     def list_in_rooms(da_rooms)
-      p "Listing in rooms #{da_rooms.map(&:id)}"
+      # p "Listing in rooms #{da_rooms.map(&:id)}"
       da_rooms.each{ |room| self.rooms << room.id; room.add(id) }
     end
 
-    def self.consume(ids)
+    def clear_from_all_rooms(*extra_rooms)
+      rooms_to_clear = rooms.members + extra_rooms
+      redis.multi do
+        rooms_to_clear.each do |r|
+          WaitingRoom.new(r).waiting_auditions.delete(id)
+        end
+        redis.del rooms.key
+      end
+    end
+
+    def self.consume(ids, extra_rooms = [])
       roomsets = ids.map{ |id| Audition.new(id).rooms }
-      rooms = roomsets.map(&:members).flatten.uniq
-      puts "Consuming ids #{ids.inspect} from rooms #{rooms.inspect}"
+      rooms = (roomsets.map(&:members) + extra_rooms).flatten.uniq
+      # puts "Consuming ids #{ids.inspect} from rooms #{rooms.inspect}"
       # TODO: install new redis and re-enable watchlist
       # redis.watch(*roomsets.map(&:key))
-      redis.multi do
+      # redis.multi do
         # rooms = roomsets.first.union(roomsets[1,-1]) || []
-        rooms.each{ |r| ids.each{ |id| r.delete(id) } }
-        redis.del *roomsets.map(&:key)
-      end
+        rooms.each do |r|
+          # puts "PROCESSING ROOM #{r.key}"
+          ids.each do |id|
+            # puts "DELETING #{id} from room #{r}"
+            WaitingRoom.new(r).waiting_auditions.delete(id)
+          end
+        end
+        roomsets.map(&:clear)
+      # end
       true
     end
 
@@ -28,15 +44,16 @@ module CEML
       rooms = room_ids.map{ |r| WaitingRoom.new(r) }
       auditions = rooms.map{ |r| r.waiting_auditions.members }.flatten
 
-      # tmp hack to clear db
-      # auditions.each do |a|
-      #   Audition.new(a).rooms.clear
-      #   rooms.each{ |r| r.waiting_auditions.delete(a) }
-      # end
+      # clear old style
+      auditions.each do |a|
+        next unless a =~ /:/
+        Audition.new(a).rooms.clear
+        rooms.each{ |r| r.waiting_auditions.delete(a) }
+      end
 
-      p "Auditions found: #{auditions.inspect}"
+      puts "Auditions found: #{auditions.inspect}"
       auditions.each do |audition|
-        next if audition =~ /:/
+        # next if audition =~ /:/
         # code, player_id = audition.split(':')
         player_id = audition
         players[player_id] ||= audition

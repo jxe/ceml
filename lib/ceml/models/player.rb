@@ -10,6 +10,13 @@ module CEML
       current_incidents[incident_id] = Time.now.to_i
     end
 
+    def reset
+      Audition.new(id).clear_from_all_rooms
+      data.clear
+      message.clear
+      current_incidents.clear
+    end
+
     def top_incident_id
       current_incidents.last
     end
@@ -51,17 +58,18 @@ module CEML
         old_value = data.value || {}
         new_value = old_value.merge player
         new_value[:qs_answers] = (old_value[:qs_answers]||{}).merge(player[:qs_answers] || {})
-        puts "SAVING DATA: #{new_value.inspect}"
+        # puts "SAVING DATA: #{new_value.inspect}"
         data.value = new_value
       end
     end
 
     def update player, cb_obj
       player = player.dup
-      puts "UPDATING player id #{id} with #{player.inspect}"
+      # puts "UPDATING player id #{id} with #{player.inspect}"
       new_message, player = split(player)
       merge_new_player_data(player)
-      if !new_message.empty? and cmd = new_message[:recognized] and cb_obj.recognize_override(cmd, new_message, player, self)
+      cmd = new_message[:recognized]
+      if cmd and cb_obj.recognize_override(cmd, new_message, player, self)
         message.delete
       else
         message.value = new_message

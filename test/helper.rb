@@ -32,38 +32,32 @@ class Test::Unit::TestCase
 
   def ping s, candidate
     CEML::Processor.set_bundle(s.hash.to_s, s)
-    CEML::Processor.audition(s.hash.to_s, candidate)
+    CEML::Processor.ping(s.hash.to_s, candidate)
     CEML::Processor.run
   end
 
   def says id, str
     player = {:id => id.to_s, :received => str}
-    player[:recognized] = :yes if str == 'y'
+    player[:recognized] = :yes if str.downcase == 'y' || str.downcase == 'yes'
     player[:recognized] = :abort if str == 'abort'
     puts "SAYING(#{id}): #{str}"
-    CEML::Processor.replied(nil, player)
+    CEML::Processor.ping(nil, player)
     CEML::Processor.run
-  end
-
-  def asked id, rx
-    id = id.to_s
-    assert p = CEML::Processor::JUST_SAID[id]
-    assert_equal :ask, p[:said]
-    assert_match rx, p[:q]
-    CEML::Processor::JUST_SAID.delete id
   end
 
   def silent id
     id = id.to_s
-    assert !CEML::Processor::JUST_SAID[id]
+    p = CEML::Processor::JUST_SAID[id]
+    assert !p || p.empty?
   end
 
   def told id, rx
     id = id.to_s
-    assert p = CEML::Processor::JUST_SAID[id]
-    assert_match rx, p[:msg]
-    CEML::Processor::JUST_SAID.delete id
+    assert CEML::Processor::JUST_SAID[id]
+    assert p = CEML::Processor::JUST_SAID[id].shift
+    assert_match rx, p[:msg] || p[:q]
   end
+  alias_method :asked, :told
 
   def player id, role
     CEML::Player.new(id.to_s).clear_answers

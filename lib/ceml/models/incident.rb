@@ -22,13 +22,16 @@ module CEML
 
     def rolematch(specified_roles)
       expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone, :them, :either])
-      not (expanded & specified_roles).empty?
+      not (expanded & [*specified_roles]).empty?
     end
 
     def log state
       p = @this
       instr = seq[pc]
-      puts "[#{id}] #{p[:id]}(#{roles.inspect}) ##{pc} -- #{instr.first.inspect} -- #{instr[1]} -- #{state} -- #{instr[2].inspect}"
+      guyroles = roles.to_a - [:everyone, :players, :them, :all, :either, :each, :agents, :both]
+      instr ||= []
+
+      puts "[#{id}] #{p[:id]}(#{guyroles}) ##{pc} #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect}"
     end
 
 
@@ -51,7 +54,7 @@ module CEML
           instr = instr.dup
           rolespec = instr.shift
           if not rolematch(rolespec)
-            log "skipping [player is not #{rolespec.inspect}]"
+            log "skipping[#{rolespec}]"
             this[:pc]+=1
             advanced = true
           else
@@ -126,6 +129,12 @@ module CEML
     end
 
     def seed x
+      x[:rolemap].each do |pair|
+        if rolematch(pair[:from].to_sym)
+          cb :seeded, :target => x[:target], :role => pair[:to]
+          break
+        end
+      end
       true
     end
 
@@ -215,7 +224,7 @@ module CEML
       return true if x[:cond] and not expectation(*x[:cond])
       @players.delete(this)
       cb :released, x[:tag]
-      false
+      true
     end
 
     def replace x

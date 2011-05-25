@@ -5,15 +5,22 @@ module CEML
     set :waiting_auditions
     set :waiting_incident_roles
 
-    def audition_for_incidents(player, klass)
+    def clear
+      waiting_auditions.each do |audition_id|
+        Audition.new(audition_id).clear_from_all_rooms(id)
+      end
+      waiting_incident_roles.clear
+    end
+
+    def audition_for_incidents(player)
       waiting_incident_roles.members.each do |key|
         incident_id, role, count = *key.split(':')
         count = count.to_i
         role_slot = IncidentRoleSlot.new(incident_id, role, count)
         next unless role_slot.reserve_spot!
         waiting_incident_roles.delete(key) if role_slot.full?
-        klass.add_cast(role_slot.incident_id, { role_slot.role => [ player ] })
-        return true
+        IncidentModel.new(role_slot.incident_id).add_castings({ role_slot.role => [ player ] })
+        return role_slot.incident_id
       end
       return false
     end
