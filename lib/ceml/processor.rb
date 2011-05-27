@@ -135,7 +135,7 @@ module CEML
     end
 
     def player_answered_q(data, what)
-      Player.update data[:id], data[:player].like(:id, :qs_answers), self
+      Player.update data[:player][:bundle_id], data[:player].like(:id, :qs_answers), self
     end
     alias_method :player_set, :player_answered_q
 
