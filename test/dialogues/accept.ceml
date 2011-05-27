@@ -1,0 +1,24 @@
+accept 2 new first_signups, many new later_signups
+seed signup1 with first_signups
+seed signup2 with later_signups
+
+(signup1)
+accept 1 signup
+tell signup: you're first!
+
+(signup2)
+accept 1 signup
+tell signup: you're second!
+
+---
+
+A > hi
+A < first
+B > hi
+B < first
+C > hi
+C < second
+D > hi
+D < second
+E > hi
+E < second
