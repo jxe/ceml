@@ -9,10 +9,10 @@ class TestCemlTests < Test::Unit::TestCase
   end
 
   def test_cemltests
-    Dir["test/*.cemltest"].each do |f|
-      name = File.basename(f, '.cemltest')
-      scripts = File.new("test/#{name}.ceml").read
+    Dir["test/dialogues/*.ceml"].each do |f|
+      name = File.basename(f, '.ceml')
       test    = File.new(f).read
+      scripts, test = test.split("\n---\n")
 
       puts "Running cemltest #{name}..."
 
