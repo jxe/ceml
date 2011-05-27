@@ -7,3 +7,20 @@ seed match with signup
 await 1 alpha and 1 beta
 tell alpha: you're alpha
 tell beta: you're beta
+
+---
+
+A > hi
+A < boots
+A > of course
+A < ok
+A <
+
+B > hi
+B < boots
+B > of course
+B < ok
+
+A < alpha
+B < beta
+
