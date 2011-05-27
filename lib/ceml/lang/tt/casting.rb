@@ -80,30 +80,41 @@ module Casting
           if r6
             r3 = r6
           else
-            @index = i3
-            r3 = nil
+            if has_terminal?('accept', false, index)
+              r7 = instantiate_node(SyntaxNode,input, index...(index + 6))
+              @index += 6
+            else
+              terminal_parse_failure('accept')
+              r7 = nil
+            end
+            if r7
+              r3 = r7
+            else
+              @index = i3
+              r3 = nil
+            end
           end
         end
       end
       s0 << r3
       if r3
-        r7 = _nt_ws
-        s0 << r7
-        if r7
-          r8 = _nt_roles
-          s0 << r8
-          if r8
-            s9, i9 = [], index
+        r8 = _nt_ws
+        s0 << r8
+        if r8
+          r9 = _nt_roles
+          s0 << r9
+          if r9
+            s10, i10 = [], index
             loop do
-              r10 = _nt_modifier_phrase
-              if r10
-                s9 << r10
+              r11 = _nt_modifier_phrase
+              if r11
+                s10 << r11
               else
                 break
               end
             end
-            r9 = instantiate_node(SyntaxNode,input, i9...index, s9)
-            s0 << r9
+            r10 = instantiate_node(SyntaxNode,input, i10...index, s10)
+            s0 << r10
           end
         end
       end

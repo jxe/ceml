@@ -7,7 +7,7 @@ module CEML
     # ===========
 
     def castable
-      return nil unless cast.type == :await
+      return nil unless cast.live_casting?
       args = cast.casting_spec + [bytecode]
       Castable.new(*args)
     end

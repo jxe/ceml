@@ -6,18 +6,22 @@ module CEML
     alias_method :rolenames, :names
 
     def casting_spec
-      return nil unless type == :await
+      return nil unless live_casting?
       matching = []
       matching << matching_text.to_sym if matching_text
       matching += [:city] if radius
       rolespecs = roles.list.map do |r|
         RoleSpec.new(r.name, Tagspec.new(r.qualifiers,[]), r.min..r.max)
       end
-      [stanza_name, matching, radius, timewindow, rolespecs]
+      [type, stanza_name, matching, radius, timewindow, rolespecs]
     end
 
     def type
       elements[1].text_value.split.first.to_sym
+    end
+
+    def live_casting?
+      [:await, :accept].include?(type)
     end
 
     def max

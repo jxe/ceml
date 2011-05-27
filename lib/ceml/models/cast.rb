@@ -6,7 +6,7 @@ module CEML
   class Cast
     extend Forwardable
     attr_reader :castings
-    def_delegators :@castable, :timewindow, :radius, :matching, :roles
+    def_delegators :@castable, :type, :timewindow, :radius, :matching, :roles
     def_delegators :@castings, :[]
     def initialize(castable, first_guy)
       @castable = castable
@@ -44,8 +44,13 @@ module CEML
       folks.any?{ |fellow| fellow[:id] == guy[:id] }
     end
 
-    def complete?
-      roles.all?{ |role| castings[role.name].size >= role.range.min }
+    def launchable?
+      case type
+      when :accept
+        roles.any?{ |role| castings[role.name].size >= 1 }
+      when :await
+        roles.all?{ |role| castings[role.name].size >= role.range.min }
+      end
     end
 
     def folks

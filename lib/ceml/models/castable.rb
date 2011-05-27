@@ -1,5 +1,5 @@
 module CEML
-  class Castable < Struct.new :stanza_name, :matching, :radius, :timewindow, :roles, :bytecode
+  class Castable < Struct.new :type, :stanza_name, :matching, :radius, :timewindow, :roles, :bytecode
 
     def cast_player?(incident_id, player, seeded=false)
       room_ids = hot_waiting_rooms_given_player(player, seeded)
@@ -74,7 +74,7 @@ module CEML
       # see if we can build a cast out of them and bid on the casts
       possible_casts = guys.map{ |guy| Cast.new self, guy }.select(&:star)
       guys.each{ |guy| possible_casts.each{ |cast| cast.cast guy }}
-      result = possible_casts.detect(&:complete?)
+      result = possible_casts.detect(&:launchable?)
       result
     end
   end
