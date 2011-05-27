@@ -8,5 +8,9 @@ module CEML
     def reserve_spot!
       casted.incr{ |val| val <= max }
     end
+
+    def full?
+      casted.value >= max
+    end
   end
 end
