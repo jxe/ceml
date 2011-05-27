@@ -13,9 +13,9 @@ module CEML
         puts "consuming #{audition_ids.inspect}"
         if Audition.consume(audition_ids, room_ids)
           # post audition signs in waiting rooms for remaining parts
-          with_open_roles(cast) do |role, count|
+          with_open_roles(cast) do |idx, role, count|
             waiting_rooms_to_watch(role, cast).each do |room|
-              room.list_job(incident_id, role.name, count)
+              room.list_job(incident_id, idx, role.name, count)
             end
           end
           return cast
@@ -62,10 +62,10 @@ module CEML
     end
 
     def with_open_roles(cast)
-      roles.each do |role|
+      roles.each_with_index do |role, i|
         count = cast.room(role)
         next unless count > 0
-        yield role, count
+        yield i, role, count
       end
     end
 

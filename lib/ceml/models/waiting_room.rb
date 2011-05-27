@@ -13,8 +13,10 @@ module CEML
     end
 
     def audition_for_incidents(player)
+      # puts "auditioning #{player[:id]} for incidents in room #{id}"
       waiting_incident_roles.members.each do |key|
-        incident_id, role, count = *key.split(':')
+        incident_id, idx, role, count = *key.split(':')
+        # puts "checking against #{incident_id}: #{role}"
         count = count.to_i
         role_slot = IncidentRoleSlot.new(incident_id, role, count)
         next unless role_slot.reserve_spot!
@@ -25,8 +27,8 @@ module CEML
       return false
     end
 
-    def list_job(incident_id, rolename, count)
-      waiting_incident_roles << [incident_id, rolename, count].join(':')
+    def list_job(incident_id, idx, rolename, count)
+      waiting_incident_roles << [incident_id, idx, rolename, count].join(':')
     end
 
     def add(audition_id)
