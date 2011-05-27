@@ -36,6 +36,7 @@ Gem::Specification.new do |s|
      "lib/ceml.rb",
      "lib/ceml/driver.rb",
      "lib/ceml/lang.rb",
+     "lib/ceml/lang/basic_instruction.rb",
      "lib/ceml/lang/casting_statement.rb",
      "lib/ceml/lang/instruction_statements.rb",
      "lib/ceml/lang/script.rb",
@@ -59,12 +60,20 @@ Gem::Specification.new do |s|
      "lib/ceml/models/queue.rb",
      "lib/ceml/models/waiting_room.rb",
      "lib/ceml/processor.rb",
+     "test/askchain.ceml",
+     "test/basic_seed.ceml",
+     "test/compliment.ceml",
+     "test/dialogues/accept.ceml",
+     "test/dialogues/jordan.ceml",
      "test/helper.rb",
+     "test/jane.ceml",
+     "test/lang/test_casting.rb",
+     "test/lang/test_instructions.rb",
+     "test/lang/test_scripts.rb",
+     "test/sync.ceml",
      "test/test_castable.rb",
-     "test/test_casting.rb",
+     "test/test_dialogues.rb",
      "test/test_incident.rb",
-     "test/test_instructions.rb",
-     "test/test_scripts.rb",
      "try"
   ]
   s.homepage = %q{http://github.com/citizenlogistics/ceml}
@@ -74,11 +83,13 @@ Gem::Specification.new do |s|
   s.summary = %q{a language for coordinating real world events}
   s.test_files = [
     "test/helper.rb",
+     "test/lang/test_casting.rb",
+     "test/lang/test_instructions.rb",
+     "test/lang/test_scripts.rb",
+     "test/test_basic_seed.rb",
      "test/test_castable.rb",
-     "test/test_casting.rb",
-     "test/test_incident.rb",
-     "test/test_instructions.rb",
-     "test/test_scripts.rb"
+     "test/test_dialogues.rb",
+     "test/test_incident.rb"
   ]
 
   if s.respond_to? :specification_version then
