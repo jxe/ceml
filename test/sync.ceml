@@ -1,0 +1,6 @@
+await 1 new alpha and 1 new beta
+ask alpha re color: What color?
+ask beta re color: What color?
+sync both
+tell alpha: Hi there
+tell beta: Goodbye

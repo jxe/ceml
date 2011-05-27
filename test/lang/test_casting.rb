@@ -19,6 +19,7 @@ class TestCasting < Test::Unit::TestCase
     assert_bad "gather 4 *runners"
     assert_bad "gather 4 run*ners"
     assert_bad "gather 4 runners*"
+    assert_bad "() gather a-b runners"
   end
 
   def test_range
@@ -72,6 +73,10 @@ class TestCasting < Test::Unit::TestCase
   def test_radius
     assert_equal 600, pcs("gather 3 runners and 5 hot_babes within 3 blocks").radius
     assert !pcs("gather 3 runners and 5 hot_babes").radius
+  end
+
+  def test_stanza
+    assert_equal 'woot', pcs("(woot)\nawait 3 runners and 5 hot_babes within 3 blocks").stanza_name
   end
 
 end

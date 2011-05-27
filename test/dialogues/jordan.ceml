@@ -1,0 +1,121 @@
+"Challenge"
+await 1 new alpha and 1 new beta
+record both name
+set both location: San Francisco, CA
+tell both: Welcome to "The Challenge!"
+ask both re play: You wanna play?
+release both unless yes
+
+tell alpha: Ok, you'll have to complete the following challenge. Let's start with something small.
+
+tell beta: Great! We'll be in touch soon.
+
+ask alpha re task: I need you to stop what you're doing, immediately go outside, and run twice around the nearest building. Can you complete this task in 15 minutes or less?
+
+release alpha unless yes
+//this will become replace in the future.
+
+assign alpha: Great! Please text the word 'done' when you're done. And remember, you only have 15 minutes!
+ask alpha: Amazing work! Now, you get a chance to issue a challenge to a stranger. You in???
+release alpha unless yes
+
+ask alpha re challenge: Ok. Text in a new challenge that can be completed from any location. Think of physical or social things that are difficult but still attainable from any location.
+tell alpha: Thanks for playing! We'll let you know when someone has completed your challenge.
+
+ask beta re do_it: Another player has issued you a challenge. |alpha.challenge| Can you complete this task in 15 minutes or less?
+release beta unless yes
+
+assign beta: Great! Please text the word 'done' when you're done. And remember, you only have 15 minutes!
+seed challenge_loop with beta as alpha, alpha as omega
+//seed challenge_loop with beta as alpha, alpha as omega
+
+
+(challenge_loop)
+await omega and alpha and beta
+record beta name
+set beta location: San Francisco, CA
+tell beta: Welcome to "The Challenge!"
+ask beta re play: You wanna play?
+release beta unless yes
+
+tell beta: Great! We'll be in touch soon.
+
+tell alpha: Amazing work! Now, you get a chance to issue a challenge to a stranger. You in???
+release alpha unless yes
+
+ask alpha re challenge: Ok. Text in a new challenge that can be completed from any location. Think of physical or social things that are difficult but still attainable from any location.
+
+ask beta re do_it: Another player has issued you a challenge. |alpha.challenge| Can you complete this task in 15 minutes or less?
+release beta unless yes
+
+assign beta: Great! Please text the word 'done' when you're done. And remember, you only have 15 minutes!
+seed challenge_loop with beta as alpha and alpha as omega and omega as beta
+//seed challenge_loop with beta as alpha and alpha as omega
+
+
+---
+
+J > Jordan
+J <
+D > Derek
+D < Welcome
+J < Welcome
+J < You wanna
+D < You wanna
+J > Yes
+D > Yes
+J < complete the following
+D < be in touch soon
+J < need you to stop
+J > Yes
+J < Please text
+J > done
+J < Amazing work
+J > Yes
+J < new challenge
+J > Do 20 pushups
+J < Thanks for playing
+D < Another player has issued
+D > Yes
+D < Please text
+D > done
+D <
+
+K > Kiley
+K < Welcome
+K < You wanna
+K > Yes
+K < Awesome!
+(20s)
+K < If you want to opt out
+
+P > Paul
+P < Welcome
+P < You wanna
+P > Yes
+P < Awesome!
+(20s)
+P < If you want to opt out
+
+D <  Amazing work
+D > Yes
+D < new challenge
+D > Wave and smile at three strangers on the street
+D < Thanks for playing
+K < Another player has issued
+K > Yes
+K < Please text
+K > done
+K <
+
+# (challenge_loop2)
+# K <  Amazing work
+# K > Yes
+# K < new challenge
+# K > Wave and smile at three strangers on the street
+# K < Thanks for playing
+# P < Another player has issued
+# P > Yes
+# P < Please text
+# P > done
+# P <

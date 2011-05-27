@@ -1,0 +1,48 @@
+await 1 new signup
+record signup first_name
+ask signup re shoeless:
+  Hello |his.first_name|. You are Level Zero. Lowly level zero.
+  To advance to Level 1, please remove a shoe. Keep it off,
+  and text back "shoeless".
+tell signup:
+  O ho! Well done |his.first_name|. Now the other players
+  know you're in the game, too. But you're still a sad Level 1.
+ask signup re game:
+  To advance to Level 2, answer this question. What was your
+  favorite game when you were 10 years old? Tell me now.
+tell signup:
+  Ah yes. |his.game| WAS an amazing game. You should try to play
+  it again--sometime this week, perhaps?
+  In the meantime you are but a mere Level 2. Let's see if we can do
+  something about that. (You still have your shoe off, right?)
+ask signup re friend:
+  While you're texting... Pick someone in your address book you
+  haven't talked to in a while. Send them an SMS
+  just to say hello. Then tell me their first name.
+tell signup:
+  That was awfully nice of you to message |his.friend|
+  Welcome to the amazing Level 3. You'll like it here. Stay awhile.
+tell signup:
+  Just kidding. Level 4 is way better than this. To get to
+  Level 4, wait for an appropriate moment in Jane's talk
+  and shout an encouraging "Amen!" Yes. Out loud.
+ask signup re amen:
+  If you're not the spiritual type, a forceful "YEAH!" will do.
+  When you've accomplished your mission, text me "amen".
+tell signup:
+  Wow. I didn't think you had it in you. No one has ever gotten to
+  Level 4 before. This is VERY exciting.
+tell signup:
+  If you get to Level 5, I'll give you a secret password. Tell it to
+  Jane, and you'll get some very fancy loot.
+ask signup re ovation:
+  All you have to do is wait until the end of Jane's talk--and try to
+  spark a standing ovation. Good luck! Text ovation afterward for your
+  password.
+tell signup:
+  You did it! You are Level 5. You are AMAZING. The conquering hero of
+  the entire audience! Now I can give you your password.
+tell signup:
+  Ask Jane to sign a copy of her book to Mr. Gamey McGameful. Of course,
+  this will only work if she saw you standing in that ovation. You were
+  standing, right?

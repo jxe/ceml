@@ -4,6 +4,7 @@ class TestScripts < Test::Unit::TestCase
 
   SCRIPTS = <<END_OF_SCRIPTS
 "Help moving |an object|" // okay?
+(stanza_title)
 gather 2-6 movers within 8 blocks
 
 "Cleaning up |a public place|"
@@ -43,14 +44,14 @@ END_OF_SCRIPTS
   def test_ceml_tell
     cs = CEML.parse(:script, "tell agents: run and jump")
     assert cs.roles.include? :agents
-    assert_equal "run and jump", cs.instructions.tell([:agents]).text
+    assert_equal "run and jump", cs.simple_message
     assert cs.concludes_immediately?
     assert !cs.title
   end
 
   def test_ceml_questions
     s = CEML.parse(:script, "ask agents: wassup party people?")
-    assert_equal "wassup party people?", s.instructions.asks([:agents]).first.text
+    assert_equal "wassup party people?", s.simple_question
     assert !s.concludes_immediately?
   end
 

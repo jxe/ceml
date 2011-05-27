@@ -1,0 +1,29 @@
+module CEML
+grammar Casting
+    include Lexer
+
+    rule casting_statement
+      stanza_marker:stanza_marker? ('gather' / 'await' / 'nab' / 'accept') ws roles modifiers:modifier_phrase* <CastingStatement>
+    end
+
+    rule stanza_marker
+      '(' name:id ')' nl
+    end
+
+    rule modifier_phrase
+      over_phrase / within_phrase / with_matching_phrase
+    end
+
+    rule over_phrase
+        ws 'over' ws duration
+    end
+
+    rule within_phrase
+        ws 'within' ws distance
+    end
+
+    rule with_matching_phrase
+        ws 'with' ws 'matching' ws thing:id
+    end
+end
+end

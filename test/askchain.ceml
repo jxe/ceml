@@ -1,0 +1,6 @@
+"Meet your neighbor"
+gather 2 players within 1 block
+ask players re color: what's your favorite color?
+ask players re observation: find someone near you with the color |somebody.color|. what are they wearing?
+ask players re rightmatch: are you wearing |somebody.observation|?
+ask players re task: take your new partner and see if you can find something beautiful in the park.

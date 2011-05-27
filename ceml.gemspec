@@ -35,8 +35,36 @@ Gem::Specification.new do |s|
      "guide/guide.pdf",
      "lib/ceml.rb",
      "lib/ceml/driver.rb",
+     "lib/ceml/lang.rb",
+     "lib/ceml/lang/casting_statement.rb",
+     "lib/ceml/lang/instruction_statements.rb",
+     "lib/ceml/lang/script.rb",
+     "lib/ceml/lang/tt/casting.rb",
+     "lib/ceml/lang/tt/casting.treetop",
+     "lib/ceml/lang/tt/instructions.rb",
+     "lib/ceml/lang/tt/instructions.treetop",
+     "lib/ceml/lang/tt/lexer.rb",
+     "lib/ceml/lang/tt/lexer.treetop",
+     "lib/ceml/lang/tt/scripts.rb",
+     "lib/ceml/lang/tt/scripts.treetop",
+     "lib/ceml/models.rb",
+     "lib/ceml/models/audition.rb",
+     "lib/ceml/models/bundle.rb",
+     "lib/ceml/models/cast.rb",
+     "lib/ceml/models/castable.rb",
+     "lib/ceml/models/incident.rb",
+     "lib/ceml/models/incident_model.rb",
+     "lib/ceml/models/incident_role_slot.rb",
+     "lib/ceml/models/player.rb",
+     "lib/ceml/models/queue.rb",
+     "lib/ceml/models/waiting_room.rb",
+     "lib/ceml/processor.rb",
      "test/helper.rb",
+     "test/test_castable.rb",
+     "test/test_casting.rb",
      "test/test_incident.rb",
+     "test/test_instructions.rb",
+     "test/test_scripts.rb",
      "try"
   ]
   s.homepage = %q{http://github.com/citizenlogistics/ceml}
@@ -46,13 +74,11 @@ Gem::Specification.new do |s|
   s.summary = %q{a language for coordinating real world events}
   s.test_files = [
     "test/helper.rb",
-     "test/lang/test_casting.rb",
-     "test/lang/test_instructions.rb",
-     "test/lang/test_scripts.rb",
-     "test/test_basic_seed.rb",
      "test/test_castable.rb",
-     "test/test_dialogues.rb",
-     "test/test_incident.rb"
+     "test/test_casting.rb",
+     "test/test_incident.rb",
+     "test/test_instructions.rb",
+     "test/test_scripts.rb"
   ]
 
   if s.respond_to? :specification_version then

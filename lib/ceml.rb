@@ -1,30 +1,23 @@
 require 'forwardable'
-require 'treetop'
 
-require 'ceml/script'
-require 'ceml/casting_statement'
-require 'ceml/instruction_statements'
-require 'ceml/tt/lexer'
-require 'ceml/tt/casting'
-require 'ceml/tt/instructions'
-require 'ceml/tt/scripts'
-
-require 'ceml/role'
-require 'ceml/confluence'
-require 'ceml/incident'
-require 'ceml/driver'
+require 'ceml/models'
+require 'ceml/lang'
+require 'ceml/processor'
 
 module CEML
   extend self
   @extra_seconds = 0
   def clock; Time.now.utc.to_i + @extra_seconds; end
   def incr_clock(s); @extra_seconds += s; end
+  def dur(n, unit)
+    n * case unit
+    when /^h/; 60*60; when /^mi/; 60; else 1; end
+  end
 end
 
 module CEML
   def parse(what, string)
     string = string.dup
-    string.gsub!(/\n +/, ' ')
     what = case what
     when :script then :free_script
     when :scripts then :free_scripts

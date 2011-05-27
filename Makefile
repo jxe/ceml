@@ -1,5 +1,5 @@
 ceml:
-	tt lib/ceml/tt/*.treetop
+	tt lib/ceml/lang/tt/*.treetop
 
 test:
 	testrb test

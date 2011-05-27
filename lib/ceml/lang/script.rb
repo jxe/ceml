@@ -6,9 +6,10 @@ module CEML
     # = casting =
     # ===========
 
-    def roles_to_cast
-      return [] unless cast.type == :await
-      return cast.roles_to_cast(self)
+    def castable
+      return nil unless cast.live_casting?
+      args = cast.casting_spec + [bytecode]
+      Castable.new(*args)
     end
 
     def nabs?
@@ -66,7 +67,7 @@ module CEML
     DefaultDP = Struct.new :radius, :rolenames, :max, :type
 
     def cast
-      return casting_statement if respond_to? :casting_statement
+      return elements.first.casting_statement if elements.first.respond_to? :casting_statement
       return DefaultDP.new nil, [:agents], 0, :gather
     end
 
@@ -87,7 +88,7 @@ module CEML
     end
 
     def allowed_roles
-      allowed_roles = [:organizer, :agents, :both, :all, :everyone, :each, :players]
+      allowed_roles = [:organizer, :agents, :both, :all, :everyone, :each, :players, :them, :either]
       allowed_roles += cast.rolenames
       allowed_roles.uniq
     end
@@ -98,44 +99,42 @@ module CEML
     # ================
 
     def instructions
-      return self if Instructions === self
-      return super if defined?(super)
-      nil
+      elements.first.instructions if elements.first.respond_to? :instructions
+      # return self if Instructions === self
+      # return super if defined?(super)
+      # nil
     end
 
-    def instructions_for(roles)
-      return [] unless instructions
-      return instructions.for(expand_roles(roles))
+    def title
+      elements.first.title.title_value if elements.first.respond_to? :title
+      # if defined?(super)
+      #   super.title_value
+      # elsif respond_to? :title_value
+      #   self.title_value
+      # else nil
+      # end
     end
+
 
     def bytecode
       code = [[[:all], :start]]
+      # puts "instructions: #{instructions.inspect}"
       if !instructions and title
         code.concat [[[:all], :null_assign], [[:all], :complete_assign]]
       elsif instructions
-        instructions.list.each{ |inst| code.concat inst.bytecode } if instructions
+        code.concat(instructions.bytecode.flatten(1))
       end
       code << [[:all], :finish]
       code
     end
 
-    def asks(roles)
-      return [] unless instructions
-      instructions.i_asks([*roles])
-    end
-
-    def tell(roles)
-      return unless instructions
-      instructions.i_tell([*roles])
-    end
-
     def validate!
-      return unless instructions
-      instructions.validate_instructions!(allowed_roles)
+      # return unless instructions
+      # instructions.validate_instructions!(allowed_roles)
     end
 
     def concludes_immediately?
-      !title and instructions.asks([:agents]).empty?
+      !title and bytecode.none?{ |line| [:assign, :ask_q].include?(line[1]) }
     end
 
 
@@ -151,31 +150,42 @@ module CEML
       text_value
     end
 
-    def title
-      if defined?(super)
-        super.title_value
-      elsif respond_to? :title_value
-        self.title_value
-      else nil
-      end
-    end
-
     def name
       title || label
     end
 
     def params
-      asks(:organizer).map do |ask|
-        [ask.var, ask.var.capitalize, ask.text]
-      end
+      bytecode.map do |line|
+        next unless line[0].include?(:organizer)
+        next unless line[1] == :ask_q
+        [line[2][:q], line[2][:q].capitalize, line[2][:text]]
+      end.compact
     end
 
     def type
       return 'mission'  if title
       return 'unknown'  if instructions.empty?
-      return 'question' if not instructions.asks(:agents).empty?
-      return 'message'  if instructions.tell(:agents)
+      return 'question' if simple_question
+      return 'message'  if simple_message
       return 'unknown'
+    end
+
+    def simple_message
+      # puts "bytecode size: #{bytecode.size}"
+      # p bytecode
+      return unless bytecode.size == 3
+      # puts "bytecode core: #{bytecode[1][1]}"
+      return unless bytecode[1][1] == :send_msg
+      return bytecode[1][2][:text]
+    end
+
+    def simple_question
+      # puts "bytecode size: #{bytecode.size}"
+      # p bytecode
+      return unless bytecode.size == 4
+      # puts "bytecode core: #{bytecode[1][1]}"
+      return unless bytecode[1][1] == :ask_q
+      return bytecode[1][2][:text]
     end
 
     def message?
@@ -185,10 +195,10 @@ module CEML
     def label
       return title || begin
         return "unknown" unless simple?
-        if q = instructions.asks(:agents).first
-          "Question: #{q.text}"
-        elsif tell = instructions.tell(:agents)
-          "Message: #{tell}" if tell
+        if simple_question
+          "Question: #{simple_question}"
+        elsif simple_message
+          "Message: #{simple_message}"
         else
           "unknown"
         end

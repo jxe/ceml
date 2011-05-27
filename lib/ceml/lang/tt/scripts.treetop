@@ -27,8 +27,8 @@ grammar Scripts
         casting_statement nl instructions /
         title nl casting_statement /
         instructions /
-        title
-    ) <Script>
+        title ''
+    ) '' <Script>
   end
 
   rule title

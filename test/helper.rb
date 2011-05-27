@@ -1,67 +1,72 @@
 require 'rubygems'
 require 'test/unit'
 
+SCRIPTS = {}
+Dir["test/*.ceml"].each do |f|
+  name = File.basename(f, '.ceml')
+  SCRIPTS[name] = File.new(f).read
+end
+
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'ceml'
 
 class Test::Unit::TestCase
-  DRIVER = CEML::Driver.new
-
   def play script = nil
-    @iid = script && DRIVER.start(nil, script)
+    if String === script
+      script = CEML.parse(:script, script)
+    end
+    if script
+      @iid = gen_code
+      puts "launching w. bytecode #{script.bytecode.inspect}"
+      CEML::Processor.launch(@iid, script.bytecode)
+      CEML::Processor.run
+    end
     yield
-    CEML::Driver::JUST_SAID.clear
-    CEML::Driver::PLAYERS.clear
-    CEML::Driver::INCIDENTS.clear
+    CEML::Processor::JUST_SAID.clear
   end
 
-  def scriptfam *scripts
-    fam_id = gen_code
-    scripts.each do |script|
-      script = CEML.parse(:script, script) if String === script
-      DRIVER.add_script fam_id, script
-    end
-    fam_id
+  def scriptfam scripts
+    CEML.parse(:scripts, scripts).map(&:castable)
   end
 
   def ping s, candidate
-    DRIVER.ping_all s, candidate
+    CEML::Processor.set_bundle(s.hash.to_s, s)
+    CEML::Processor.ping(s.hash.to_s, candidate)
+    CEML::Processor.run
   end
 
   def says id, str
-    iid = CEML::Driver::INCIDENTS.keys.find do |iid|
-      CEML::Driver::PLAYERS[iid].find{ |p| p[:id] == id }
-    end
-    if str == 'y'
-      DRIVER.post iid, :id => id, :received => str, :recognized => :yes
-    else
-      DRIVER.post iid, :id => id, :received => str
-    end
-  end
-
-  def player id, *roles
-    DRIVER.post @iid, :id => id, :roles => roles
-  end
-
-  def roll
-    DRIVER.post @iid
-  end
-
-  def asked id, rx
-    assert p = CEML::Driver::JUST_SAID[id]
-    assert_equal :ask, p[:said]
-    assert_match rx, p[:q]
-    CEML::Driver::JUST_SAID.delete id
+    player = {:id => id.to_s, :received => str}
+    player[:recognized] = :yes if str.downcase == 'y' || str.downcase == 'yes'
+    player[:recognized] = :abort if str == 'abort'
+    puts "SAYING(#{id}): #{str}"
+    CEML::Processor.ping(nil, player)
+    CEML::Processor.run
   end
 
   def silent id
-    assert !CEML::Driver::JUST_SAID[id]
+    id = id.to_s
+    p = CEML::Processor::JUST_SAID[id]
+    assert !p || p.empty?
   end
 
   def told id, rx
-    assert p = CEML::Driver::JUST_SAID[id]
-    assert_match rx, p[:msg]
-    CEML::Driver::JUST_SAID.delete id
+    id = id.to_s
+    assert CEML::Processor::JUST_SAID[id]
+    assert p = CEML::Processor::JUST_SAID[id].shift
+    assert_match rx, p[:msg] || p[:q]
+  end
+  alias_method :asked, :told
+
+  def player id, role
+    CEML::Player.new(id.to_s).clear_answers
+    CEML::Processor.add_cast(@iid, { role => [{ :id => id.to_s }]})
+    CEML::Processor.run
+  end
+
+  def roll
+    CEML::Processor.run_latest
+    CEML::Processor.run
   end
 end

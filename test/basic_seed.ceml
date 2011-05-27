@@ -1,0 +1,9 @@
+await 1 new signup
+ask signup re boots: Do you like boots?
+tell signup: ok, seeding you now
+seed match with signup
+
+(match)
+await 1 alpha and 1 beta
+tell alpha: you're alpha
+tell beta: you're beta

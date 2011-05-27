@@ -21,29 +21,50 @@ module CEML
     end
 
     def rolematch(specified_roles)
-      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone])
-      not (expanded & specified_roles).empty?
+      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone, :them, :either])
+      not (expanded & [*specified_roles]).empty?
     end
+
+    def log state
+      p = @this
+      instr = seq[pc]
+      guyroles = roles.to_a - [:everyone, :players, :them, :all, :either, :each, :agents, :both]
+      instr ||= []
+
+      puts "[#{id}] #{p[:id]}(#{guyroles}) ##{pc} #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect}"
+    end
+
 
     def run(players, &blk)
       @players = players
       @callback = blk
 
       loop do
-        players = @players.select{ |p| !p[:released] }
-        # puts "playing with #{players.map{|p|p[:id]}}"
+        players = @players
         advanced = false
         players.each do |p|
           @this = p
-          # puts "trying #{@this[:id]}"
-          next unless instr = seq[pc]
+          instr = seq[pc]
+          unless instr = seq[pc]
+            log 'off schedule'
+            @players.delete(p)
+            cb :released
+            next
+          end
           instr = instr.dup
-          if not rolematch(instr.shift)
+          rolespec = instr.shift
+          if not rolematch(rolespec)
+            log "skipping[#{rolespec}]"
             this[:pc]+=1
             advanced = true
           else
             instr << role_info if instr.first == :start  #tmp hack
-            next unless send(*instr)
+            if send(*instr)
+              log 'completed'
+            else
+              log 'blocked'
+              next
+            end
             cb(*instr)
             this[:pc]+=1
             advanced = true
@@ -67,17 +88,22 @@ module CEML
       end
     end
 
+    def players_with_role(role)
+      if role
+        @players.select{ |p| p[:roles].include? role }
+      else
+        @players.reject{ |p| p == this }
+      end
+    end
 
     def expand(role, var)
       case role
-      when 'his', 'her', 'their', 'my', 'its';    return qs_answers[var]
+      when 'his', 'her', 'their', 'my', 'its', 'your';    return qs_answers[var]
       when 'world', 'game', 'exercise', 'group';  return (cb :world, var)
       when 'somebody', 'someone', 'buddy', 'teammate';  role = nil
       end
       role = role.to_sym if role
-      @players.each do |p|
-        next if p == this
-        next if role and not p[:roles].include? role
+      players_with_role(role).each do |p|
         value = (p[:qs_answers]||{})[var] and return value
       end
       nil
@@ -102,6 +128,16 @@ module CEML
       cb :said, params.merge(:said => x)
     end
 
+    def seed x
+      x[:rolemap].each do |pair|
+        if rolematch(pair[:from].to_sym)
+          cb :seeded, :target => x[:target], :role => pair[:to]
+          break
+        end
+      end
+      true
+    end
+
     def start(x); true; end
     def finish; true; end
 
@@ -116,9 +152,9 @@ module CEML
       true
     end
 
-    def sync
+    def sync q
       this[:synced] = pc
-      return true if @players.all?{ |p| p[:synced] == pc }
+      return true if players_with_role(q[:role]).all?{ |p| p[:synced] == pc }
     end
 
     def ask_q q
@@ -138,6 +174,12 @@ module CEML
 
     def set q
       qs_answers[q[:key]] = q[:value]
+      true
+    end
+
+    def pick q
+      choices = q[:value].split(/\s+\-\s+/)
+      qs_answers[q[:key]] ||= choices.sort_by{ rand }.first
       true
     end
 
@@ -180,8 +222,14 @@ module CEML
 
     def release x
       return true if x[:cond] and not expectation(*x[:cond])
-      this[:released] = x[:tag]
+      @players.delete(this)
       cb :released, x[:tag]
+      true
+    end
+
+    def replace x
+      return true if x[:cond] and not expectation(*x[:cond])
+      # TODO: implement replace
       false
     end
 
