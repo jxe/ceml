@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ceml}
-  s.version = "0.8.0"
+  s.version = "0.9.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Edelman"]
-  s.date = %q{2011-05-27}
+  s.date = %q{2011-06-07}
   s.description = %q{a language for coordinating real world events}
   s.email = %q{joe@citizenlogistics.com}
   s.extra_rdoc_files = [
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "ceml.gemspec",
+    "cemltest",
     "editors/CEML.tmbundle/Syntaxes/ceml.tmLanguage",
     "editors/CEML.tmbundle/info.plist",
     "examples/breakfast-exchange.ceml",
@@ -48,10 +49,11 @@ Gem::Specification.new do |s|
     "lib/ceml/lang/tt/scripts.rb",
     "lib/ceml/lang/tt/scripts.treetop",
     "lib/ceml/models.rb",
-    "lib/ceml/models/audition.rb",
     "lib/ceml/models/bundle.rb",
     "lib/ceml/models/cast.rb",
     "lib/ceml/models/castable.rb",
+    "lib/ceml/models/casting_pool.rb",
+    "lib/ceml/models/casting_tokens.rb",
     "lib/ceml/models/incident.rb",
     "lib/ceml/models/incident_model.rb",
     "lib/ceml/models/incident_role_slot.rb",
@@ -59,6 +61,7 @@ Gem::Specification.new do |s|
     "lib/ceml/models/queue.rb",
     "lib/ceml/models/waiting_room.rb",
     "lib/ceml/processor.rb",
+    "lib/ceml/recognizer.rb",
     "test/askchain.ceml",
     "test/compliment.ceml",
     "test/dialogues/accept.ceml",
