@@ -81,41 +81,43 @@ D < Please text
 D > done
 D <
 
-// K > Kiley
-// K < Welcome
-// K < You wanna
-// K > Yes
-// K < Awesome!
-// (20s)
-// K < If you want to opt out
-//
-// P > Paul
-// P < Welcome
-// P < You wanna
-// P > Yes
-// P < Awesome!
-// (20s)
-// P < If you want to opt out
-//
-// D <  Amazing work
-// D > Yes
-// D < new challenge
-// D > Wave and smile at three strangers on the street
-// D < Thanks for playing
-// K < Another player has issued
-// K > Yes
-// K < Please text
-// K > done
-// K <
-//
-// # (challenge_loop2)
-// # K <  Amazing work
-// # K > Yes
-// # K < new challenge
-// # K > Wave and smile at three strangers on the street
-// # K < Thanks for playing
-// # P < Another player has issued
-// # P > Yes
-// # P < Please text
-// # P > done
-// # P <
+K > Kiley
+
+P > Paul
+P < Welcome
+P < You wanna
+P > Yes
+
+# P < Awesome!
+# (20s)
+# P < If you want to opt out
+#
+# K < Welcome
+# K < You wanna
+# K > Yes
+# K < Awesome!
+# (20s)
+# K < If you want to opt out
+#
+# D <  Amazing work
+# D > Yes
+# D < new challenge
+# D > Wave and smile at three strangers on the street
+# D < Thanks for playing
+# K < Another player has issued
+# K > Yes
+# K < Please text
+# K > done
+# K <
+#
+# (challenge_loop2)
+# K <  Amazing work
+# K > Yes
+# K < new challenge
+# K > Wave and smile at three strangers on the street
+# K < Thanks for playing
+# P < Another player has issued
+# P > Yes
+# P < Please text
+# P > done
+# P <

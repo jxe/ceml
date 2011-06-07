@@ -31,13 +31,14 @@ module CEML
       guyroles = roles.to_a - [:everyone, :players, :them, :all, :either, :each, :agents, :both]
       instr ||= []
 
-      puts "[#{id}] #{p[:id]}(#{guyroles}) ##{pc} #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect}"
+      # CEML.log 3, "#{p[:id]}: #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect} -- #{id}##{pc}(#{guyroles})"
     end
-
 
     def run(players, &blk)
       @players = players
       @callback = blk
+      was_blocked = {}
+      # CEML.log 1, "running players: #{players.inspect}"
 
       loop do
         players = @players
@@ -45,24 +46,25 @@ module CEML
         players.each do |p|
           @this = p
           instr = seq[pc]
+          # log "running: #{pc}: #{instr.inspect}"
           unless instr = seq[pc]
-            log 'off schedule'
             @players.delete(p)
-            cb :released
             next
           end
           instr = instr.dup
           rolespec = instr.shift
           if not rolematch(rolespec)
-            log "skipping[#{rolespec}]"
+            # log "skipping[#{rolespec}]"
             this[:pc]+=1
             advanced = true
           else
             instr << role_info if instr.first == :start  #tmp hack
             if send(*instr)
               log 'completed'
+              was_blocked[p] = false
             else
-              log 'blocked'
+              log 'blocked' unless was_blocked[p]
+              was_blocked[p] = true
               next
             end
             cb(*instr)

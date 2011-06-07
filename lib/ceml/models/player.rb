@@ -6,15 +6,18 @@ module CEML
     value :message, :marshal => true
     sorted_set :current_incidents
 
-    def touch(incident_id)
-      current_incidents[incident_id] = Time.now.to_i
-    end
-
     def reset
-      Audition.new(id).clear_from_all_rooms
       data.clear
       message.clear
       current_incidents.clear
+    end
+
+    # =============
+    # = incidents =
+    # =============
+
+    def touch(incident_id)
+      current_incidents[incident_id] = Time.now.to_i
     end
 
     def top_incident_id
@@ -30,6 +33,11 @@ module CEML
     def clear_incident(id)
       current_incidents.delete(id)
     end
+
+
+    # ========
+    # = data =
+    # ========
 
     def self.update bundle_id, player, cb_obj, &blk
       player[:bundle_id] = player[:squad_id] = bundle_id
@@ -69,7 +77,7 @@ module CEML
       new_message, player = split(player)
       merge_new_player_data(player)
       cmd = new_message[:recognized]
-      if cmd and cb_obj.recognize_override(cmd, new_message, player, self)
+      if cmd and cb_obj and cb_obj.recognize_override(cmd, new_message, player, self)
         message.delete
       else
         message.value = new_message

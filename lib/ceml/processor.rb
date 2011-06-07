@@ -15,6 +15,7 @@ module CEML
 
     def set_bundle(id, castables)
       # log "set_bundle(): #{id}, #{castables.inspect}"
+      castables.each{ |c| c.bundle_id = id }
       Bundle.new(id).castables = castables
     end
 
@@ -62,7 +63,7 @@ module CEML
     end
 
     def reset_player(bundle_id, player_id)
-      Player.new(player_id).reset
+      Bundle.new(bundle_id).reset_player(player_id)
     end
 
     # =============
@@ -70,9 +71,10 @@ module CEML
     # =============
 
     def simple_audition(bundle_id, player)
-      log "audition(): #{bundle_id}, #{player[:id]}"
+      # log "audition(): #{bundle_id}, #{player[:id]}"
       b = Bundle.new(bundle_id)
-      b.clear_from_all_rooms(player)
+      b.clear_from_all_rooms(player[:id])
+
       if incident_id = b.absorb?(player)
         IncidentModel.new(incident_id).run(self)
         return true
@@ -82,13 +84,20 @@ module CEML
     end
 
     def seed(bundle_id, stanza_name, player)
-      log "seed(): #{bundle_id}, #{stanza_name}, #{player[:id]}"
+      # log "seed(): #{bundle_id}, #{stanza_name}, #{player[:id]}"
+      player[:tags].delete('new')
+      Player.new(player[:id]).merge_new_player_data(player)
+
+      # CEML.log 1, "UPDATED"
+
       b = Bundle.new(bundle_id)
       if incident_id = b.absorb?(player, stanza_name)
         IncidentModel.new(incident_id).run(self)
-        return true
+        true
+      else
+        b.register_in_rooms(player, stanza_name)
+        false
       end
-      b.register_in_rooms(player, stanza_name)
     end
 
     # =============
@@ -107,16 +116,16 @@ module CEML
       if incident
         incident.release(player_obj.id)
         unlatch(player[:squad_id], player[:id], incident.id)
-        player_obj.reset
+        reset_player(player[:squad_id], player[:id])
         tell(player[:squad_id], player[:id], :message, :msg => 'aborted')
       else
-        player_obj.reset
+        reset_player(player[:squad_id], player[:id])
         tell(player[:squad_id], player[:id], :message, :msg => 'nothing to abort from')
       end
     end
 
     def log(s)
-      puts s
+      CEML.log 1, s
     end
 
     def player_said(data, what)
@@ -127,11 +136,8 @@ module CEML
       #no op
     end
 
-    JUST_SAID = {}
     def tell(sqid, player_id, key, meta)
-      JUST_SAID[player_id] ||= []
-      JUST_SAID[player_id] << meta.merge(:key => key)
-      # puts "Said #{key} #{meta.inspect}"
+      CEML.tells[player_id] << meta.merge(:key => key) if CEML.tells
     end
 
     def player_answered_q(data, what)
@@ -142,8 +148,8 @@ module CEML
     def player_seeded(data, what)
       p = data[:player].dup
       p.delete(:roles)
-      p[:seeded] = "#{what[:target]}:#{what[:role]}"
-      puts "SEEDED #{p[:id]} AS #{what[:target]}:#{what[:role]}"
+      p[:seeded] = "#{p[:bundle_id]}:#{what[:target]}:#{what[:role]}"
+      CEML.log 3, "#{p[:id]}: seeded as #{p[:seeded]}"
 
       self.class.seed(p[:bundle_id], what[:target], p)
     end

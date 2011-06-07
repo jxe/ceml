@@ -102,6 +102,7 @@ module CEML
 
   class Tagspec < Struct.new :with, :without
     def =~(c)
+      return false if (c[:tags]||[]).include?('new') and not with.include?('new')
       with.all?{ |t| (c[:tags]||[]).include?(t) } and without.all?{ |t| !(c[:tags]||[]).include?(t) }
     end
   end

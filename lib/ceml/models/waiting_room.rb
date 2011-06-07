@@ -5,18 +5,11 @@ module CEML
     set :waiting_auditions
     set :waiting_incident_roles
 
-    def clear
-      waiting_auditions.each do |audition_id|
-        Audition.new(audition_id).clear_from_all_rooms(id)
-      end
-      waiting_incident_roles.clear
-    end
-
     def audition_for_incidents(player)
-      # puts "auditioning #{player[:id]} for incidents in room #{id}"
-      waiting_incident_roles.members.each do |key|
+      reorder = waiting_incident_roles.members.sort_by{ |irs| irs.split(':')[1] }
+      reorder.each do |key|
         incident_id, idx, role, count = *key.split(':')
-        # puts "checking against #{incident_id}: #{role}"
+        CEML.log 3, "#{player[:id]}: auditioning against #{incident_id}: #{role}"
         count = count.to_i
         role_slot = IncidentRoleSlot.new(incident_id, role, count)
         next unless role_slot.reserve_spot!
@@ -29,11 +22,6 @@ module CEML
 
     def list_job(incident_id, idx, rolename, count)
       waiting_incident_roles << [incident_id, idx, rolename, count].join(':')
-    end
-
-    def add(audition_id)
-      puts "adding #{audition_id} to waiting room #{id.inspect}"
-      waiting_auditions << audition_id
     end
   end
 

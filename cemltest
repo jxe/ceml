@@ -1,0 +1,15 @@
+#! /usr/bin/env ruby
+require 'rubygems'
+require 'ceml'
+
+f = ARGV.shift
+name = File.basename(f, '.ceml')
+err, log = CEML.test(File.new(f).read)
+if !err
+  puts "PASS cemltest #{name}.  logged #{log.split("\n").size} lines"
+elsif RuntimeError === err
+  puts log
+  raise "ERROR with cemltest #{name}: #{err.message}!"
+else
+  raise err
+end

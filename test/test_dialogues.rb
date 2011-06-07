@@ -8,51 +8,20 @@ class TestCemlTests < Test::Unit::TestCase
     CEML::Queue.new.calls.clear
   end
 
-  def test_cemltests
-    Dir["test/dialogues/*.ceml"].each do |f|
-      name = File.basename(f, '.ceml')
-      test    = File.new(f).read
-      scripts, test = test.split("\n---\n")
-
-      puts "Running cemltest #{name}..."
-
-      s = CEML.parse(:scripts, scripts).map(&:castable)
-      bundle_id = s.hash.to_s
-      CEML::Processor.set_bundle(bundle_id, s)
-      CEML::Processor.reset_bundle(bundle_id)
-      pl = Set.new
-      play do
-        test.each_line do |line|
-          puts ">>>> #{line}"
-          case line.strip
-          when /^(\w+) *< *(.*)$/
-            if $2.empty?
-              silent $1
-            else
-              told $1, /#{$2}/
-            end
-          when /^(\w+) *> *(.*)$/
-            player_id, msg = $1, $2
-            player = {:id => player_id, :received => msg }
-            if !pl.include?(player_id)
-              player[:tags] = ['new']
-              pl << player_id
-            end
-            player[:recognized] = :yes if msg == 'y' || msg =~ /^yes/i
-            player[:recognized] = :abort if msg == 'abort'
-            player[:recognized] = :done if msg =~ /^done/i || msg == 'd'
-            CEML::Processor.ping(bundle_id, player)
-            CEML::Processor.run
-          when /^\((\d+)\s*(\w+)\)$/
-            CEML.incr_clock CEML.dur($1.to_i, $2)
-            CEML::Processor.run_latest
-            CEML::Processor.run
-          when /^#/
-          else "Skipping line #{line}..."
-          end
-        end
-      end
+  def run_cemltest f
+    name = File.basename(f, '.ceml')
+    err, log = CEML.test(File.new(f).read)
+    if !err
+      puts "PASS cemltest #{name}.  logged #{log.split("\n").size} lines"
+    elsif RuntimeError === err
+      puts log
+      raise "ERROR with cemltest #{name}: #{err.message}!"
+    else
+      raise err
     end
   end
 
+  def test_cemltests
+    Dir["test/dialogues/*.ceml"].each{ |f| run_cemltest(f) }
+  end
 end

@@ -20,13 +20,13 @@ module CEML
         folks.each do |player|
           Player.new(player[:id]).touch(id)
           player_roles[player[:id]] = [rolename.to_sym]
-          puts "ADDED(#{id}) #{player[:id]} = #{rolename.to_sym}"
+          CEML.log 3, "#{player[:id]}: added as #{rolename.to_sym} (#{id})"
         end
       end
     end
 
     def release(player_id)
-      puts "Releasing player #{player_id} from incident #{id}"
+      CEML.log 3, "#{player_id}: releasing from incident #{id}"
       Player.new(player_id).clear_incident(id)
       player_roles.delete(player_id)
     end
@@ -51,17 +51,17 @@ module CEML
         metadata, player_data = *data.value
         metadata    ||= { :id => id }
         player_data ||= {}
-        puts "[#{id}] Player data loaded: #{player_data.inspect}"
         players = []
 
-        puts "[#{id}] Player roles: #{player_roles.all.inspect}"
+        CEML.log 3, ">>> #{player_roles.all.inspect} (#{id})"
         player_roles.each do |player_id, roles|
-          puts "#{id}: #{player_id.inspect} => #{roles.inspect}, #{player_data[player_id].inspect}"
+          CEML.log 3, "#{player_id}: casted as #{roles.inspect} -- #{id}: #{player_data[player_id].inspect}"
           player = { :id => player_id, :roles => Set.new(roles) }
           player[:roles] << :agents << :players << :both << :all << :each << :everyone << :them << :either
           player.merge! player_data[player_id] if player_data[player_id]
           p = Player.new(player_id)
           stored_player = p.data.value
+          PLAYER_THREAD_FIELDS.each{ |x| stored_player.delete x }
           msg = p.message.value
           player.merge! msg if msg
           player.merge! stored_player if stored_player
@@ -86,8 +86,9 @@ module CEML
         players.each do |p|
           Player.new(p[:id]).message.value = p.like(:received, :recognized, :situation)
           player_data[p[:id]] = p.like *PLAYER_THREAD_FIELDS
+          # PLAYER_THREAD_FIELDS.each{ |x| p.delete x }
         end
-        puts "Player data saving: #{player_data.inspect}"
+        # CEML.log 1, "Player data saving: #{player_data.inspect}"
         data.value = [metadata, player_data]
 
         if next_run = players.map{ |p| p[:continue_at] }.compact.min

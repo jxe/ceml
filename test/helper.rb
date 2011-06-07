@@ -18,7 +18,7 @@ class Test::Unit::TestCase
     end
     if script
       @iid = gen_code
-      puts "launching w. bytecode #{script.bytecode.inspect}"
+      # puts "launching w. bytecode #{script.bytecode.inspect}"
       CEML::Processor.launch(@iid, script.bytecode)
       CEML::Processor.run
     end
@@ -40,7 +40,7 @@ class Test::Unit::TestCase
     player = {:id => id.to_s, :received => str}
     player[:recognized] = :yes if str.downcase == 'y' || str.downcase == 'yes'
     player[:recognized] = :abort if str == 'abort'
-    puts "SAYING(#{id}): #{str}"
+    # puts "SAYING(#{id}): #{str}"
     CEML::Processor.ping(nil, player)
     CEML::Processor.run
   end
