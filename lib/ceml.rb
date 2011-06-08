@@ -7,6 +7,8 @@ require 'ceml/processor'
 require 'stringio'
 
 module CEML
+  GENERIC_ROLES = [:agents, :agent, :players, :both, :all, :each, :everyone, :them, :either]
+
   extend self
   @extra_seconds = 0
   @log_io = STDERR

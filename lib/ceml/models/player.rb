@@ -66,14 +66,14 @@ module CEML
         old_value = data.value || {}
         new_value = old_value.merge player
         new_value[:qs_answers] = (old_value[:qs_answers]||{}).merge(player[:qs_answers] || {})
-        # puts "SAVING DATA: #{new_value.inspect}"
+        # CEML.log 1, "SAVING DATA: #{new_value.inspect}"
         data.value = new_value
       end
     end
 
-    def update player, cb_obj
+    def update player, cb_obj = nil
       player = player.dup
-      # puts "UPDATING player id #{id} with #{player.inspect}"
+      # CEML.log 1, "UPDATING player id #{id} with #{player.inspect}"
       new_message, player = split(player)
       merge_new_player_data(player)
       cmd = new_message[:recognized]

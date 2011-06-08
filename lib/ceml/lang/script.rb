@@ -84,11 +84,11 @@ module CEML
     end
 
     def expand_roles(roles)
-      roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone])
+      roles.flatten.concat(GENERIC_ROLES)
     end
 
     def allowed_roles
-      allowed_roles = [:organizer, :agents, :both, :all, :everyone, :each, :players, :them, :either]
+      allowed_roles = GENERIC_ROLES
       allowed_roles += cast.rolenames
       allowed_roles.uniq
     end

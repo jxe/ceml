@@ -21,24 +21,25 @@ module CEML
     end
 
     def rolematch(specified_roles)
-      expanded = roles.map{ |r| r == :agent ? [:agent, :agents] : r }.flatten.concat([:both, :all, :everyone, :them, :either])
+      expanded = roles.to_a.concat(GENERIC_ROLES)
       not (expanded & [*specified_roles]).empty?
     end
 
     def log state
       p = @this
       instr = seq[pc]
-      guyroles = roles.to_a - [:everyone, :players, :them, :all, :either, :each, :agents, :both]
+      guyroles = roles.to_a - GENERIC_ROLES
       instr ||= []
 
       case state
       when 'completed'
-        CEML.log 3, "#{p[:id]}: #{instr[1]} (#{pc}) #{instr[2].inspect} (#{guyroles}/#{instr[0]}) ##{id}"
+        CEML.log 3, "#{p[:id]}: #{instr[1]}(#{pc}) #{guyroles}/#{instr[0]} ##{id}"
       when 'blocked'
-        CEML.log 3, "#{p[:id]}: WAITING FOR #{instr[1]} (#{pc}) #{instr[2].inspect} (#{guyroles}/#{instr[0]}) ##{id}"
+        CEML.log 3, "#{p[:id]}: WAITING FOR #{instr[1]}(#{pc}) #{guyroles}/#{instr[0]} ##{id}"
       else
-        CEML.log 3, "#{p[:id]}: #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect} -- ##{pc}(#{guyroles}) ##{id}"
+        CEML.log 3, "#{p[:id]}: #{state} #{instr[1]}/#{instr[0]} -- ##{pc}(#{guyroles}) ##{id}"
       end
+      CEML.log 3, "      #{instr[2].inspect}"  if instr[2] and !instr[2].empty?
     end
 
     def run(players, &blk)
