@@ -86,7 +86,7 @@ module CEML
     def seed(bundle_id, stanza_name, player)
       # log "seed(): #{bundle_id}, #{stanza_name}, #{player[:id]}"
       player[:tags].delete('new')
-      Player.new(player[:id]).merge_new_player_data(player)
+      Player.new(player[:id]).update(player)
 
       # CEML.log 1, "UPDATED"
 
