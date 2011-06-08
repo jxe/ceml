@@ -9,7 +9,7 @@ module CEML
       reorder = waiting_incident_roles.members.sort_by{ |irs| irs.split(':')[1] }
       reorder.each do |key|
         incident_id, idx, role, count = *key.split(':')
-        CEML.log 3, "#{player[:id]}: auditioning against #{incident_id}: #{role}"
+        CEML.log 3, "#{player[:id]}: auditioning against #{role} ###{incident_id}"
         count = count.to_i
         role_slot = IncidentRoleSlot.new(incident_id, role, count)
         next unless role_slot.reserve_spot!

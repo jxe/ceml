@@ -20,13 +20,13 @@ module CEML
         folks.each do |player|
           Player.new(player[:id]).touch(id)
           player_roles[player[:id]] = [rolename.to_sym]
-          CEML.log 3, "#{player[:id]}: added as #{rolename.to_sym} (#{id})"
+          CEML.log 3, "#{player[:id]}: added as #{rolename.to_sym} ###{id}"
         end
       end
     end
 
     def release(player_id)
-      CEML.log 3, "#{player_id}: releasing from incident #{id}"
+      CEML.log 3, "#{player_id}: releasing from ###{id}"
       Player.new(player_id).clear_incident(id)
       player_roles.delete(player_id)
     end
@@ -53,9 +53,9 @@ module CEML
         player_data ||= {}
         players = []
 
-        CEML.log 3, ">>> #{player_roles.all.inspect} (#{id})"
+        CEML.log 3, ">>> #{player_roles.all.inspect} ###{id}"
         player_roles.each do |player_id, roles|
-          CEML.log 3, "#{player_id}: casted as #{roles.inspect} -- #{id}: #{player_data[player_id].inspect}"
+          CEML.log 3, "#{player_id}: casted as #{roles.inspect} ###{id}"
           player = { :id => player_id, :roles => Set.new(roles) }
           player[:roles] << :agents << :players << :both << :all << :each << :everyone << :them << :either
           player.merge! player_data[player_id] if player_data[player_id]
