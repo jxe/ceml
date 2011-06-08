@@ -31,7 +31,14 @@ module CEML
       guyroles = roles.to_a - [:everyone, :players, :them, :all, :either, :each, :agents, :both]
       instr ||= []
 
-      CEML.log 3, "#{p[:id]}: #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect} -- ##{pc}(#{guyroles}) ###{id}"
+      case state
+      when 'completed'
+        CEML.log 3, "#{p[:id]}: #{instr[1]} (#{pc}) #{instr[2].inspect} (#{guyroles}/#{instr[0]}) ##{id}"
+      when 'blocked'
+        CEML.log 3, "#{p[:id]}: WAITING FOR #{instr[1]} (#{pc}) #{instr[2].inspect} (#{guyroles}/#{instr[0]}) ##{id}"
+      else
+        CEML.log 3, "#{p[:id]}: #{state} -- #{instr[1]}/#{instr[0]} -- #{instr[2].inspect} -- ##{pc}(#{guyroles}) ##{id}"
+      end
     end
 
     def run(players, &blk)
