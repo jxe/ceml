@@ -24,6 +24,13 @@ module CEML
       needed =  [role.range.min - casted_count, 0].max
       allowed = [role.range.max - casted_count, 0].max
 
+      if guy[:seeded] and seedrole = guy[:seeded].split(':').last
+        if seedrole != '*' and seedrole != role.name
+          # CEML.log 1, "no cast because #{seedrole} does not match #{role.name}"
+          return [-1, -1, -1]
+        end
+      end
+
       return [-1, -1, -1 ] unless role.tagspec =~ guy and allowed > 0
       [ role.tagspec.with.size, -needed, -allowed ]
     end
